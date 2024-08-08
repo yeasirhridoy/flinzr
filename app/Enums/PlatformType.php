@@ -19,10 +19,10 @@ enum PlatformType: string implements HasLabel, HasColor, HasIcon
     public function getColor(): string|array|null
     {
         return match ($this) {
-            self::Banner => Color::Green,
+            self::Banner => Color::Gray,
             self::Snapchat => Color::Yellow,
-            self::Tiktok => Color::Zinc,
-            self::Instagram => Color::Red,
+            self::Tiktok => Color::Purple,
+            self::Instagram => Color::Pink,
         };
     }
 
