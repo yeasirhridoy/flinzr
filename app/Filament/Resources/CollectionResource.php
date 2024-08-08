@@ -19,7 +19,7 @@ class CollectionResource extends Resource
 {
     protected static ?string $model = Collection::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-group';
 
     public static function form(Form $form): Form
     {
@@ -72,8 +72,17 @@ class CollectionResource extends Resource
                         ])->columns(3)->columnSpanFull(),
                     ])->columns(2),
                     Forms\Components\Wizard\Step::make('Filters')->schema([
-
-                    ])
+                        Forms\Components\Repeater::make('filters')
+                            ->relationship()
+                            ->addActionLabel('Add Filter')
+                            ->maxItems(8)
+                            ->grid(4)
+                            ->schema([
+                                Forms\Components\TextInput::make('name')->required(),
+                                Forms\Components\TextInput::make('url')->url()->required(),
+                                Forms\Components\FileUpload::make('image')->image()->imageEditor(),
+                            ])
+                    ])->columnSpanFull()
                 ])->columnSpanFull(),
             ]);
     }
@@ -85,6 +94,7 @@ class CollectionResource extends Resource
                 Tables\Columns\TextColumn::make('eng_name')->searchable()->label('Name'),
                 Tables\Columns\TextColumn::make('type')->searchable()->label('Platform')->badge(),
                 Tables\Columns\TextColumn::make('user.name')->searchable()->label('Artist'),
+                Tables\Columns\TextColumn::make('filters_count')->counts('filters')->label('Filters')->badge(),
                 Tables\Columns\ToggleColumn::make('is_active')->label('Active'),
                 Tables\Columns\ToggleColumn::make('is_featured')->label('Featured'),
                 Tables\Columns\TextColumn::make('created_at')->label('Created At')->since(),
@@ -116,7 +126,7 @@ class CollectionResource extends Resource
         return [
             'index' => Pages\ListCollections::route('/'),
             'create' => Pages\CreateCollection::route('/create'),
-            'view' => Pages\ViewCollection::route('/{record}'),
+//            'view' => Pages\ViewCollection::route('/{record}'),
             'edit' => Pages\EditCollection::route('/{record}/edit'),
         ];
     }
