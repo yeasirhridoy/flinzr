@@ -31,9 +31,6 @@ class ColorResource extends Resource
                 Forms\Components\TextInput::make('eng_name')
                     ->label('Name (English)')
                     ->required(),
-                Forms\Components\TextInput::make('arabic_name')
-                    ->label('Name (Arabic)')
-                    ->required(),
             ])->columns(3);
     }
 
@@ -45,10 +42,7 @@ class ColorResource extends Resource
                     ->label('Color')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('eng_name')
-                    ->label('Name (English)')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('arabic_name')
-                    ->label('Name (Arabic)')
+                    ->label('Name')
                     ->searchable(),
                 Tables\Columns\ToggleColumn::make('is_active'),
             ])
