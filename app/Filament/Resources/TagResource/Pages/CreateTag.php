@@ -10,6 +10,13 @@ class CreateTag extends CreateRecord
 {
     protected static string $resource = TagResource::class;
 
+    protected function getFormActions(): array
+    {
+        return [
+            $this->getCreateFormAction()
+        ];
+    }
+
     protected function getRedirectUrl(): string
     {
         return parent::getResource()::getUrl('index');

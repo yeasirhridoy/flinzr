@@ -31,6 +31,9 @@ class ColorResource extends Resource
                 Forms\Components\TextInput::make('eng_name')
                     ->label('Name (English)')
                     ->required(),
+                Forms\Components\TextInput::make('arabic_name')
+                    ->label('Name (Arabic)')
+                    ->required(),
             ])->columns(3);
     }
 

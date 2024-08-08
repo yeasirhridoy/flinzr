@@ -14,4 +14,11 @@ class CreateCategory extends CreateRecord
     {
         return parent::getResource()::getUrl('index');
     }
+
+    protected function getFormActions(): array
+    {
+        return [
+            $this->getCreateFormAction()
+        ];
+    }
 }
