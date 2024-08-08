@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('image')->nullable();
             $table->string('url')->nullable();
+            $table->unsignedBigInteger('order_column')->nullable();
             $table->timestamps();
         });
     }

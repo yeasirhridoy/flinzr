@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('arabic_name')->nullable();
             $table->string('image')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->unsignedBigInteger('order_column')->nullable();
             $table->timestamps();
         });
     }

@@ -13,4 +13,9 @@ class CreateCollection extends CreateRecord
     {
         return [];
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return parent::getResource()::getUrl('index');
+    }
 }

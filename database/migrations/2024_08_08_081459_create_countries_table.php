@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('flag')->nullable();
             $table->string('unicode')->nullable();
             $table->string('image')->nullable();
+            $table->unsignedBigInteger('order_column')->nullable();
             $table->timestamps();
         });
     }
