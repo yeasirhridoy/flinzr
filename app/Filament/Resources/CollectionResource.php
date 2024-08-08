@@ -102,6 +102,7 @@ class CollectionResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('avatar')->circular(),
                 Tables\Columns\TextColumn::make('eng_name')->searchable()->label('Name'),
                 Tables\Columns\TextColumn::make('type')->searchable()->label('Platform')->badge(),
                 Tables\Columns\TextColumn::make('user.name')->searchable()->label('Artist'),
