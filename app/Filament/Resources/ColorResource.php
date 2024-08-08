@@ -25,14 +25,14 @@ class ColorResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\ColorPicker::make('code')
+                    ->label('Color')
+                    ->required(),
                 Forms\Components\TextInput::make('eng_name')
                     ->label('Name (English)')
                     ->required(),
                 Forms\Components\TextInput::make('arabic_name')
                     ->label('Name (Arabic)')
-                    ->required(),
-                Forms\Components\ColorPicker::make('code')
-                    ->label('Color')
                     ->required(),
             ])->columns(3);
     }
