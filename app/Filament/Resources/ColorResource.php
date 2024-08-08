@@ -26,8 +26,11 @@ class ColorResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('eng_name')
+                    ->label('Name (English)')
                     ->required(),
-                Forms\Components\TextInput::make('arabic_name'),
+                Forms\Components\TextInput::make('arabic_name')
+                    ->label('Name (Arabic)')
+                    ->required(),
                 Forms\Components\ColorPicker::make('code')
                     ->label('Color')
                     ->required(),
@@ -39,8 +42,10 @@ class ColorResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('eng_name')
+                    ->label('Name (English)')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('arabic_name')
+                    ->label('Name (Arabic)')
                     ->searchable(),
                 Tables\Columns\ColorColumn::make('code')
                     ->label('Color')

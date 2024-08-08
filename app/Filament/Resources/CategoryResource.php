@@ -28,8 +28,10 @@ class CategoryResource extends Resource
                 Forms\Components\FileUpload::make('image')
                     ->image()->columnSpanFull(),
                 Forms\Components\TextInput::make('eng_name')
+                    ->label('Name (English)')
                     ->required(),
                 Forms\Components\TextInput::make('arabic_name')
+                    ->label('Name (Arabic)')
                     ->required(),
             ]);
     }
@@ -40,8 +42,10 @@ class CategoryResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('image'),
                 Tables\Columns\TextColumn::make('eng_name')
+                    ->label('Name (English)')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('arabic_name')
+                    ->label('Name (Arabic)')
                     ->searchable(),
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->label('Active'),
