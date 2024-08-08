@@ -44,6 +44,7 @@ class ColorResource extends Resource
                 Tables\Columns\TextColumn::make('eng_name')
                     ->label('Name')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('created_at')->label('Created At')->since(),
                 Tables\Columns\ToggleColumn::make('is_active')->label('Active'),
             ])
             ->filters([
