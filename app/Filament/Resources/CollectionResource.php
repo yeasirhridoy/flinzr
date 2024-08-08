@@ -14,6 +14,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\HtmlString;
 
 class CollectionResource extends Resource
 {
@@ -28,7 +30,7 @@ class CollectionResource extends Resource
                 Forms\Components\Wizard::make([
                     Forms\Components\Wizard\Step::make('Collection Info')->schema([
                         Forms\Components\Group::make([
-                            Forms\Components\ToggleButtons::make('type')->options(PlatformType::class)->required()->inline()->columns(2),
+                            Forms\Components\ToggleButtons::make('type')->options(PlatformType::class)->required()->inline()->columnSpan(2),
                             Forms\Components\ToggleButtons::make('sales_type')->options(SalesType::class)->required()->inline(),
                         ])->columns(3)->columnSpanFull(),
                         Forms\Components\Group::make([
@@ -83,7 +85,16 @@ class CollectionResource extends Resource
                                 Forms\Components\FileUpload::make('image')->image()->imageEditor(),
                             ])
                     ])->columnSpanFull()
-                ])->columnSpanFull(),
+                ])
+                    ->submitAction(new HtmlString(Blade::render(<<<BLADE
+                        <x-filament::button
+                            type="submit"
+                            size="sm"
+                        >
+                            Submit
+                        </x-filament::button>
+                        BLADE)))
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -99,6 +110,8 @@ class CollectionResource extends Resource
                 Tables\Columns\ToggleColumn::make('is_featured')->label('Featured'),
                 Tables\Columns\TextColumn::make('created_at')->label('Created At')->since(),
             ])
+            ->reorderable('order_column')
+            ->defaultSort('order_column')
             ->filters([
                 //
             ])

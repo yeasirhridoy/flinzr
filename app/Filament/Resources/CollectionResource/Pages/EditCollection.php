@@ -17,4 +17,9 @@ class EditCollection extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function getFormActions(): array
+    {
+        return [];
+    }
 }

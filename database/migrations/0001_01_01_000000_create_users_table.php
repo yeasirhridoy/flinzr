@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('country')->nullable();
             $table->string('profile_image')->nullable();
+            $table->boolean('is_artist')->default(false);
             $table->string('status')->nullable();
             $table->bigInteger('balance')->nullable();
             $table->timestamp('email_verified_at')->nullable();

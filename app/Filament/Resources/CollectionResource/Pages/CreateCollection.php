@@ -9,4 +9,8 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateCollection extends CreateRecord
 {
     protected static string $resource = CollectionResource::class;
+    protected function getFormActions(): array
+    {
+        return [];
+    }
 }
