@@ -44,13 +44,13 @@ class ColorResource extends Resource
                 Tables\Columns\ColorColumn::make('code')
                     ->label('Color')
                     ->searchable(),
-                Tables\Columns\ToggleColumn::make('is_active'),
                 Tables\Columns\TextColumn::make('eng_name')
                     ->label('Name (English)')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('arabic_name')
                     ->label('Name (Arabic)')
                     ->searchable(),
+                Tables\Columns\ToggleColumn::make('is_active'),
             ])
             ->filters([
                 //
