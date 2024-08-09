@@ -51,8 +51,12 @@ class UserResource extends Resource
                         ->required()
                         ->default(UserStatus::Active),
                 ])->columns(3)->columnSpanFull(),
-                Forms\Components\TextInput::make('balance')
-                    ->numeric(),
+                Forms\Components\Group::make([
+                    Forms\Components\TextInput::make('balance')
+                        ->numeric(),
+                    Forms\Components\TextInput::make('coin')
+                        ->numeric(),
+                ])->columns(2),
                 Forms\Components\TextInput::make('password')
                     ->visibleOn(['create'])
                     ->minLength(6)
@@ -78,6 +82,13 @@ class UserResource extends Resource
                     ->badge()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('balance')
+                    ->money()
+                    ->prefix('$')
+                    ->badge()
+                    ->color('success')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('coin')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
