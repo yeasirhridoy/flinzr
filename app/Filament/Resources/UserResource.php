@@ -74,6 +74,7 @@ class UserResource extends Resource
                     ->description(fn(User $record) => $record->email)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('country.name')
+                    ->wrap()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('type')
                     ->badge()
