@@ -17,13 +17,6 @@ class Collection extends Model implements Sortable
 
     protected $guarded = [];
 
-    protected static function booted(): void
-    {
-        parent::creating(function (Collection $collection) {
-            $collection->user_id = auth()->id();
-        });
-    }
-
     protected $casts = [
         'type' => PlatformType::class
     ];

@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\PlatformType;
 use App\Enums\SalesType;
+use App\Enums\UserType;
 use App\Filament\Resources\CollectionResource\Pages;
 use App\Filament\Resources\CollectionResource\RelationManagers;
 use App\Models\Collection;
@@ -58,7 +59,12 @@ class CollectionResource extends Resource
                                 ->multiple()
                                 ->preload()
                                 ->searchable(),
-                        ])->columns(4)->columnSpanFull(),
+                            Forms\Components\Select::make('user_id')
+                            ->label('Artist')
+                            ->relationship('user', 'name',function (Builder $query) {
+                                $query->where('type',UserType::Artist);
+                            })
+                        ])->columns(5)->columnSpanFull(),
                         Forms\Components\Group::make([
                             Forms\Components\TextInput::make('eng_name')->label('Name (English)'),
                             Forms\Components\Textarea::make('eng_description')->label('Description (English)'),

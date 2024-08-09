@@ -28,6 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->spa()
+            ->databaseNotifications()
             ->favicon(asset('favicon.ico'))
             ->brandLogo(asset('logo.svg'))
             ->colors([

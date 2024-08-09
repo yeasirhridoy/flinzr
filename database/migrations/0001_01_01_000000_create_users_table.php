@@ -1,5 +1,8 @@
 <?php
 
+use App\Enums\UserStatus;
+use App\Enums\UserType;
+use App\Models\Country;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,15 +16,16 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(Country::class)->nullable()->constrained()->nullOnDelete();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('country')->nullable();
-            $table->string('profile_image')->nullable();
-            $table->boolean('is_artist')->default(false);
-            $table->string('status')->nullable();
+            $table->string('image')->nullable();
+            $table->enum('type', UserType::values())->default(UserType::Customer);
+            $table->enum('status', UserStatus::values())->default(UserStatus::Active);
             $table->bigInteger('balance')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->boolean('is_admin')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });
