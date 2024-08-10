@@ -109,13 +109,20 @@ class CollectionResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('avatar')->circular(),
-                Tables\Columns\TextColumn::make('eng_name')->searchable()->label('Name'),
-                Tables\Columns\TextColumn::make('type')->searchable()->label('Platform')->badge(),
-                Tables\Columns\TextColumn::make('user.name')->searchable()->label('Artist'),
-                Tables\Columns\TextColumn::make('filters_count')->counts('filters')->label('Filters')->badge(),
-                Tables\Columns\TextColumn::make('created_at')->label('Created At')->since(),
-                Tables\Columns\ToggleColumn::make('is_active')->label('Active'),
-                Tables\Columns\ToggleColumn::make('is_featured')->label('Featured'),
+                Tables\Columns\TextColumn::make('eng_name')->searchable()
+                    ->sortable()->label('Name'),
+                Tables\Columns\TextColumn::make('type')
+                    ->sortable()->searchable()->label('Platform')->badge(),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->sortable()->searchable()->label('Artist'),
+                Tables\Columns\TextColumn::make('filters_count')
+                    ->sortable()->counts('filters')->label('Filters')->badge(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->sortable()->label('Created At')->since(),
+                Tables\Columns\ToggleColumn::make('is_active')
+                    ->sortable()->label('Active'),
+                Tables\Columns\ToggleColumn::make('is_featured')
+                    ->sortable()->label('Featured'),
             ])
             ->reorderable('order_column')
             ->defaultSort('order_column')

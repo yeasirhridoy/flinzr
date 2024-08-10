@@ -21,11 +21,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('image')->nullable();
             $table->enum('type', UserType::values())->default(UserType::Customer);
-            $table->enum('status', UserStatus::values())->default(UserStatus::Active);
             $table->bigInteger('balance')->nullable()->default(0);
             $table->bigInteger('coin')->nullable()->default(0);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->boolean('is_active', )->default(true);
             $table->boolean('is_admin')->default(false);
             $table->rememberToken();
             $table->timestamps();

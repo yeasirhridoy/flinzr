@@ -42,13 +42,17 @@ class ColorResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\ColorColumn::make('code')
+                    ->sortable()
                     ->label('Color')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('eng_name')
+                    ->sortable()
                     ->label('Name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')->label('Created At')->since(),
-                Tables\Columns\ToggleColumn::make('is_active')->label('Active'),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->sortable()->label('Created At')->since(),
+                Tables\Columns\ToggleColumn::make('is_active')
+                    ->sortable()->label('Active'),
             ])
             ->filters([
                 //

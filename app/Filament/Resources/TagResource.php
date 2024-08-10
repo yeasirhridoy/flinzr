@@ -45,10 +45,13 @@ class TagResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('image'),
                 Tables\Columns\TextColumn::make('eng_name')
+                    ->sortable()
                     ->label('Name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')->label('Created At')->since(),
-                Tables\Columns\ToggleColumn::make('is_active')->label('Active'),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->sortable()->label('Created At')->since(),
+                Tables\Columns\ToggleColumn::make('is_active')
+                    ->sortable()->label('Active'),
             ])
             ->filters([
                 //

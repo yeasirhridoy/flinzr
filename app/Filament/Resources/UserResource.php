@@ -28,12 +28,16 @@ class UserResource extends Resource
 
                 Forms\Components\FileUpload::make('image')
                     ->image()->avatar()->imageEditor()->columnSpanFull(),
-                Forms\Components\TextInput::make('name')
-                    ->required(),
-                Forms\Components\TextInput::make('email')
-                    ->unique(ignoreRecord: true)
-                    ->email()
-                    ->required(),
+                Forms\Components\Group::make([
+                    Forms\Components\TextInput::make('name')
+                        ->required(),
+                    Forms\Components\TextInput::make('email')
+                        ->unique(ignoreRecord: true)
+                        ->email()
+                        ->required(),
+                    Forms\Components\TextInput::make('coin')
+                        ->numeric(),
+                ])->columnSpanFull()->columns(3),
                 Forms\Components\Group::make([
                     Forms\Components\Select::make('country_id')
                         ->relationship('country', 'name')
@@ -45,18 +49,7 @@ class UserResource extends Resource
                         ->inline()
                         ->default(UserType::Customer)
                         ->required(),
-                    Forms\Components\ToggleButtons::make('status')
-                        ->options(UserStatus::class)
-                        ->inline()
-                        ->required()
-                        ->default(UserStatus::Active),
                 ])->columns(3)->columnSpanFull(),
-                Forms\Components\Group::make([
-                    Forms\Components\TextInput::make('balance')
-                        ->numeric(),
-                    Forms\Components\TextInput::make('coin')
-                        ->numeric(),
-                ])->columns(2),
                 Forms\Components\TextInput::make('password')
                     ->visibleOn(['create'])
                     ->minLength(6)
@@ -72,15 +65,15 @@ class UserResource extends Resource
                 Tables\Columns\ImageColumn::make('image')->circular(),
                 Tables\Columns\TextColumn::make('name')
                     ->description(fn(User $record) => $record->email)
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('country.name')
                     ->wrap()
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('type')
                     ->badge()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('balance')
                     ->money()
@@ -91,13 +84,16 @@ class UserResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('coin')
                     ->numeric()
+                    ->badge()
+                    ->color('primary')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->since(),
-                Tables\Columns\ToggleColumn::make('is_admin')
-                    ->label('Admin'),
+                Tables\Columns\ToggleColumn::make('is_active')
+                    ->sortable()
+                    ->label('Active'),
             ])
             ->filters([
                 //
