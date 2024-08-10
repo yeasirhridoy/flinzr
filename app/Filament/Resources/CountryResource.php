@@ -37,7 +37,6 @@ class CountryResource extends Resource
     {
         return $table
             ->columns([
-
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()->searchable(),
                 Tables\Columns\TextColumn::make('code')
@@ -53,6 +52,8 @@ class CountryResource extends Resource
                     ->sortable()
                     ->since()
             ])
+            ->reorderable('order_column')
+            ->defaultSort('order_column')
             ->filters([
                 //
             ])
