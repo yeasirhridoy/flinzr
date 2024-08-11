@@ -7,14 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\EloquentSortable\SortableTrait;
 
-class Country extends Model
+class Region extends Model
 {
     use HasFactory, SortableTrait;
 
     protected $guarded = [];
 
-    public function regions(): BelongsToMany
+    public function countries(): BelongsToMany
     {
-        return $this->belongsToMany(Region::class)->withTimestamps();
+        return $this->belongsToMany(Country::class);
+    }
+
+    public function collections(): BelongsToMany
+    {
+        return $this->belongsToMany(Collection::class);
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Collection;
 use App\Models\Country;
+use App\Models\Region;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,10 +13,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('collection_country', function (Blueprint $table) {
+        Schema::create('country_region', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Collection::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Country::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Region::class)->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('collection_country');
+        Schema::dropIfExists('country_region');
     }
 };

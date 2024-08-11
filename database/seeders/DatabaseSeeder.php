@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\ArtistRequest;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Color;
@@ -2634,5 +2635,7 @@ class DatabaseSeeder extends Seeder
                 ['eng_name' => 'Easter', 'arabic_name' => 'Easter'],
             )
         )->create();
+
+        ArtistRequest::factory(10)->create();
     }
 }

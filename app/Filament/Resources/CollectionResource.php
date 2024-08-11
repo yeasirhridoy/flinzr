@@ -53,9 +53,9 @@ class CollectionResource extends Resource
                                 ->multiple()
                                 ->preload()
                                 ->searchable(),
-                            Forms\Components\Select::make('countries')
-                                ->label('Countries')
-                                ->relationship('countries', 'name')
+                            Forms\Components\Select::make('regions')
+                                ->label('Regions')
+                                ->relationship('regions', 'name')
                                 ->multiple()
                                 ->preload()
                                 ->searchable(),

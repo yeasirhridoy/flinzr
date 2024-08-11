@@ -81,11 +81,13 @@ class UserResource extends Resource
                     ->badge()
                     ->color('success')
                     ->numeric()
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('coin')
                     ->numeric()
                     ->badge()
                     ->color('primary')
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

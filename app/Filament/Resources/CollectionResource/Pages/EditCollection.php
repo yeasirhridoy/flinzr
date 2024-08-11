@@ -22,4 +22,9 @@ class EditCollection extends EditRecord
     {
         return [];
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return parent::getResource()::getUrl('index');
+    }
 }

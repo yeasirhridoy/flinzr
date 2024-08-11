@@ -41,9 +41,9 @@ class Collection extends Model implements Sortable
         return $this->belongsToMany(Tag::class)->withTimestamps();
     }
 
-    public function countries(): BelongsToMany
+    public function regions(): BelongsToMany
     {
-        return $this->belongsToMany(Country::class)->withTimestamps();
+        return $this->belongsToMany(Region::class)->withTimestamps();
     }
 
     public function filters(): HasMany
