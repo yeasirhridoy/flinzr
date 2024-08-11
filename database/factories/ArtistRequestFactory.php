@@ -23,7 +23,6 @@ class ArtistRequestFactory extends Factory
             'user_id' => User::inRandomOrder()->first()->id,
             'url' => fake()->url,
             'status' => fake()->randomElement(RequestStatus::values()),
-            'platform' => fake()->randomElement(PlatformType::values()),
         ];
     }
 }
