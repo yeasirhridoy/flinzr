@@ -25,44 +25,37 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-
-                Forms\Components\FileUpload::make('image')
-                    ->image()->avatar()->imageEditor()->columnSpanFull(),
-                Forms\Components\Group::make([
-                    Forms\Components\TextInput::make('name')
-                        ->required(),
-                    Forms\Components\TextInput::make('email')
-                        ->unique(ignoreRecord: true)
-                        ->email()
-                        ->required(),
-                    Forms\Components\TextInput::make('coin')
-                        ->numeric(),
-                ])->columnSpanFull()->columns(3),
-                Forms\Components\Group::make([
-                    Forms\Components\Select::make('country_id')
-                        ->relationship('country', 'name')
-                        ->preload()
-                        ->required()
-                        ->searchable(),
-                    Forms\Components\ToggleButtons::make('type')
-                        ->options(UserType::class)
-                        ->inline()
-                        ->default(UserType::Customer)
-                        ->required(),
-                ])->columns(3)->columnSpanFull(),
+                Forms\Components\ToggleButtons::make('type')
+                    ->options(UserType::class)
+                    ->inline()
+                    ->default(UserType::Customer)
+                    ->required(),
+                Forms\Components\Select::make('country_id')
+                    ->relationship('country', 'name')
+                    ->preload()
+                    ->required()
+                    ->searchable(),
+                Forms\Components\TextInput::make('coin')
+                    ->numeric(),
+                Forms\Components\TextInput::make('name')
+                    ->required(),
+                Forms\Components\TextInput::make('email')
+                    ->unique(ignoreRecord: true)
+                    ->email()
+                    ->required(),
                 Forms\Components\TextInput::make('password')
                     ->visibleOn(['create'])
                     ->minLength(6)
                     ->password()
                     ->required(),
-            ]);
+            ])->columns(3);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('image')->circular(),
+                Tables\Columns\ImageColumn::make('image')->circular()->default(fn(User $record) => 'https://ui-avatars.com/api/?length=1&name=' . urlencode($record->name)),
                 Tables\Columns\TextColumn::make('name')
                     ->description(fn(User $record) => $record->email)
                     ->sortable()

@@ -50,7 +50,10 @@ class CountryResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->since()
+                    ->since(),
+                Tables\Columns\ToggleColumn::make('is_active')
+                    ->label('Active')
+                    ->sortable(),
             ])
             ->reorderable('order_column')
             ->defaultSort('order_column')

@@ -7,6 +7,9 @@ use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Color;
 use App\Models\Country;
+use App\Models\InfluencerRequest;
+use App\Models\PayoutRequest;
+use App\Models\Region;
 use App\Models\Tag;
 use App\Models\User;
 
@@ -2606,6 +2609,18 @@ class DatabaseSeeder extends Seeder
                 "image" => "https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/ZW.svg",
             ]
         )->create();
+        Region::factory(5)->sequence(
+            ['name' => 'Region 1'],
+            ['name' => 'Region 2'],
+            ['name' => 'Region 3'],
+            ['name' => 'Region 4'],
+            ['name' => 'Region 5'],
+        )->create();
+        $countries = Country::all();
+        $regions = Region::all();
+        foreach ($countries as $country) {
+            $country->regions()->attach($regions->random());
+        }
         Color::factory(5)->sequence(
             ['eng_name' => 'Red', 'arabic_name' => 'Red', 'code' => '#FF0000'],
             ['eng_name' => 'Blue', 'arabic_name' => 'Blue', 'code' => '#0000FF'],
@@ -2637,5 +2652,7 @@ class DatabaseSeeder extends Seeder
         )->create();
 
         ArtistRequest::factory(10)->create();
+        InfluencerRequest::factory(10)->create();
+        PayoutRequest::factory(10)->create();
     }
 }

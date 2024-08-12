@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('unicode')->nullable();
             $table->string('image')->nullable();
             $table->unsignedBigInteger('order_column')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

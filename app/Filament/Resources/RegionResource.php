@@ -42,6 +42,9 @@ class RegionResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')
                     ->since()
                     ->sortable(),
+                Tables\Columns\ToggleColumn::make('is_active')
+                    ->label('Active')
+                    ->sortable(),
             ])
             ->reorderable('order_column')
             ->defaultSort('order_column')

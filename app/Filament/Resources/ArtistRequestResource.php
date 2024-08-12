@@ -26,6 +26,11 @@ class ArtistRequestResource extends Resource
 
     protected static ?string $navigationGroup = 'Requests';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return ArtistRequest::where('status', RequestStatus::Pending)->count();
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -51,18 +56,18 @@ class ArtistRequestResource extends Resource
                 Tables\Columns\TextColumn::make('user.name')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('url')
+                Tables\Columns\TextColumn::make('user.country.name')
                     ->limit()
                     ->wrap()
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\SelectColumn::make('status')
-                    ->options(RequestStatus::class)
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->since()
                     ->sortable(),
+                Tables\Columns\SelectColumn::make('status')
+                    ->options(RequestStatus::class)
+                    ->sortable()
+                    ->searchable(),
             ])
             ->filters([
                 //

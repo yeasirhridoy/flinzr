@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\PlatformType;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,11 +13,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('regions', function (Blueprint $table) {
+        Schema::create('upload_requests', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(User::class)->nullable()->constrained()->nullOnDelete();
+            $table->enum('platform', PlatformType::values());
             $table->string('name');
-            $table->unsignedBigInteger('order_column')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->string('url');
             $table->timestamps();
         });
     }
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('regions');
+        Schema::dropIfExists('upload_requests');
     }
 };

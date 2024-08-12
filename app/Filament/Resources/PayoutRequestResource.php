@@ -1,0 +1,89 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Enums\RequestStatus;
+use App\Filament\Resources\PayoutRequestResource\Pages;
+use App\Filament\Resources\PayoutRequestResource\RelationManagers;
+use App\Models\PayoutRequest;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+class PayoutRequestResource extends Resource
+{
+    protected static ?string $model = PayoutRequest::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static ?string $navigationGroup = 'Requests';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return PayoutRequest::where('status', RequestStatus::Pending)->count();
+    }
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                //
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('user.name')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('country.name')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('full_name')
+                    ->label('Name')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('bank_name')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('bank_account')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\SelectColumn::make('status')
+                ->options(RequestStatus::class)
+            ])
+            ->filters([
+                //
+            ])
+            ->actions([
+//                Tables\Actions\EditAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListPayoutRequests::route('/'),
+//            'create' => Pages\CreatePayoutRequest::route('/create'),
+//            'edit' => Pages\EditPayoutRequest::route('/{record}/edit'),
+        ];
+    }
+}
