@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserType;
 use App\Models\Category;
 use App\Models\Color;
 use App\Models\User;
@@ -21,7 +22,7 @@ class CollectionFactory extends Factory
     {
         return [
             'category_id' => Category::inRandomOrder()->first()->id,
-            'user_id' => User::inRandomOrder()->first()->id,
+            'user_id' => User::where('type',UserType::Artist)->inRandomOrder()->first()->id,
             'type' => fake()->randomElement(['banner','snapchat','tiktok','instagram']),
             'eng_name' => fake()->word,
             'arabic_name' => fake()->word,

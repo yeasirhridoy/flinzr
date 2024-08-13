@@ -9,12 +9,30 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable implements FilamentUser
 {
     use HasFactory, Notifiable;
+
+    protected static function booted()
+    {
+        parent::saving(function (User $user) {
+            if ($user->isDirty('type') && $user->getOriginal('type') === UserType::Influencer && $user->type !== UserType::Influencer) {
+                $user->coin = 0;
+            }
+            if ($user->isDirty('is_active') && $user->type === UserType::Influencer && $user->is_active === false) {
+                $user->coin = 0;
+            }
+        });
+        parent::saved(function (User $user) {
+            if ($user->isDirty('is_active') && $user->type === UserType::Artist) {
+                $user->collections()->update(['is_active' => $user->is_active]);
+            }
+        });
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -56,5 +74,10 @@ class User extends Authenticatable implements FilamentUser
     public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class);
+    }
+
+    public function collections(): HasMany
+    {
+        return $this->hasMany(Collection::class);
     }
 }

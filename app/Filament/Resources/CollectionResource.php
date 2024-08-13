@@ -46,6 +46,7 @@ class CollectionResource extends Resource
                                 ->relationship('colors', 'eng_name')
                                 ->multiple()
                                 ->preload()
+                                ->required()
                                 ->searchable(),
                             Forms\Components\Select::make('tags')
                                 ->label('Tags')
@@ -60,23 +61,37 @@ class CollectionResource extends Resource
                                 ->preload()
                                 ->searchable(),
                             Forms\Components\Select::make('user_id')
-                            ->label('Artist')
-                            ->relationship('user', 'name',function (Builder $query) {
-                                $query->where('type',UserType::Artist);
-                            })
+                                ->label('Artist')
+                                ->required()
+                                ->searchable()
+                                ->preload()
+                                ->relationship('user', 'name', function (Builder $query) {
+                                    $query->where('type', UserType::Artist);
+                                })
                         ])->columns(5)->columnSpanFull(),
                         Forms\Components\Group::make([
-                            Forms\Components\TextInput::make('eng_name')->label('Name (English)'),
-                            Forms\Components\Textarea::make('eng_description')->label('Description (English)'),
+                            Forms\Components\TextInput::make('eng_name')
+                                ->required()
+                                ->label('Name (English)'),
+                            Forms\Components\Textarea::make('eng_description')
+                                ->required()
+                                ->label('Description (English)'),
                         ]),
                         Forms\Components\Group::make([
-                            Forms\Components\TextInput::make('arabic_name')->label('Name (Arabic)'),
-                            Forms\Components\Textarea::make('arabic_description')->label('Description (Arabic)'),
+                            Forms\Components\TextInput::make('arabic_name')
+                                ->required()
+                                ->label('Name (Arabic)'),
+                            Forms\Components\Textarea::make('arabic_description')
+                                ->required()
+                                ->label('Description (Arabic)'),
                         ]),
                         Forms\Components\Group::make([
-                            Forms\Components\FileUpload::make('avatar')->image()->imageEditor(),
-                            Forms\Components\FileUpload::make('thumbnail')->image()->imageEditor(),
-                            Forms\Components\FileUpload::make('cover')->image()->imageEditor(),
+                            Forms\Components\FileUpload::make('avatar')
+                                ->required()->image()->imageEditor(),
+                            Forms\Components\FileUpload::make('thumbnail')
+                                ->required()->image()->imageEditor(),
+                            Forms\Components\FileUpload::make('cover')
+                                ->required()->image()->imageEditor(),
                         ])->columns(3)->columnSpanFull(),
                     ])->columns(2),
                     Forms\Components\Wizard\Step::make('Filters')->schema([
@@ -88,7 +103,8 @@ class CollectionResource extends Resource
                             ->schema([
                                 Forms\Components\TextInput::make('name')->required(),
                                 Forms\Components\TextInput::make('url')->url()->required(),
-                                Forms\Components\FileUpload::make('image')->image()->imageEditor(),
+                                Forms\Components\FileUpload::make('image')
+                                    ->required()->image()->imageEditor(),
                             ])
                     ])->columnSpanFull()
                 ])
@@ -99,7 +115,8 @@ class CollectionResource extends Resource
                         >
                             Submit
                         </x-filament::button>
-                        BLADE)))
+                        BLADE
+                    )))
                     ->columnSpanFull(),
             ]);
     }
@@ -110,10 +127,13 @@ class CollectionResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('avatar')->circular(),
                 Tables\Columns\TextColumn::make('eng_name')->searchable()
-                    ->sortable()->label('Name'),
+                    ->sortable()->label('Name')->wrap(),
                 Tables\Columns\TextColumn::make('type')
                     ->sortable()->searchable()->label('Platform')->badge(),
+                Tables\Columns\TextColumn::make('sales_type')
+                    ->sortable()->searchable()->label('Sales Type')->badge(),
                 Tables\Columns\TextColumn::make('user.name')
+                    ->wrap()
                     ->sortable()->searchable()->label('Artist'),
                 Tables\Columns\TextColumn::make('filters_count')
                     ->sortable()->counts('filters')->label('Filters')->badge(),
@@ -127,12 +147,32 @@ class CollectionResource extends Resource
             ->reorderable('order_column')
             ->defaultSort('order_column')
             ->filters([
-                //
+                Tables\Filters\Filter::make('created_at')
+                    ->form([
+                        Forms\Components\DatePicker::make('start_date'),
+                        Forms\Components\DatePicker::make('end_date'),
+                    ])->columns(2)
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['start_date'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['end_date'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    })->columnSpan(2),
+                Tables\Filters\SelectFilter::make('sales_type')
+                    ->options(SalesType::class)
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make()
+                    ->hiddenLabel(),
+                Tables\Actions\EditAction::make()
+                    ->hiddenLabel(),
                 Tables\Actions\DeleteAction::make()
+                    ->hiddenLabel(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

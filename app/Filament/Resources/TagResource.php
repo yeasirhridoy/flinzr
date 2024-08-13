@@ -27,6 +27,7 @@ class TagResource extends Resource
             ->schema([
 
                 Forms\Components\FileUpload::make('image')
+                    ->required()
                     ->imageEditor()
                     ->image()
                     ->columnSpanFull(),

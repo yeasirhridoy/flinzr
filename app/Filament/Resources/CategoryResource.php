@@ -26,6 +26,7 @@ class CategoryResource extends Resource
         return $form
             ->schema([
                 Forms\Components\FileUpload::make('image')
+                    ->required()
                     ->image()->columnSpanFull(),
                 Forms\Components\TextInput::make('eng_name')
                     ->label('Name (English)')

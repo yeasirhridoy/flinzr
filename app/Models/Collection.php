@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\PlatformType;
+use App\Enums\SalesType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,7 +19,8 @@ class Collection extends Model implements Sortable
     protected $guarded = [];
 
     protected $casts = [
-        'type' => PlatformType::class
+        'type' => PlatformType::class,
+        'sales_type' => SalesType::class,
     ];
 
     public function user(): BelongsTo

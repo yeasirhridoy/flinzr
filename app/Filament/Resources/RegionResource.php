@@ -37,6 +37,8 @@ class RegionResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('countries_count')
+                    ->sortable()
+                    ->label('Countries')
                     ->badge()
                     ->counts('countries'),
                 Tables\Columns\TextColumn::make('created_at')
@@ -53,6 +55,7 @@ class RegionResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

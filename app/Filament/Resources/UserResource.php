@@ -36,6 +36,7 @@ class UserResource extends Resource
                     ->required()
                     ->searchable(),
                 Forms\Components\TextInput::make('coin')
+                    ->default(25)
                     ->numeric(),
                 Forms\Components\TextInput::make('name')
                     ->required(),
@@ -91,10 +92,11 @@ class UserResource extends Resource
                     ->label('Active'),
             ])
             ->filters([
-                //
+                Tables\Filters\TernaryFilter::make('is_admin')->label('Admin')->boolean(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
