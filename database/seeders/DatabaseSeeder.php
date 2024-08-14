@@ -2641,7 +2641,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@example.com',
             'password' => bcrypt('password')
         ]);
-        User::factory(10)->create();
+        User::factory(50)->create();
         Category::factory(5)->has(
             Collection::factory(5)->sequence(
                 ['eng_name' => 'Anniversary', 'arabic_name' => 'Anniversary'],
