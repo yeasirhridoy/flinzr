@@ -40,10 +40,10 @@ class InfluencerRequestResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('country.name')
+                Tables\Columns\TextColumn::make('user.name')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('user.name')
+                Tables\Columns\TextColumn::make('country.name')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('snapchat')->sortable()->searchable()->badge()->color(Color::Yellow),
@@ -53,6 +53,7 @@ class InfluencerRequestResource extends Resource
                     ->since()
                     ->sortable(),
                 Tables\Columns\SelectColumn::make('status')
+                    ->sortable()
                     ->options(RequestStatus::class)
             ])
             ->filters([

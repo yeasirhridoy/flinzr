@@ -92,7 +92,22 @@ class UserResource extends Resource
                     ->label('Active'),
             ])
             ->filters([
-                Tables\Filters\TernaryFilter::make('is_admin')->label('Admin')->boolean(),
+                Tables\Filters\Filter::make('created_at')
+                    ->form([
+                        Forms\Components\DatePicker::make('start_date'),
+                        Forms\Components\DatePicker::make('end_date'),
+                    ])->columns(2)
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['start_date'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['end_date'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    })->columnSpan(2),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

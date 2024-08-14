@@ -31,6 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->favicon(asset('favicon.ico'))
             ->brandLogo(asset('logo.svg'))
+            ->sidebarCollapsibleOnDesktop()
             ->colors([
                 'primary' => Color::Blue,
             ])

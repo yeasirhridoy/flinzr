@@ -61,6 +61,7 @@ class ArtistRequestResource extends Resource
                     ->wrap()
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\IconColumn::make('url')->label('Portfolio')->url(fn (ArtistRequest $record) => $record->url)->icon('heroicon-o-arrow-top-right-on-square'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->since()
                     ->sortable(),

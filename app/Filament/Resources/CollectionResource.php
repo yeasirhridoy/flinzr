@@ -53,12 +53,14 @@ class CollectionResource extends Resource
                                 ->relationship('tags', 'eng_name')
                                 ->multiple()
                                 ->preload()
+                                ->required()
                                 ->searchable(),
                             Forms\Components\Select::make('regions')
                                 ->label('Regions')
                                 ->relationship('regions', 'name')
                                 ->multiple()
                                 ->preload()
+                                ->required()
                                 ->searchable(),
                             Forms\Components\Select::make('user_id')
                                 ->label('Artist')
@@ -135,8 +137,6 @@ class CollectionResource extends Resource
                 Tables\Columns\TextColumn::make('user.name')
                     ->wrap()
                     ->sortable()->searchable()->label('Artist'),
-                Tables\Columns\TextColumn::make('filters_count')
-                    ->sortable()->counts('filters')->label('Filters')->badge(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->sortable()->label('Created At')->since(),
                 Tables\Columns\ToggleColumn::make('is_active')
@@ -167,12 +167,9 @@ class CollectionResource extends Resource
                     ->options(SalesType::class)
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
-                    ->hiddenLabel(),
-                Tables\Actions\EditAction::make()
-                    ->hiddenLabel(),
-                Tables\Actions\DeleteAction::make()
-                    ->hiddenLabel(),
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

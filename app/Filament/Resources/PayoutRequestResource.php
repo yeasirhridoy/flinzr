@@ -8,6 +8,9 @@ use App\Filament\Resources\PayoutRequestResource\RelationManagers;
 use App\Models\PayoutRequest;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -52,22 +55,32 @@ class PayoutRequestResource extends Resource
                 Tables\Columns\TextColumn::make('bank_name')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('bank_account')
-                    ->searchable()
-                    ->sortable(),
                 Tables\Columns\SelectColumn::make('status')
-                ->options(RequestStatus::class)
+                    ->sortable()
+                    ->options(RequestStatus::class)
             ])
             ->filters([
                 //
             ])
             ->actions([
-//                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist {
+        return $infolist
+            ->schema([
+                Section::make()->schema([
+                    TextEntry::make('full_name'),
+                    TextEntry::make('bank_name'),
+                    TextEntry::make('bank_account'),
+                    TextEntry::make('user.balance')->label('Balance'),
+                ])->columnSpanFull()->columns(2)
             ]);
     }
 
