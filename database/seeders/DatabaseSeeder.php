@@ -10,6 +10,7 @@ use App\Models\Country;
 use App\Models\InfluencerRequest;
 use App\Models\PayoutRequest;
 use App\Models\Region;
+use App\Models\SpecialRequest;
 use App\Models\Tag;
 use App\Models\User;
 
@@ -2654,5 +2655,6 @@ class DatabaseSeeder extends Seeder
         ArtistRequest::factory(10)->create();
         InfluencerRequest::factory(10)->create();
         PayoutRequest::factory(10)->create();
+        SpecialRequest::factory(10)->create();
     }
 }
