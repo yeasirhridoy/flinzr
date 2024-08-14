@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\PlatformType;
+use App\Models\Category;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,6 +17,7 @@ return new class extends Migration
         Schema::create('upload_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class)->nullable()->constrained()->nullOnDelete();
+            $table->foreignIdFor(Category::class)->nullable()->constrained()->nullOnDelete();
             $table->enum('platform', PlatformType::values());
             $table->string('name');
             $table->string('url');
