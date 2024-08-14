@@ -137,6 +137,8 @@ class CollectionResource extends Resource
                 Tables\Columns\TextColumn::make('user.name')
                     ->wrap()
                     ->sortable()->searchable()->label('Artist'),
+                Tables\Columns\TextColumn::make('filters_count')
+                    ->sortable()->counts('filters')->label('Filters')->badge(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->sortable()->label('Created At')->since(),
                 Tables\Columns\ToggleColumn::make('is_active')
