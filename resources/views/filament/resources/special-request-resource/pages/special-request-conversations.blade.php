@@ -2,20 +2,14 @@
 <x-filament-panels::page>
     <x-filament::section class="h-[75vh] overflow-auto">
         <div id="conversations">
-            @for($i=0; $i<50; $i++)
-               <div class="flex items-start gap-1">
-                   <img class="rounded-full size-10" src="https://ui-avatars.com/api/?&length=1&name=User&size=64" alt=""/>
-                   <div class="shadow p-2 bg-gray-400 rounded-lg inline-block">
-                       Hi, how are you?
+            @foreach($conversations as $conversation)
+               <div @class(["flex my-1 items-start gap-1", "flex-row-reverse"=>$conversation->sender==='admin'])>
+                   <img class="rounded-full size-10" src="https://ui-avatars.com/api/?&length=1&name={{$conversation->sender}}&size=64" alt=""/>
+                   <div @class(["shadow p-2 rounded-lg inline-block", "bg-gray-400"=> $conversation->sender === 'user', "bg-primary-500"=> $conversation->sender === 'admin'])>
+                       {{$conversation->message}}
                    </div>
                </div>
-                <div class="flex gap-1 justify-end">
-                    <div class="shadow bg-primary-500 p-2 rounded-lg inline-block">
-                        I'm good, how are you?
-                    </div>
-                    <img class="rounded-full size-10" src="https://ui-avatars.com/api/?&length=1&name=Admin&size=64&background=3b82f6" alt=""/>
-                </div>
-            @endfor
+            @endforeach
         </div>
     </x-filament::section>
 </x-filament-panels::page>
