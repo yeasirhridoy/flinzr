@@ -25,6 +25,8 @@ class PayoutRequestResource extends Resource
 
     protected static ?string $navigationGroup = 'Requests';
 
+    protected static ?string $label = 'Payout';
+
     public static function getNavigationBadge(): ?string
     {
         return PayoutRequest::where('status', RequestStatus::Pending)->count();
@@ -46,13 +48,6 @@ class PayoutRequestResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('country.name')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('full_name')
-                    ->label('Name')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('bank_name')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\SelectColumn::make('status')

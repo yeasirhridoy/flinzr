@@ -8,6 +8,9 @@ use App\Filament\Resources\InfluencerRequestResource\RelationManagers;
 use App\Models\InfluencerRequest;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Support\Colors\Color;
 use Filament\Tables;
@@ -22,6 +25,8 @@ class InfluencerRequestResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationGroup = 'Requests';
+
+    protected static ?string $label = 'Influencer';
 
     public static function getNavigationBadge(): ?string
     {
@@ -46,9 +51,6 @@ class InfluencerRequestResource extends Resource
                 Tables\Columns\TextColumn::make('country.name')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('snapchat')->sortable()->searchable()->badge()->color(Color::Yellow),
-                Tables\Columns\TextColumn::make('instagram')->sortable()->searchable()->badge()->color(Color::Pink),
-                Tables\Columns\TextColumn::make('tiktok')->sortable()->searchable()->badge()->color(Color::Purple),
                 Tables\Columns\TextColumn::make('created_at')
                     ->since()
                     ->sortable(),
@@ -60,12 +62,23 @@ class InfluencerRequestResource extends Resource
                 //
             ])
             ->actions([
-//                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist {
+        return $infolist
+            ->schema([
+                Section::make()->schema([
+                    TextEntry::make('snapchat')->badge(),
+                    TextEntry::make('instagram')->badge(),
+                    TextEntry::make('tiktok')->badge(),
+                ])->columnSpanFull()->columns(3)
             ]);
     }
 

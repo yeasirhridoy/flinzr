@@ -26,6 +26,8 @@ class SpecialRequestResource extends Resource
 
     protected static ?string $navigationGroup = 'Requests';
 
+    protected static ?string $label = 'Special';
+
     public static function getNavigationBadge(): ?string
     {
         return SpecialRequest::where('status', RequestStatus::Pending)->count();
