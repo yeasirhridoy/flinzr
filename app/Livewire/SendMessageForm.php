@@ -24,6 +24,7 @@ class SendMessageForm extends Component implements HasForms
         return $form
             ->schema([
                 TextInput::make('message')
+                    ->autofocus()
                     ->hiddenLabel()
                     ->rule('required'),
             ])

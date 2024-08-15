@@ -22,10 +22,6 @@ class SpecialConversations extends Component
     {
         $conversation = $this->specialRequest->conversations()->create($data);
         $this->conversations->push($conversation);
-    }
-
-    public function render()
-    {
-        return view('livewire.special-conversations');
+        $this->dispatch('conversationAdded');
     }
 }
