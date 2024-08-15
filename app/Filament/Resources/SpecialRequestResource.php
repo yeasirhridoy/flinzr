@@ -54,6 +54,7 @@ class SpecialRequestResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('Conversations')->url(fn(SpecialRequest $record) => route('filament.admin.resources.special-requests.conversations',$record->id)),
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
@@ -85,6 +86,7 @@ class SpecialRequestResource extends Resource
     {
         return [
             'index' => Pages\ListSpecialRequests::route('/'),
+            'conversations' => Pages\SpecialRequestConversations::route('/{record}/conversations')
 //            'create' => Pages\CreateSpecialRequest::route('/create'),
 //            'edit' => Pages\EditSpecialRequest::route('/{record}/edit'),
         ];
