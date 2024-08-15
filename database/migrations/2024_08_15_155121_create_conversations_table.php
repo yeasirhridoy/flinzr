@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->morphs('conversationable');
             $table->string('sender');
-            $table->text('message');
+            $table->text('message')->nullable();
             $table->json('attachments')->nullable();
             $table->boolean('is_read')->default(false);
             $table->timestamps();

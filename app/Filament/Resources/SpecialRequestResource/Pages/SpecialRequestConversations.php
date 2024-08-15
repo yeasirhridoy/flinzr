@@ -3,9 +3,15 @@
 namespace App\Filament\Resources\SpecialRequestResource\Pages;
 
 use App\Filament\Resources\SpecialRequestResource;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Form;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 use Illuminate\Support\Collection;
+use Livewire\Attributes\On;
 
 class SpecialRequestConversations extends Page
 {
@@ -17,11 +23,8 @@ class SpecialRequestConversations extends Page
 
     protected ?string $heading = 'Conversations';
 
-    public Collection $conversations;
-
-    public function mount(int | string $record): void
+    public function mount(int|string $record): void
     {
         $this->record = $this->resolveRecord($record);
-        $this->conversations = $this->record->conversations;
     }
 }

@@ -12,6 +12,10 @@ class Conversation extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'attachments' => 'array',
+    ];
+
     public function conversationable(): MorphTo
     {
         return $this->morphTo();
