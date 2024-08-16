@@ -27,13 +27,16 @@ class ColorResource extends Resource
             ->schema([
                 Forms\Components\ColorPicker::make('code')
                     ->label('Color')
-                    ->required(),
+                    ->rule('required')
+                    ->markAsRequired(),
                 Forms\Components\TextInput::make('eng_name')
                     ->label('Name (English)')
-                    ->required(),
+                    ->rule('required')
+                    ->markAsRequired(),
                 Forms\Components\TextInput::make('arabic_name')
                     ->label('Name (Arabic)')
-                    ->required(),
+                    ->rule('required')
+                    ->markAsRequired(),
             ])->columns(3);
     }
 
@@ -50,10 +53,12 @@ class ColorResource extends Resource
                     ->label('Name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->sortable()->label('Created At')->since(),
+                    ->sortable()
+                    ->since(),
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->sortable()->label('Active'),
             ])
+            ->defaultSort('updated_at', 'desc')
             ->filters([
                 //
             ])

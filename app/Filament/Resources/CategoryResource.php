@@ -30,10 +30,12 @@ class CategoryResource extends Resource
                     ->image()->columnSpanFull(),
                 Forms\Components\TextInput::make('eng_name')
                     ->label('Name (English)')
-                    ->required(),
+                    ->rule('required')
+                    ->markAsRequired(),
                 Forms\Components\TextInput::make('arabic_name')
                     ->label('Name (Arabic)')
-                    ->required(),
+                    ->rule('required')
+                    ->markAsRequired(),
             ]);
     }
 
@@ -47,11 +49,13 @@ class CategoryResource extends Resource
                     ->label('Name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->sortable()->label('Created At')->since(),
+                    ->sortable()
+                    ->since(),
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->sortable()
                     ->label('Active'),
             ])
+            ->defaultSort('updated_at', 'desc')
             ->filters([
                 //
             ])

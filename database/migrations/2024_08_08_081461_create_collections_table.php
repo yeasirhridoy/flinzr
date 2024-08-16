@@ -31,6 +31,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(false);
             $table->boolean('is_featured')->default(false);
             $table->unsignedBigInteger('order_column')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

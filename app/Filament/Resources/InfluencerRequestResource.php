@@ -22,7 +22,7 @@ class InfluencerRequestResource extends Resource
 {
     protected static ?string $model = InfluencerRequest::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-star';
 
     protected static ?string $navigationGroup = 'Requests';
 
@@ -58,6 +58,7 @@ class InfluencerRequestResource extends Resource
                     ->sortable()
                     ->options(RequestStatus::class)
             ])
+            ->defaultSort('updated_at', 'desc')
             ->filters([
                 //
             ])
@@ -75,9 +76,9 @@ class InfluencerRequestResource extends Resource
         return $infolist
             ->schema([
                 Section::make()->schema([
-                    TextEntry::make('snapchat')->badge(),
-                    TextEntry::make('instagram')->badge(),
-                    TextEntry::make('tiktok')->badge(),
+                    TextEntry::make('snapchat')->badge()->color(Color::Yellow),
+                    TextEntry::make('instagram')->badge()->color(Color::Pink),
+                    TextEntry::make('tiktok')->badge()->color(Color::Purple),
                 ])->columnSpanFull()->columns(3)
             ]);
     }

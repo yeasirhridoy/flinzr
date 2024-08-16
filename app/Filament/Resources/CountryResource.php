@@ -19,14 +19,18 @@ class CountryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-globe-europe-africa';
 
+    protected static ?string $navigationGroup = 'Catalogs';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('code')
-                    ->required(),
+                    ->rule('required')
+                    ->markAsRequired(),
                 Forms\Components\TextInput::make('name')
-                    ->required(),
+                    ->rule('required')
+                    ->markAsRequired(),
                 Forms\Components\TextInput::make('dial_code'),
                 Forms\Components\TextInput::make('flag'),
                 Forms\Components\TextInput::make('unicode'),
@@ -37,19 +41,13 @@ class CountryResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->sortable()
-                    ->searchable()->searchable(),
-                Tables\Columns\TextColumn::make('code')
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('dial_code')
-                    ->sortable()
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('flag')
                     ->sortable()
+                    ->searchable(),Tables\Columns\TextColumn::make('name')
+                    ->sortable()
+                    ->searchable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('unicode')
+                Tables\Columns\TextColumn::make('code')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -61,11 +59,12 @@ class CountryResource extends Resource
                     ->sortable(),
             ])
             ->reorderable('order_column')
-            ->defaultSort('order_column')
+            ->defaultSort('updated_at', 'desc')
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
             ])

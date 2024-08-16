@@ -20,7 +20,8 @@ class CountriesRelationManager extends RelationManager
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
-                    ->required()
+                    ->rule('required')
+                    ->markAsRequired()
                     ->maxLength(255),
             ]);
     }

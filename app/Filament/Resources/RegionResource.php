@@ -19,13 +19,21 @@ class RegionResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-globe-alt';
 
+    protected static ?string $navigationGroup = 'Catalogs';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                Forms\Components\FileUpload::make('image')
+                    ->image()
+                    ->imageEditor()
+                    ->required()
+                    ->columnSpanFull(),
                 Forms\Components\TextInput::make('name')
                     ->columnSpanFull()
-                    ->required(),
+                    ->rule('required')
+                    ->markAsRequired(),
             ]);
     }
 
@@ -33,6 +41,7 @@ class RegionResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('image'),
                 Tables\Columns\TextColumn::make('name')
                     ->sortable()
                     ->searchable(),
@@ -49,11 +58,12 @@ class RegionResource extends Resource
                     ->sortable(),
             ])
             ->reorderable('order_column')
-            ->defaultSort('order_column')
+            ->defaultSort('updated_at', 'desc')
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

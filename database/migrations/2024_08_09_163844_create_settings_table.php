@@ -13,9 +13,7 @@ return new class extends Migration
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
-            $table->string('privacy_policy')->nullable();
             $table->string('review_app')->nullable();
-            $table->string('help_center')->nullable();
             $table->string('become_an_artist')->nullable();
             $table->string('upload_request_terms')->nullable();
             $table->string('payout_request_terms')->nullable();

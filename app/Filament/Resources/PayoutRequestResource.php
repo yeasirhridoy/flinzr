@@ -21,7 +21,7 @@ class PayoutRequestResource extends Resource
 {
     protected static ?string $model = PayoutRequest::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
 
     protected static ?string $navigationGroup = 'Requests';
 
@@ -52,8 +52,12 @@ class PayoutRequestResource extends Resource
                     ->sortable(),
                 Tables\Columns\SelectColumn::make('status')
                     ->sortable()
-                    ->options(RequestStatus::class)
+                    ->options(RequestStatus::class),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->since()
+                    ->sortable(),
             ])
+            ->defaultSort('updated_at', 'desc')
             ->filters([
                 //
             ])
@@ -74,7 +78,7 @@ class PayoutRequestResource extends Resource
                     TextEntry::make('full_name'),
                     TextEntry::make('bank_name'),
                     TextEntry::make('bank_account'),
-                    TextEntry::make('user.balance')->label('Balance'),
+                    TextEntry::make('user.balance')->label('Balance')->badge()->money()->color('success'),
                 ])->columnSpanFull()->columns(2)
             ]);
     }

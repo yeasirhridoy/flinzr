@@ -21,6 +21,7 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
+
     public static function form(Form $form): Form
     {
         return $form
@@ -29,26 +30,31 @@ class UserResource extends Resource
                     ->options(UserType::class)
                     ->inline()
                     ->default(UserType::Customer)
-                    ->required(),
+                    ->rule('required')
+                    ->markAsRequired(),
                 Forms\Components\Select::make('country_id')
                     ->relationship('country', 'name')
                     ->preload()
-                    ->required()
+                    ->rule('required')
+                    ->markAsRequired()
                     ->searchable(),
                 Forms\Components\TextInput::make('coin')
                     ->default(25)
                     ->numeric(),
                 Forms\Components\TextInput::make('name')
-                    ->required(),
+                    ->rule('required')
+                    ->markAsRequired(),
                 Forms\Components\TextInput::make('email')
                     ->unique(ignoreRecord: true)
                     ->email()
-                    ->required(),
+                    ->rule('required')
+                    ->markAsRequired(),
                 Forms\Components\TextInput::make('password')
                     ->visibleOn(['create'])
                     ->minLength(6)
                     ->password()
-                    ->required(),
+                    ->rule('required')
+                    ->markAsRequired(),
             ])->columns(3);
     }
 
@@ -58,6 +64,7 @@ class UserResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('image')->circular()->default(fn(User $record) => 'https://ui-avatars.com/api/?length=1&name=' . urlencode($record->name)),
                 Tables\Columns\TextColumn::make('name')
+                    ->label('User')
                     ->description(fn(User $record) => $record->email)
                     ->sortable()
                     ->searchable(),
@@ -65,24 +72,6 @@ class UserResource extends Resource
                     ->wrap()
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('type')
-                    ->badge()
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('balance')
-                    ->money()
-                    ->prefix('$')
-                    ->badge()
-                    ->color('success')
-                    ->numeric()
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('coin')
-                    ->numeric()
-                    ->badge()
-                    ->color('primary')
-                    ->searchable()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -91,6 +80,7 @@ class UserResource extends Resource
                     ->sortable()
                     ->label('Active'),
             ])
+            ->defaultSort('updated_at', 'desc')
             ->filters([
                 Tables\Filters\Filter::make('created_at')
                     ->form([
@@ -108,8 +98,14 @@ class UserResource extends Resource
                                 fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
                             );
                     })->columnSpan(2),
+                Tables\Filters\SelectFilter::make('country_id')
+                    ->relationship('country', 'name')
+                    ->preload()
+                    ->label('Country')
+                    ->searchable()
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

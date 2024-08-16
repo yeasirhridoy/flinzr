@@ -10,12 +10,13 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable implements FilamentUser
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     protected static function booted()
     {
@@ -28,8 +29,8 @@ class User extends Authenticatable implements FilamentUser
             }
         });
         parent::saved(function (User $user) {
-            if ($user->isDirty('is_active') && $user->type === UserType::Artist) {
-                $user->collections()->update(['is_active' => $user->is_active]);
+            if ($user->isDirty('is_active') && $user->type === UserType::Artist && $user->is_active === false) {
+                $user->collections()->update(['is_active' => false]);
             }
         });
     }

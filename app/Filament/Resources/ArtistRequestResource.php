@@ -22,7 +22,7 @@ class ArtistRequestResource extends Resource
 {
     protected static ?string $model = ArtistRequest::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-sparkles';
 
     protected static ?string $navigationGroup = 'Requests';
 
@@ -40,14 +40,17 @@ class ArtistRequestResource extends Resource
                 Forms\Components\Select::make('user_id')
                     ->relationship('user', 'name')
                     ->disabled()
-                    ->required(),
+                    ->rule('required')
+                    ->markAsRequired(),
                 Forms\Components\TextInput::make('url'),
-                Forms\Components\Select::make('platform')->options(PlatformType::class)->required(),
+                Forms\Components\Select::make('platform')->options(PlatformType::class)->rule('required')
+                    ->markAsRequired(),
                 Forms\Components\ToggleButtons::make('status')
                     ->options(RequestStatus::class)
                     ->default(RequestStatus::Pending)
                     ->inline()
-                    ->required(),
+                    ->rule('required')
+                    ->markAsRequired(),
             ])->columns(4);
     }
 
@@ -71,11 +74,13 @@ class ArtistRequestResource extends Resource
                     ->sortable()
                     ->searchable(),
             ])
+            ->defaultSort('updated_at', 'desc')
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\Action::make('Visit Portfolio')
+                Tables\Actions\Action::make('Visit')
+                    ->icon('heroicon-o-arrow-top-right-on-square')
                     ->url(fn (ArtistRequest $record) => $record->url)
                     ->openUrlInNewTab(),
             ])

@@ -6,8 +6,10 @@ use App\Models\ArtistRequest;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Color;
+use App\Models\CommissionLevel;
 use App\Models\Conversation;
 use App\Models\Country;
+use App\Models\ExternalLink;
 use App\Models\InfluencerRequest;
 use App\Models\PayoutRequest;
 use App\Models\Region;
@@ -76,5 +78,7 @@ class DatabaseSeeder extends Seeder
         SpecialRequest::factory(10)->has(
             Conversation::factory(mt_rand(20,100))
         )->create();
+        ExternalLink::factory()->create();
+        CommissionLevel::factory()->create();
     }
 }

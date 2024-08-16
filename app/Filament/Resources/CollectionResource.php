@@ -31,40 +31,47 @@ class CollectionResource extends Resource
                 Forms\Components\Wizard::make([
                     Forms\Components\Wizard\Step::make('Collection Info')->schema([
                         Forms\Components\Group::make([
-                            Forms\Components\ToggleButtons::make('type')->options(PlatformType::class)->required()->inline()->columnSpan(2),
-                            Forms\Components\ToggleButtons::make('sales_type')->options(SalesType::class)->required()->inline(),
+                            Forms\Components\ToggleButtons::make('type')->options(PlatformType::class)->rule('required')
+                    ->markAsRequired()->inline()->columnSpan(2),
+                            Forms\Components\ToggleButtons::make('sales_type')->options(SalesType::class)->rule('required')
+                    ->markAsRequired()->inline(),
                         ])->columns(3)->columnSpanFull(),
                         Forms\Components\Group::make([
                             Forms\Components\Select::make('category_id')
                                 ->label('Category')
                                 ->relationship('category', 'eng_name')
                                 ->preload()
-                                ->required()
+                                ->rule('required')
+                    ->markAsRequired()
                                 ->searchable(),
                             Forms\Components\Select::make('colors')
                                 ->label('Colors')
                                 ->relationship('colors', 'eng_name')
                                 ->multiple()
                                 ->preload()
-                                ->required()
+                                ->rule('required')
+                    ->markAsRequired()
                                 ->searchable(),
                             Forms\Components\Select::make('tags')
                                 ->label('Tags')
                                 ->relationship('tags', 'eng_name')
                                 ->multiple()
                                 ->preload()
-                                ->required()
+                                ->rule('required')
+                    ->markAsRequired()
                                 ->searchable(),
                             Forms\Components\Select::make('regions')
                                 ->label('Regions')
                                 ->relationship('regions', 'name')
                                 ->multiple()
                                 ->preload()
-                                ->required()
+                                ->rule('required')
+                    ->markAsRequired()
                                 ->searchable(),
                             Forms\Components\Select::make('user_id')
                                 ->label('Artist')
-                                ->required()
+                                ->rule('required')
+                    ->markAsRequired()
                                 ->searchable()
                                 ->preload()
                                 ->relationship('user', 'name', function (Builder $query) {
@@ -73,18 +80,22 @@ class CollectionResource extends Resource
                         ])->columns(5)->columnSpanFull(),
                         Forms\Components\Group::make([
                             Forms\Components\TextInput::make('eng_name')
-                                ->required()
+                                ->rule('required')
+                    ->markAsRequired()
                                 ->label('Name (English)'),
                             Forms\Components\Textarea::make('eng_description')
-                                ->required()
+                                ->rule('required')
+                    ->markAsRequired()
                                 ->label('Description (English)'),
                         ]),
                         Forms\Components\Group::make([
                             Forms\Components\TextInput::make('arabic_name')
-                                ->required()
+                                ->rule('required')
+                    ->markAsRequired()
                                 ->label('Name (Arabic)'),
                             Forms\Components\Textarea::make('arabic_description')
-                                ->required()
+                                ->rule('required')
+                    ->markAsRequired()
                                 ->label('Description (Arabic)'),
                         ]),
                         Forms\Components\Group::make([
@@ -103,8 +114,10 @@ class CollectionResource extends Resource
                             ->maxItems(8)
                             ->grid(4)
                             ->schema([
-                                Forms\Components\TextInput::make('name')->required(),
-                                Forms\Components\TextInput::make('url')->url()->required(),
+                                Forms\Components\TextInput::make('name')->rule('required')
+                    ->markAsRequired(),
+                                Forms\Components\TextInput::make('url')->url()->rule('required')
+                    ->markAsRequired(),
                                 Forms\Components\FileUpload::make('image')
                                     ->required()->image()->imageEditor(),
                             ])
@@ -127,27 +140,22 @@ class CollectionResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('avatar')->circular(),
                 Tables\Columns\TextColumn::make('eng_name')->searchable()
                     ->sortable()->label('Name')->wrap(),
-                Tables\Columns\TextColumn::make('type')
-                    ->sortable()->searchable()->label('Platform')->badge(),
-                Tables\Columns\TextColumn::make('sales_type')
-                    ->sortable()->searchable()->label('Sales Type')->badge(),
                 Tables\Columns\TextColumn::make('user.name')
                     ->wrap()
                     ->sortable()->searchable()->label('Artist'),
                 Tables\Columns\TextColumn::make('filters_count')
                     ->sortable()->counts('filters')->label('Filters')->badge(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->sortable()->label('Created At')->since(),
+                    ->sortable()->since(),
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->sortable()->label('Active'),
                 Tables\Columns\ToggleColumn::make('is_featured')
                     ->sortable()->label('Featured'),
             ])
             ->reorderable('order_column')
-            ->defaultSort('order_column')
+            ->defaultSort('updated_at', 'desc')
             ->filters([
                 Tables\Filters\Filter::make('created_at')
                     ->form([
@@ -166,7 +174,12 @@ class CollectionResource extends Resource
                             );
                     })->columnSpan(2),
                 Tables\Filters\SelectFilter::make('sales_type')
-                    ->options(SalesType::class)
+                    ->options(SalesType::class),
+                Tables\Filters\SelectFilter::make('regions')
+                    ->relationship('regions', 'name')
+                    ->preload()
+                    ->searchable()
+                    ->columnSpanFull(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

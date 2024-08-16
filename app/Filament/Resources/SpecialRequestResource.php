@@ -8,7 +8,10 @@ use App\Filament\Resources\SpecialRequestResource\RelationManagers;
 use App\Models\SpecialRequest;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Actions;
+use Filament\Infolists\Components\Actions\Action;
 use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
@@ -17,12 +20,13 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Storage;
 
 class SpecialRequestResource extends Resource
 {
     protected static ?string $model = SpecialRequest::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-gift-top';
 
     protected static ?string $navigationGroup = 'Requests';
 
@@ -50,11 +54,14 @@ class SpecialRequestResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')->since()->sortable(),
                 Tables\Columns\SelectColumn::make('status')->options(RequestStatus::class)->searchable()->sortable(),
             ])
+            ->defaultSort('updated_at', 'desc')
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\Action::make('Conversations')->url(fn(SpecialRequest $record) => route('filament.admin.resources.special-requests.conversations',$record->id)),
+                Tables\Actions\Action::make('Chat')
+                    ->icon('heroicon-o-chat-bubble-oval-left')
+                    ->url(fn(SpecialRequest $record) => route('filament.admin.resources.special-requests.conversations', $record->id)),
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
@@ -64,13 +71,33 @@ class SpecialRequestResource extends Resource
             ]);
     }
 
-    public static function infolist(Infolist $infolist): Infolist {
+    public static function infolist(Infolist $infolist): Infolist
+    {
         return $infolist
             ->schema([
                 Section::make()->schema([
                     TextEntry::make('platform')->badge(),
                     TextEntry::make('category.eng_name'),
-                    TextEntry::make('occasion')
+                    TextEntry::make('occasion'),
+                    Actions::make([
+                        Action::make('download')
+                            ->action(function (SpecialRequest $record) {
+                                return Storage::download($record->image);
+                            })
+                            ->icon('heroicon-o-arrow-down-tray'),
+                        Action::make('upload')
+                            ->icon('heroicon-o-arrow-up-tray')
+                            ->form([
+                                Forms\Components\TextInput::make('filter')
+                                    ->default(fn(SpecialRequest $record) => $record->filter)
+                                    ->url(),
+                            ])
+                            ->action(function (array $data, SpecialRequest $record) {
+                                $record->update([
+                                    'filter' => $data['filter']
+                                ]);
+                            }),
+                    ]),
                 ])->columnSpanFull()->columns(3)
             ]);
     }
@@ -86,7 +113,8 @@ class SpecialRequestResource extends Resource
     {
         return [
             'index' => Pages\ListSpecialRequests::route('/'),
-            'conversations' => Pages\SpecialRequestConversations::route('/{record}/conversations')
+            'conversations' => Pages\SpecialRequestConversations::route('/{record}/conversations'),
+            'view' => Pages\ViewSpecialRequest::route('/{record}'),
 //            'create' => Pages\CreateSpecialRequest::route('/create'),
 //            'edit' => Pages\EditSpecialRequest::route('/{record}/edit'),
         ];
