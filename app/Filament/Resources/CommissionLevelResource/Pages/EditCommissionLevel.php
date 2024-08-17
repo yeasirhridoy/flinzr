@@ -10,6 +10,8 @@ class EditCommissionLevel extends EditRecord
 {
     protected static string $resource = CommissionLevelResource::class;
 
+    protected static ?string $title = 'Commission Level';
+
     protected function getHeaderActions(): array
     {
         return [

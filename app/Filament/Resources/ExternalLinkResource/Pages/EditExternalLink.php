@@ -10,6 +10,8 @@ class EditExternalLink extends EditRecord
 {
     protected static string $resource = ExternalLinkResource::class;
 
+    protected static ?string $title = 'External Link';
+
     protected function getHeaderActions(): array
     {
         return [
