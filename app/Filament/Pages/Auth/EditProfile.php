@@ -14,6 +14,7 @@ class EditProfile extends \Filament\Pages\Auth\EditProfile
             $this->getNameFormComponent(),
             $this->getEmailFormComponent(),
             $this->getPasswordFormComponent(),
+            $this->getPasswordConfirmationFormComponent(),
         ]);
     }
 }
