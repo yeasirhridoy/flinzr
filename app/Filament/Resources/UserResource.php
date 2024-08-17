@@ -9,6 +9,9 @@ use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -114,6 +117,19 @@ class UserResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('type'),
+                TextEntry::make('country.name'),
+                TextEntry::make('name'),
+                TextEntry::make('email'),
+                TextEntry::make('coin')->badge()->color('primary'),
+                TextEntry::make('balance')->money()->badge()->color('success'),
+            ])->columns(4);
     }
 
     public static function getRelations(): array

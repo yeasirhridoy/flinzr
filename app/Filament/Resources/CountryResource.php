@@ -31,9 +31,15 @@ class CountryResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->rule('required')
                     ->markAsRequired(),
-                Forms\Components\TextInput::make('dial_code'),
-                Forms\Components\TextInput::make('flag'),
-                Forms\Components\TextInput::make('unicode'),
+                Forms\Components\TextInput::make('dial_code')
+                    ->rule('required')
+                    ->markAsRequired(),
+                Forms\Components\TextInput::make('flag')
+                    ->rule('required')
+                    ->markAsRequired(),
+                Forms\Components\TextInput::make('unicode')
+                    ->rule('required')
+                    ->markAsRequired(),
             ])->columns(3);
     }
 

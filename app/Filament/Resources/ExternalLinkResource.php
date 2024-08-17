@@ -21,6 +21,11 @@ class ExternalLinkResource extends Resource
 
     protected static ?string $navigationGroup = 'Settings';
 
+    public static function getNavigationUrl(): string
+    {
+        return '/admin/external-links/1/edit';
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -57,7 +62,7 @@ class ExternalLinkResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+//                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

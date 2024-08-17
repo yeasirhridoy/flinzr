@@ -7,6 +7,10 @@ use App\Filament\Resources\RegionResource\RelationManagers;
 use App\Models\Region;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -71,6 +75,20 @@ class RegionResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make([
+                    ImageEntry::make('image')->size('sm'),
+                    TextEntry::make('name'),
+                ])->columns(2),
+                Section::make()->schema([
+                    TextEntry::make('countries.name')->label('Countries')->badge(),
+                ])->columnSpanFull()
             ]);
     }
 

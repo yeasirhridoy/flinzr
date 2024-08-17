@@ -50,12 +50,12 @@ class PayoutRequestResource extends Resource
                 Tables\Columns\TextColumn::make('country.name')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\SelectColumn::make('status')
-                    ->sortable()
-                    ->options(RequestStatus::class),
                 Tables\Columns\TextColumn::make('created_at')
                     ->since()
                     ->sortable(),
+                Tables\Columns\SelectColumn::make('status')
+                    ->sortable()
+                    ->options(RequestStatus::class),
             ])
             ->defaultSort('updated_at', 'desc')
             ->filters([

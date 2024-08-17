@@ -21,6 +21,11 @@ class CommissionLevelResource extends Resource
 
     protected static ?string $navigationGroup = 'Settings';
 
+    public static function getNavigationUrl(): string
+    {
+        return '/admin/commission-levels/1/edit';
+    }
+
     public static function form(Form $form): Form
     {
         return $form
