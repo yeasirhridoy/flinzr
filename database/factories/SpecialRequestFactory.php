@@ -26,6 +26,7 @@ class SpecialRequestFactory extends Factory
             'category_id' => Category::inRandomOrder()->first()->id,
             'platform' => fake()->randomElement(PlatformType::values()),
             'occasion' => fake()->word(),
+            'image' => 'special-requests/01J5G4FDCH1C8R02F89BGZ1EMN.jpg',
             'status' => fake()->randomElement(RequestStatus::values()),
         ];
     }

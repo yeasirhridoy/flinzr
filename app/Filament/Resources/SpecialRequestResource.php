@@ -62,7 +62,7 @@ class SpecialRequestResource extends Resource
                 Tables\Actions\Action::make('Chat')
                     ->icon('heroicon-o-chat-bubble-oval-left')
                     ->url(fn(SpecialRequest $record) => route('filament.admin.resources.special-requests.conversations', $record->id)),
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\ViewAction::make()->label('Order')->icon('heroicon-o-briefcase'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -88,9 +88,10 @@ class SpecialRequestResource extends Resource
                         Action::make('upload')
                             ->icon('heroicon-o-arrow-up-tray')
                             ->form([
-                                Forms\Components\TextInput::make('filter')
-                                    ->default(fn(SpecialRequest $record) => $record->filter)
-                                    ->url(),
+                                Forms\Components\FileUpload::make('filter')
+                                    ->image()
+                                    ->directory('special-requests')
+                                    ->default(fn(SpecialRequest $record) => $record->filter),
                             ])
                             ->action(function (array $data, SpecialRequest $record) {
                                 $record->update([

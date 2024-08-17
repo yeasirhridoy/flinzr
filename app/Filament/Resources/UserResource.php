@@ -123,13 +123,15 @@ class UserResource extends Resource
     {
         return $infolist
             ->schema([
-                TextEntry::make('type'),
-                TextEntry::make('country.name'),
-                TextEntry::make('name'),
-                TextEntry::make('email'),
-                TextEntry::make('coin')->badge()->color('primary'),
-                TextEntry::make('balance')->money()->badge()->color('success'),
-            ])->columns(4);
+                Section::make([
+                    TextEntry::make('type')->badge(),
+                    TextEntry::make('country.name'),
+                    TextEntry::make('name'),
+                    TextEntry::make('email'),
+                    TextEntry::make('coin')->badge()->color('primary'),
+                    TextEntry::make('balance')->money()->badge()->color('success'),
+                ])->columns(4)
+            ]);
     }
 
     public static function getRelations(): array
