@@ -6,8 +6,3 @@
         <x-filament-actions::modals />
     </x-filament::section>
 </x-filament-panels::page>
-@script
-<script>
-
-</script>
-@endscript
