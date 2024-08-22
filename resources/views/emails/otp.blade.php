@@ -5,6 +5,6 @@ Your OTP Code: **{{$otp}}**
 
 The OTP will expire in 5 minutes. If you did not request this code, no further action is required.
 
-Regards,
+Regards, <br/>
 {{config('app.name')}}
 </x-mail::message>
