@@ -24,7 +24,7 @@ return new class extends Migration
             $table->bigInteger('balance')->nullable()->default(0);
             $table->bigInteger('coin')->nullable()->default(0);
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->boolean('is_active', )->default(true);
             $table->boolean('is_admin')->default(false);
             $table->rememberToken();
