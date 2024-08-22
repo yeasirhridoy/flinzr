@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\UserStatus;
 use App\Enums\UserType;
+use App\Mail\OtpMail;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -23,7 +25,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
     public function getFilamentAvatarUrl(): ?string
     {
-        return $this->image ? Storage::url($this->image) : "https://ui-avatars.com/api/?name=".urlencode($this->name);
+        return $this->image ? Storage::url($this->image) : "https://ui-avatars.com/api/?name=" . urlencode($this->name);
     }
 
     protected static function booted()
@@ -88,5 +90,19 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function collections(): HasMany
     {
         return $this->hasMany(Collection::class);
+    }
+
+    public function sendOtp(): void
+    {
+        if (!cache()->has('otp_' . $this->email)) {
+            $otp = mt_rand(100000, 999999);
+            cache()->remember('otp_' . $this->email, now()->addMinutes(5), fn() => $otp);
+            Mail::to($this->email)->send(new OtpMail($otp));
+        }
+    }
+
+    public function validateOtp($otp): bool
+    {
+        return cache()->get('otp_' . $this->email) == $otp;
     }
 }
