@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PlatformType;
 use App\Enums\SalesType;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,7 +23,19 @@ class Collection extends Model implements Sortable
     protected $casts = [
         'type' => PlatformType::class,
         'sales_type' => SalesType::class,
+        'is_active' => 'boolean',
+        'is_featured' => 'boolean',
     ];
+
+    public function scopeActive(Builder $builder): void
+    {
+        $builder->where('is_active', true);
+    }
+
+    public function scopeFeatured(Builder $builder): void
+    {
+        $builder->where('is_featured', true);
+    }
 
     public function user(): BelongsTo
     {

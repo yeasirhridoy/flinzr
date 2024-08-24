@@ -69,14 +69,14 @@ class DatabaseSeeder extends Seeder
                 ['eng_name' => 'Eid', 'arabic_name' => 'Eid'],
                 ['eng_name' => 'Congratulations', 'arabic_name' => 'Congratulations'],
                 ['eng_name' => 'Easter', 'arabic_name' => 'Easter'],
-            )
+            )->addTags()->addColors()
         )->create();
 
         ArtistRequest::factory(10)->create();
         InfluencerRequest::factory(10)->create();
         PayoutRequest::factory(10)->create();
         SpecialRequest::factory(10)->has(
-            Conversation::factory(mt_rand(20,100))
+            Conversation::factory(mt_rand(20, 100))
         )->create();
         ExternalLink::factory()->create();
         CommissionLevel::factory()->create();

@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Enums\UserType;
 use App\Models\Category;
 use App\Models\Color;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -32,5 +33,19 @@ class CollectionFactory extends Factory
             'is_active' => $isActive = fake()->boolean,
             'is_featured' => $isActive && fake()->boolean,
         ];
+    }
+
+    public function addTags(): Factory|CollectionFactory
+    {
+        return $this->afterCreating(function ($collection) {
+            $collection->tags()->attach(Tag::inRandomOrder()->limit(3)->get());
+        });
+    }
+
+    public function addColors(): Factory|CollectionFactory
+    {
+        return $this->afterCreating(function ($collection) {
+            $collection->colors()->attach(Color::inRandomOrder()->limit(3)->get());
+        });
     }
 }
