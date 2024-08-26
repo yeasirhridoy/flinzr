@@ -66,4 +66,9 @@ class Collection extends Model implements Sortable
     {
         return $this->hasMany(Filter::class);
     }
+
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(Favorite::class);
+    }
 }

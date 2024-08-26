@@ -10,6 +10,7 @@ use App\Models\CommissionLevel;
 use App\Models\Conversation;
 use App\Models\Country;
 use App\Models\ExternalLink;
+use App\Models\Filter;
 use App\Models\InfluencerRequest;
 use App\Models\PayoutRequest;
 use App\Models\Region;
@@ -69,6 +70,8 @@ class DatabaseSeeder extends Seeder
                 ['eng_name' => 'Eid', 'arabic_name' => 'Eid'],
                 ['eng_name' => 'Congratulations', 'arabic_name' => 'Congratulations'],
                 ['eng_name' => 'Easter', 'arabic_name' => 'Easter'],
+            )->has(
+                Filter::factory(3)
             )->addTags()->addColors()
         )->create();
 

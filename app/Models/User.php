@@ -92,6 +92,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return $this->hasMany(Collection::class);
     }
 
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
     public function sendOtp(): void
     {
         if (!cache()->has('otp_' . $this->email)) {
