@@ -25,7 +25,7 @@ class ResponseMiddleware
         } elseif ($response->headers->get('Content-Type') === 'application/json' && !$response->isSuccessful()) {
             $response->setContent(json_encode([
                 'success' => false,
-                'message' => 'Error',
+                'message' => json_decode($response->getContent())->message,
                 'data' => json_decode($response->getContent())
             ]));
         }
