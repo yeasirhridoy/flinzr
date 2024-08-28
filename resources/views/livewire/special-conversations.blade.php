@@ -1,12 +1,14 @@
 <div
     id="conversations"
-    class="h-[65vh] overflow-auto pb-12 px-4"
+    style="height: 65vh;overflow: auto;padding: 0 32px 64px"
 >
     @foreach($conversations as $conversation)
-        <div @class(["flex my-1 items-start gap-2", "flex-row-reverse"=>$conversation->sender==='admin'])>
-            <img class="rounded-full size-6"
+        <div
+            style="margin-bottom: 8px; align-items: start; display: flex; flex-direction: {{ $conversation->sender === 'admin' ? 'row-reverse' : 'row' }};">
+            <img class="rounded-full"
+                 style="width: 2rem; "
                  src="https://ui-avatars.com/api/?&length=1&name={{$conversation->sender}}&size=64" alt=""/>
-            <div @class(["p-3 rounded-lg text-[14px] inline-block", "bg-blue-200 text-black"=> $conversation->sender === 'user', "bg-primary-500"=> $conversation->sender === 'admin'])>
+            <div style="font-size: 14px; margin: 0 8px; background-color: {{ $conversation->sender === 'user' ? '#BFDBFE' : '#3B82F6' }}; color: {{ $conversation->sender === 'user' ? '#000000' : '#FFFFFF' }}; padding: 0.75rem; border-radius: 0.5rem; display: inline-block;">
                 {{$conversation->message}}
             </div>
         </div>

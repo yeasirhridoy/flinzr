@@ -1,4 +1,3 @@
-@vite('resources/css/app.css')
 <x-filament-panels::page>
     <x-filament::section>
         <livewire:special-conversations :special-request="$this->getRecord()"/>
