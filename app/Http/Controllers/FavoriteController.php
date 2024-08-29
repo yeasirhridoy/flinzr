@@ -3,17 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\FavoriteStoreRequest;
+use App\Http\Resources\CollectionResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class FavoriteController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
-
+        $collections = auth()->user()->favoriteCollections()->active()->with('user')->paginate()->through(function ($collection) {
+            $collection->is_favorite = true;
+            return $collection;
+        });
+        return CollectionResource::collection($collections);
     }
 
     /**

@@ -11,7 +11,9 @@ use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -92,9 +94,19 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return $this->hasMany(Collection::class);
     }
 
+    public function filters(): BelongsToMany
+    {
+        return $this->belongsToMany(Filter::class)->withTimestamps();
+    }
+
     public function favorites(): HasMany
     {
         return $this->hasMany(Favorite::class);
+    }
+
+    public function favoriteCollections(): HasManyThrough
+    {
+        return $this->hasManyThrough(Collection::class, Favorite::class, 'user_id', 'id', 'id', 'collection_id');
     }
 
     public function sendOtp(): void

@@ -5,11 +5,13 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\ResponseMiddleware;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(\App\Http\Middleware\ResponseMiddleware::class)->group(function (){
+Route::middleware(ResponseMiddleware::class)->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
@@ -19,6 +21,8 @@ Route::middleware(\App\Http\Middleware\ResponseMiddleware::class)->group(functio
     Route::get('categories', [CategoryController::class, 'index']);
     Route::get('tags', [TagController::class, 'index']);
     Route::get('colors', [ColorController::class, 'index']);
+
+    Route::get('artists', [UserController::class, 'artists']);
 
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/user', [AuthController::class, 'user']);
@@ -32,8 +36,9 @@ Route::middleware(\App\Http\Middleware\ResponseMiddleware::class)->group(functio
         Route::get('favorites', [FavoriteController::class, 'index']);
         Route::post('favorites', [FavoriteController::class, 'store']);
 
-        Route::get('artists', [UserController::class, 'artists']);
         Route::post('artist-request', [UserController::class, 'artistRequest']);
         Route::get('artist-request', [UserController::class, 'myArtistRequest']);
+
+        Route::post('purchase/filter',[PurchaseController::class,'purchaseFilter']);
     });
 });
