@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
@@ -45,5 +46,9 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
         Route::get('artist-request', [UserController::class, 'myArtistRequest']);
 
         Route::post('purchase/filter',[PurchaseController::class,'purchaseFilter']);
+
+        Route::post('follow', [FollowController::class, 'toggleFollow']);
+        Route::get('followers', [FollowController::class, 'followers']);
+        Route::get('followings', [FollowController::class, 'followings']);
     });
 });

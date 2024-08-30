@@ -109,6 +109,16 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return $this->hasManyThrough(Collection::class, Favorite::class, 'user_id', 'id', 'id', 'collection_id');
     }
 
+    public function followings(): HasManyThrough
+    {
+        return $this->hasManyThrough(User::class, Follow::class, 'follower_id', 'id', 'id', 'followee_id');
+    }
+
+    public function followers(): HasManyThrough
+    {
+        return $this->hasManyThrough(User::class, Follow::class, 'followee_id', 'id', 'id', 'follower_id');
+    }
+
     public function sendOtp(): void
     {
         if (!cache()->has('otp_' . $this->email)) {

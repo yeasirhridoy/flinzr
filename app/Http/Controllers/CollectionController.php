@@ -63,7 +63,7 @@ class CollectionController extends Controller
             });
         }
 
-        if (\request()->filled('colors')) {
+        if (request()->filled('colors')) {
             $collections->whereHas('colors', function ($query) {
                 $query->whereIn('color_id', explode(',', request('colors')));
             });
