@@ -10,12 +10,17 @@ use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\ResponseMiddleware;
 use Illuminate\Support\Facades\Route;
+use Laravel\Socialite\Facades\Socialite;
 
 Route::middleware(ResponseMiddleware::class)->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+    Route::get('login/google',function (){
+
+    });
 
     Route::get('collections', [CollectionController::class, 'index']);
     Route::get('categories', [CategoryController::class, 'index']);

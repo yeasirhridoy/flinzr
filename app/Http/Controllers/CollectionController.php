@@ -18,7 +18,7 @@ class CollectionController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $rules = [
-            'type' => [Rule::in(PlatformType::class)],
+            'type' => [Rule::in(PlatformType::values())],
             'category_id' => 'exists:categories,id',
             'user_id' => 'exists:users,id',
             'featured' => 'in:true',
