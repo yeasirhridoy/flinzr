@@ -78,7 +78,7 @@ class CollectionController extends Controller
                 })->orWhereDoesntHave('regions');
             });
         }
-        $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : [];
+        $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
         $collections = $collections->paginate()->through(function ($collection) use ($favoriteCollections) {
             $collection->is_favorite = $favoriteCollections->contains($collection->id);
             return $collection;
