@@ -17,6 +17,11 @@ class Category extends Model
         'is_active' => 'boolean',
     ];
 
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('is_active', true);
+    }
+
     public function collections(): BelongsToMany
     {
         return $this->belongsToMany(Collection::class)->withTimestamps();
