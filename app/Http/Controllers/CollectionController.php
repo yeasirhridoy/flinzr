@@ -36,6 +36,8 @@ class CollectionController extends Controller
 
         if (request()->filled('type')) {
             $collections->where('type', request('type'));
+        } else{
+            $collections->whereNot('type', PlatformType::Banner);
         }
 
         if (request()->filled('category_id')) {
