@@ -25,7 +25,6 @@ class UserResource extends JsonResource
             'balance' => $this->balance,
             'coin' => $this->coin,
             'verified' => !!$this->email_verified_at,
-            'is_artist' => $this->type === UserType::Artist,
             'is_active' => $this->is_active,
             'followers_count' => $this->followers_count,
             'followings_count' => $this->followings_count,
