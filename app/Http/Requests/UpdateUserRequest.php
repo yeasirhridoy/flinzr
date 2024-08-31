@@ -23,7 +23,7 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'string',
+            'username' => 'string|unique:users,name,' . auth()->id(),
             'country_id' => 'exists:countries,id',
             'password' => 'string|min:6',
         ];
