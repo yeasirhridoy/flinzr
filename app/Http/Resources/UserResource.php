@@ -18,7 +18,7 @@ class UserResource extends JsonResource
     {
         return [
             'country' => CountryResource::make($this->whenLoaded('country')),
-            'name' => $this->name,
+            'username' => $this->name,
             'email' => $this->email,
             'image' => $this->image ? Storage::url($this->image) : null,
             'type' => $this->type,
