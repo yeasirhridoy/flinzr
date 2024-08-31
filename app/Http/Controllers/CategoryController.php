@@ -14,7 +14,7 @@ class CategoryController extends Controller
      */
     public function index(): AnonymousResourceCollection
     {
-        $categories = Category::active()->orderBy('order_column')->paginate();
+        $categories = Category::active()->orderBy('order_column')->get();
 
         return CategoryResource::collection($categories);
     }

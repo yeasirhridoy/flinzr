@@ -58,7 +58,7 @@ class AuthController extends Controller
 
     public function user(Request $request): JsonResponse
     {
-        return response()->json(new UserResource($request->user()));
+        return response()->json(new UserResource($request->user()->load('country')));
     }
 
     public function otp(): JsonResponse

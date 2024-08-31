@@ -4,9 +4,8 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
-class MinimumUserResource extends JsonResource
+class CountryResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,12 +14,11 @@ class MinimumUserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        return[
             'id' => $this->id,
+            'code' => $this->code,
             'name' => $this->name,
-            'image' => $this->image ? Storage::url($this->image) : null,
-            'followers_count' => $this->followers_count,
-            'followings_count' => $this->followings_count,
+            'image' => $this->image
         ];
     }
 }

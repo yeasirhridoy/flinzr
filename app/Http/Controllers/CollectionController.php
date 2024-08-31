@@ -31,7 +31,7 @@ class CollectionController extends Controller
 
         $collections = Collection::query()
             ->where('is_active', true)
-            ->with('user')
+            ->with(['user','filters'])
             ->orderBy('order_column');
 
         if (request()->filled('type')) {
@@ -79,7 +79,7 @@ class CollectionController extends Controller
             });
         }
         $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
-        $collections = $collections->paginate()->through(function ($collection) use ($favoriteCollections) {
+        $collections = $collections->get()->map(function ($collection) use ($favoriteCollections) {
             $collection->is_favorite = $favoriteCollections->contains($collection->id);
             return $collection;
         });

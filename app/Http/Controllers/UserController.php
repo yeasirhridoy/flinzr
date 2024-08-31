@@ -18,7 +18,7 @@ class UserController extends Controller
      */
     public function artists(): AnonymousResourceCollection
     {
-        $users = User::query()->where('type', UserType::Artist)->paginate();
+        $users = User::query()->withCount('followers','followings')->where('type', UserType::Artist)->get();
 
         return MinimumUserResource::collection($users);
     }
