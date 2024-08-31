@@ -25,7 +25,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => new UserResource($user->refresh()),
+            'user' => new UserResource($user->refresh()->load('country')->loadCount('followers', 'followings')),
         ]);
     }
 
@@ -43,7 +43,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => new UserResource($user),
+            'user' => new UserResource($user->load('country')->loadCount('followers', 'followings')),
         ]);
     }
 
