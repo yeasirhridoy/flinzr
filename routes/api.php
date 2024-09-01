@@ -38,6 +38,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
         Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
 
         Route::post('collections', [CollectionController::class, 'store']);
+        Route::get('my-collections', [CollectionController::class, 'myCollections']);
 
         Route::get('favorites', [FavoriteController::class, 'index']);
         Route::post('favorites', [FavoriteController::class, 'store']);

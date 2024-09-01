@@ -12,6 +12,11 @@ use Illuminate\Validation\Rule;
 
 class CollectionController extends Controller
 {
+    public function myCollections()
+    {
+        $collections = auth('sanctum')->user()->collections()->with(['filters'])->get();
+        return CollectionResource::collection($collections);
+    }
     /**
      * Display a listing of the resource.
      */
