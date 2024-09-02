@@ -9,6 +9,7 @@ use App\Mail\OtpMail;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -75,13 +76,21 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'type' => UserType::class,
-            'status' => UserStatus::class
+            'status' => UserStatus::class,
+            'level' => \App\Enums\CommissionLevel::class
         ];
     }
 
     public function canAccessPanel(Panel $panel): bool
     {
         return true;
+    }
+
+    public function balance(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => $value / 100, set: fn($value) => $value * 100
+        );
     }
 
     public function country(): BelongsTo
@@ -117,6 +126,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function followers(): HasManyThrough
     {
         return $this->hasManyThrough(User::class, Follow::class, 'followee_id', 'id', 'id', 'follower_id');
+    }
+
+    public function coinPurchases(): HasMany
+    {
+        return $this->hasMany(CoinPurchase::class);
     }
 
     public function sendOtp(): void

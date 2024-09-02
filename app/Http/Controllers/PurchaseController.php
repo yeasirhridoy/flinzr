@@ -2,15 +2,102 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CommissionLevel;
+use App\Enums\Price;
+use App\Http\Requests\CoinPurchaseRequest;
 use App\Http\Requests\PurchaseFilterRequest;
+use App\Models\Filter;
+use App\Models\Purchase;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PurchaseController extends Controller
 {
+    public function purchaseCoin(CoinPurchaseRequest $request)
+    {
+        $data = $request->validated();
+
+        $coin = auth()->user()->coin;
+
+        switch ($data['product_id']) {
+            case 'flinzr_175_coins':
+                $coin += 175;
+                break;
+            case 'flinzr_375_coins':
+                $coin += 375;
+                break;
+            case 'flinzr_475_coins':
+                $coin += 475;
+                break;
+            case 'flinzr_675_coins':
+                $coin += 675;
+                break;
+        }
+
+        try {
+            DB::beginTransaction();
+
+            auth()->user()->update(['coin' => $coin]);
+            $data['coins'] = $coin;
+            auth()->user()->coinPurchases()->create($data);
+
+            DB::commit();
+
+            return response()->json(['message' => 'Purchase successful']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Something went wrong'], 500);
+        }
+    }
+
     public function purchaseFilter(PurchaseFilterRequest $request): JsonResponse
     {
-        auth()->user()->filters()->syncWithoutDetaching($request->filter_id);
-        return response()->json(['message' => 'Purchase successful']);
+        if (auth()->user()->filters->contains($request->filter_id)) {
+            return response()->json(['message' => 'Filter already purchased'], 400);
+        } else {
+            DB::beginTransaction();
+            $user = auth()->user();
+            $coin = $user->coin;
+            if ($coin < Price::Filter->getPrice()) {
+                DB::rollBack();
+                return response()->json(['message' => 'Insufficient coin'], 400);
+            }
+            $coin -= Price::Filter->getPrice();
+            $user->update(['coin' => $coin]);
+            $artist = Filter::findOrFail($request->filter_id)->collection->user;
+            $commissionLevel = $artist->level;
+            $percentage = $commissionLevel->getCommission();
+            $earning = (Price::Filter->getPrice() / 25) * ($percentage / 100);
+            Purchase::create([
+                'user_id' => $user->id,
+                'filter_id' => $request->filter_id,
+                'artist_id' => $artist->id,
+                'earning' => $earning
+            ]);
+            $artist->balance += $earning;
+            $downloadCount = Purchase::where('artist_id', $artist->id)->count();
+            if ($downloadCount > CommissionLevel::Level8->getTarget()) {
+                $artist->level = CommissionLevel::Level8;
+            } elseif ($downloadCount > CommissionLevel::Level7->getTarget()) {
+                $artist->level = CommissionLevel::Level7;
+            } elseif ($downloadCount > CommissionLevel::Level6->getTarget()) {
+                $artist->level = CommissionLevel::Level6;
+            } elseif ($downloadCount > CommissionLevel::Level5->getTarget()) {
+                $artist->level = CommissionLevel::Level5;
+            } elseif ($downloadCount > CommissionLevel::Level4->getTarget()) {
+                $artist->level = CommissionLevel::Level4;
+            } elseif ($downloadCount > CommissionLevel::Level3->getTarget()) {
+                $artist->level = CommissionLevel::Level3;
+            } elseif ($downloadCount > CommissionLevel::Level2->getTarget()) {
+                $artist->level = CommissionLevel::Level2;
+            } else {
+                $artist->level = CommissionLevel::Level1;
+            }
+            $artist->save();
+            auth()->user()->filters()->syncWithoutDetaching($request->filter_id);
+            DB::commit();
+            return response()->json(['message' => 'Purchase successful']);
+        }
     }
 }
