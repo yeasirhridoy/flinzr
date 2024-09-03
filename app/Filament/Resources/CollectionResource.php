@@ -233,13 +233,14 @@ class CollectionResource extends Resource
                 ])->columns(5),
                 Section::make('Filters')->schema([
                     RepeatableEntry::make('filters')
-                        ->columnSpan(1)
+                        ->hiddenLabel()
+                        ->columnSpanFull()
                         ->schema([
                             TextEntry::make('name'),
                             TextEntry::make('url'),
                             ImageEntry::make('image'),
-                        ])->columns(3)->grid(3),
-                ]),
+                        ])->columns(3),
+                ])
             ]);
     }
 
