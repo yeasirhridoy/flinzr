@@ -10,7 +10,15 @@ use App\Filament\Resources\CollectionResource\RelationManagers;
 use App\Models\Collection;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\ColorEntry;
+use Filament\Infolists\Components\Group;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
+use Filament\Support\Colors\Color;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,9 +40,9 @@ class CollectionResource extends Resource
                     Forms\Components\Wizard\Step::make('Collection Info')->schema([
                         Forms\Components\Group::make([
                             Forms\Components\ToggleButtons::make('type')->options(PlatformType::class)->rule('required')
-                    ->markAsRequired()->inline()->columnSpan(2),
+                                ->markAsRequired()->inline()->columnSpan(2),
                             Forms\Components\ToggleButtons::make('sales_type')->options(SalesType::class)->rule('required')
-                    ->markAsRequired()->inline(),
+                                ->markAsRequired()->inline(),
                         ])->columns(3)->columnSpanFull(),
                         Forms\Components\Group::make([
                             Forms\Components\Select::make('category_id')
@@ -42,7 +50,7 @@ class CollectionResource extends Resource
                                 ->relationship('category', 'eng_name')
                                 ->preload()
                                 ->rule('required')
-                    ->markAsRequired()
+                                ->markAsRequired()
                                 ->searchable(),
                             Forms\Components\Select::make('colors')
                                 ->label('Colors')
@@ -50,7 +58,7 @@ class CollectionResource extends Resource
                                 ->multiple()
                                 ->preload()
                                 ->rule('required')
-                    ->markAsRequired()
+                                ->markAsRequired()
                                 ->searchable(),
                             Forms\Components\Select::make('tags')
                                 ->label('Tags')
@@ -58,7 +66,7 @@ class CollectionResource extends Resource
                                 ->multiple()
                                 ->preload()
                                 ->rule('required')
-                    ->markAsRequired()
+                                ->markAsRequired()
                                 ->searchable(),
                             Forms\Components\Select::make('regions')
                                 ->label('Regions')
@@ -66,12 +74,12 @@ class CollectionResource extends Resource
                                 ->multiple()
                                 ->preload()
                                 ->rule('required')
-                    ->markAsRequired()
+                                ->markAsRequired()
                                 ->searchable(),
                             Forms\Components\Select::make('user_id')
                                 ->label('Artist')
                                 ->rule('required')
-                    ->markAsRequired()
+                                ->markAsRequired()
                                 ->searchable()
                                 ->preload()
                                 ->relationship('user', 'name', function (Builder $query) {
@@ -81,21 +89,21 @@ class CollectionResource extends Resource
                         Forms\Components\Group::make([
                             Forms\Components\TextInput::make('eng_name')
                                 ->rule('required')
-                    ->markAsRequired()
+                                ->markAsRequired()
                                 ->label('Name (English)'),
                             Forms\Components\Textarea::make('eng_description')
                                 ->rule('required')
-                    ->markAsRequired()
+                                ->markAsRequired()
                                 ->label('Description (English)'),
                         ]),
                         Forms\Components\Group::make([
                             Forms\Components\TextInput::make('arabic_name')
                                 ->rule('required')
-                    ->markAsRequired()
+                                ->markAsRequired()
                                 ->label('Name (Arabic)'),
                             Forms\Components\Textarea::make('arabic_description')
                                 ->rule('required')
-                    ->markAsRequired()
+                                ->markAsRequired()
                                 ->label('Description (Arabic)'),
                         ]),
                         Forms\Components\Group::make([
@@ -115,9 +123,9 @@ class CollectionResource extends Resource
                             ->grid(4)
                             ->schema([
                                 Forms\Components\TextInput::make('name')->rule('required')
-                    ->markAsRequired(),
+                                    ->markAsRequired(),
                                 Forms\Components\TextInput::make('url')->url()->rule('required')
-                    ->markAsRequired(),
+                                    ->markAsRequired(),
                                 Forms\Components\FileUpload::make('image')
                                     ->required()->image()->imageEditor(),
                             ])
@@ -193,6 +201,48 @@ class CollectionResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Collection Info')->schema([
+                    Group::make([
+                        TextEntry::make('user.name')->label('Artist'),
+                        TextEntry::make('type'),
+                        TextEntry::make('sales_type'),
+                    ]),
+                    Group::make([
+                        TextEntry::make('category.name'),
+                        TextEntry::make('tags.name'),
+                        ColorEntry::make('colors.code'),
+                        TextEntry::make('regions.name'),
+                    ]),
+                    Group::make([
+                        TextEntry::make('eng_name')->label('Name (English)'),
+                        TextEntry::make('eng_description')->label('Description (English)'),
+                    ]),
+                    Group::make([
+                        TextEntry::make('arabic_name')->label('Name (Arabic)'),
+                        TextEntry::make('arabic_description')->label('Description (Arabic)'),
+                    ]),
+                    Group::make([
+                        ImageEntry::make('avatar'),
+                        ImageEntry::make('thumbnail'),
+                        ImageEntry::make('cover'),
+                    ])
+                ])->columns(5),
+                Section::make('Filters')->schema([
+                    RepeatableEntry::make('filters')
+                        ->columnSpan(1)
+                        ->schema([
+                            TextEntry::make('name'),
+                            TextEntry::make('url'),
+                            ImageEntry::make('image'),
+                        ])->columns(3)->grid(3),
+                ]),
+            ]);
+    }
+
     public static function getRelations(): array
     {
         return [
@@ -205,7 +255,7 @@ class CollectionResource extends Resource
         return [
             'index' => Pages\ListCollections::route('/'),
             'create' => Pages\CreateCollection::route('/create'),
-//            'view' => Pages\ViewCollection::route('/{record}'),
+            'view' => Pages\ViewCollection::route('/{record}'),
             'edit' => Pages\EditCollection::route('/{record}/edit'),
         ];
     }
