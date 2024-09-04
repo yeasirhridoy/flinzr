@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Enums\UserType;
 use App\Models\Category;
 use App\Models\Color;
+use App\Models\Region;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -32,6 +33,9 @@ class CollectionFactory extends Factory
             'sales_type'=> fake()->randomElement(['free','paid','subscription']),
             'is_active' => $isActive = fake()->boolean,
             'is_featured' => $isActive && fake()->boolean,
+            'avatar' => '01J6Z2VP28S13EV0W1H54FEB2A.jpg',
+            'thumbnail' => '01J6Z2VP28S13EV0W1H54FEB2A.jpg',
+            'cover' => '01J6Z2VP28S13EV0W1H54FEB2A.jpg'
         ];
     }
 
@@ -46,6 +50,13 @@ class CollectionFactory extends Factory
     {
         return $this->afterCreating(function ($collection) {
             $collection->colors()->attach(Color::inRandomOrder()->limit(3)->get());
+        });
+    }
+
+    public function addRegions(): Factory|CollectionFactory
+    {
+        return $this->afterCreating(function ($collection) {
+            $collection->regions()->attach(Region::inRandomOrder()->limit(2)->get());
         });
     }
 }

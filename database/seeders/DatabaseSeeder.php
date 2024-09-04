@@ -72,7 +72,7 @@ class DatabaseSeeder extends Seeder
                 ['eng_name' => 'Easter', 'arabic_name' => 'Easter'],
             )->has(
                 Filter::factory(3)
-            )->addTags()->addColors()
+            )->addTags()->addColors()->addRegions()
         )->create();
 
         ArtistRequest::factory(30)->create();
