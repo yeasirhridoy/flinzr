@@ -98,12 +98,11 @@ class ArtistRequestResource extends Resource
         return $infolist
             ->schema([
                 Section::make()->schema([
-                    TextEntry::make('country.name'),
-                    TextEntry::make('full_name'),
+                    TextEntry::make('full_name')->label('Beneficiary'),
                     TextEntry::make('id_no'),
                     TextEntry::make('phone'),
                     TextEntry::make('url')->state('Visit')->icon('heroicon-o-arrow-top-right-on-square')->url(fn($record) => $record->url,true),
-                ])->columns(3)
+                ])->columns(4)
             ]);
     }
 
