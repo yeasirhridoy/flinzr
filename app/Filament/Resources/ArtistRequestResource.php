@@ -9,6 +9,7 @@ use App\Filament\Resources\ArtistRequestResource\RelationManagers;
 use App\Models\ArtistRequest;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
@@ -58,10 +59,9 @@ class ArtistRequestResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->label('Request ID'),
-                Tables\Columns\TextColumn::make('user.username')
-                    ->label('Username')
+                Tables\Columns\TextColumn::make('user.name')
+                    ->description(fn($record) => $record->user->username)
+                    ->label('User')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.country.name')
@@ -69,6 +69,8 @@ class ArtistRequestResource extends Resource
                     ->wrap()
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('id')
+                    ->label('Request ID'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->since()
                     ->sortable(),
@@ -82,10 +84,7 @@ class ArtistRequestResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\Action::make('Visit')
-                    ->icon('heroicon-o-arrow-top-right-on-square')
-                    ->url(fn(ArtistRequest $record) => $record->url)
-                    ->openUrlInNewTab(),
+                Tables\Actions\ViewAction::make()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -99,9 +98,12 @@ class ArtistRequestResource extends Resource
         return $infolist
             ->schema([
                 Section::make()->schema([
-                    TextEntry::make('name'),
-                    TextEntry::make('status'),
-                ])
+                    TextEntry::make('country.name'),
+                    TextEntry::make('full_name'),
+                    TextEntry::make('id_no'),
+                    TextEntry::make('phone'),
+                    TextEntry::make('url')->state('Visit')->icon('heroicon-o-arrow-top-right-on-square')->url(fn($record) => $record->url,true),
+                ])->columns(3)
             ]);
     }
 
