@@ -256,7 +256,7 @@ class CollectionResource extends Resource
         return [
             'index' => Pages\ListCollections::route('/'),
             'create' => Pages\CreateCollection::route('/create'),
-            'view' => Pages\ViewCollection::route('/{record}'),
+//            'view' => Pages\ViewCollection::route('/{record}'),
             'edit' => Pages\EditCollection::route('/{record}/edit'),
         ];
     }
