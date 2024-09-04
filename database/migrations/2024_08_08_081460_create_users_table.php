@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignIdFor(Country::class)->nullable()->constrained()->nullOnDelete();
             $table->string('name');
+            $table->string('username')->unique();
             $table->string('email')->unique();
             $table->string('image')->nullable();
             $table->enum('type', UserType::values())->default(UserType::Customer);

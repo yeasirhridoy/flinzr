@@ -4,6 +4,8 @@ namespace Database\Factories;
 
 use App\Enums\PlatformType;
 use App\Enums\RequestStatus;
+use App\Enums\UserType;
+use App\Models\Country;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -20,7 +22,11 @@ class ArtistRequestFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::inRandomOrder()->first()->id,
+            'country_id' => Country::inRandomOrder()->first()->id,
+            'user_id' => User::where('type',UserType::Artist)->inRandomOrder()->first()->id,
+            'full_name' => fake()->name,
+            'phone' => fake()->phoneNumber,
+            'id_no' => mt_rand(1000000000, 9999999999),
             'url' => fake()->url,
             'status' => fake()->randomElement(RequestStatus::values()),
         ];

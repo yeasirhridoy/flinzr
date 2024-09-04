@@ -19,10 +19,10 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->nullable()->constrained()->nullOnDelete();
             $table->foreignIdFor(Country::class)->nullable()->constrained()->nullOnDelete();
             $table->string('full_name');
-            $table->string('bank_name');
-            $table->string('bank_account');
-            $table->integer('amount')->nullable();
+            $table->string('id_no');
+            $table->string('phone');
             $table->enum('status', RequestStatus::values())->default(RequestStatus::Pending);
+            $table->bigInteger('amount')->nullable();
             $table->timestamps();
         });
     }

@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -126,6 +127,21 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function followers(): HasManyThrough
     {
         return $this->hasManyThrough(User::class, Follow::class, 'followee_id', 'id', 'id', 'follower_id');
+    }
+
+    public function artistRequest(): HasOne
+    {
+        return $this->hasOne(ArtistRequest::class);
+    }
+
+    public function influencerRequest(): HasOne
+    {
+        return $this->hasOne(InfluencerRequest::class);
+    }
+
+    public function payoutRequest(): HasOne
+    {
+        return $this->hasOne(PayoutRequest::class);
     }
 
     public function coinPurchases(): HasMany

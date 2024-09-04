@@ -45,7 +45,9 @@ class UserResource extends Resource
                     ->default(25)
                     ->numeric(),
                 Forms\Components\TextInput::make('name')
-                    ->label('Username')
+                    ->rule('required')
+                    ->markAsRequired(),
+                Forms\Components\TextInput::make('username')
                     ->rule('required')
                     ->unique(ignoreRecord: true)
                     ->regex('/^[a-zA-Z0-9_]+$/')
@@ -71,7 +73,7 @@ class UserResource extends Resource
                 Tables\Columns\ImageColumn::make('image')->circular()->default(fn(User $record) => 'https://ui-avatars.com/api/?length=1&name=' . urlencode($record->name)),
                 Tables\Columns\TextColumn::make('name')
                     ->label('User')
-                    ->description(fn(User $record) => $record->email)
+                    ->description(fn(User $record) => $record->username)
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('country.name')
@@ -128,12 +130,22 @@ class UserResource extends Resource
             ->schema([
                 Section::make([
                     TextEntry::make('type')->badge(),
-                    TextEntry::make('country.name'),
-                    TextEntry::make('name'),
+                    TextEntry::make('username')->badge(),
                     TextEntry::make('email'),
                     TextEntry::make('coin')->badge()->color('primary'),
                     TextEntry::make('balance')->money()->badge()->color('success'),
-                ])->columns(4)
+                ])->columns(3),
+                Section::make([
+                    TextEntry::make('influencerRequest.snapchat')->badge()->label('Snapchat'),
+                    TextEntry::make('influencerRequest.tiktok')->badge()->label('TikTok'),
+                    TextEntry::make('influencerRequest.instagram')->badge()->label('Instagram'),
+                ])->columns(3)->visible(fn(User $record) => $record->type === UserType::Influencer),
+                Section::make([
+                    TextEntry::make('payoutRequest.country.name')->label('Country'),
+                    TextEntry::make('payoutRequest.full_name')->label('Beneficiary'),
+                    TextEntry::make('payoutRequest.id_no')->label('ID No.'),
+                    TextEntry::make('payoutRequest.phone')->label('Mobile No.'),
+                ])->columns(4)->visible(fn(User $record) => $record->type === UserType::Artist),
             ]);
     }
 
