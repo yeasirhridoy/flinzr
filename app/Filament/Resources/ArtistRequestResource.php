@@ -60,7 +60,7 @@ class ArtistRequestResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('id')
                     ->label('Request ID'),
-                Tables\Columns\TextColumn::make('user.name')
+                Tables\Columns\TextColumn::make('user.username')
                     ->label('Username')
                     ->searchable()
                     ->sortable(),

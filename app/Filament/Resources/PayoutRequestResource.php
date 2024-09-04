@@ -79,8 +79,8 @@ class PayoutRequestResource extends Resource
             ->schema([
                 Section::make()->schema([
                     TextEntry::make('full_name'),
-                    TextEntry::make('bank_name'),
-                    TextEntry::make('bank_account'),
+                    TextEntry::make('id_no'),
+                    TextEntry::make('phone'),
                     TextEntry::make('user.balance')->label('Balance')->badge()->money()->color('success'),
                 ])->columnSpanFull()->columns(2)
             ]);
