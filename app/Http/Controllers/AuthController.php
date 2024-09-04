@@ -71,6 +71,22 @@ class AuthController extends Controller
         ]);
     }
 
+    public function saveFcmToken(Request $request): JsonResponse
+    {
+        $rules = [
+            'fcm_token' => 'string|required',
+        ];
+
+        $request->validate($rules);
+
+        $user = auth()->user();
+        $user->fcm_token = $request->fcm_token;
+        $user->save();
+        return response()->json([
+            'message' => 'FCM token saved',
+        ]);
+    }
+
     public function verifyEmail(EmailVerifyRequest $request): JsonResponse
     {
         $otp = $request->otp;

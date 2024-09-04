@@ -36,6 +36,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/otp', [AuthController::class, 'otp']);
         Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
+        Route::post('/save-fcm-token', [AuthController::class, 'saveFcmToken']);
 
         Route::post('collections', [CollectionController::class, 'store']);
         Route::get('my-collections', [CollectionController::class, 'myCollections']);

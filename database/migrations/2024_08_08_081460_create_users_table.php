@@ -27,6 +27,7 @@ return new class extends Migration {
             $table->boolean('is_active')->default(true);
             $table->boolean('is_admin')->default(false);
             $table->integer('level')->default(1);
+            $table->string('fcm_token')->nullable();
             $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();
