@@ -229,8 +229,8 @@ class CollectionResource extends Resource
                         ImageEntry::make('avatar'),
                         ImageEntry::make('thumbnail'),
                         ImageEntry::make('cover'),
-                    ])
-                ])->columns(5),
+                    ])->columns(1)->columnSpanFull()
+                ])->columns(4),
                 Section::make('Filters')->schema([
                     RepeatableEntry::make('filters')
                         ->hiddenLabel()
@@ -238,8 +238,8 @@ class CollectionResource extends Resource
                         ->schema([
                             TextEntry::make('name'),
                             TextEntry::make('url'),
-                            ImageEntry::make('image'),
-                        ])->columns(3),
+                            ImageEntry::make('image')->columnSpanFull(),
+                        ])->columns(2),
                 ])
             ]);
     }
