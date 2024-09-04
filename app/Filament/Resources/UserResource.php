@@ -47,6 +47,8 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->label('Username')
                     ->rule('required')
+                    ->unique(ignoreRecord: true)
+                    ->regex('/^[a-zA-Z0-9_]+$/')
                     ->markAsRequired(),
                 Forms\Components\TextInput::make('email')
                     ->unique(ignoreRecord: true)
