@@ -21,6 +21,7 @@ class MinimumUserResource extends JsonResource
             'image' => $this->image ? Storage::url($this->image) : null,
             'followers_count' => $this->followers_count,
             'followings_count' => $this->followings_count,
+            'is_following' => $this->when(auth('sanctum')->check(), $this->is_following ?? $this->followers->contains('id', auth()->id())),
         ];
     }
 }

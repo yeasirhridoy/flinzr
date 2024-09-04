@@ -20,6 +20,11 @@ class UserController extends Controller
     {
         $users = User::query()->withCount('followers','followings')->where('type', UserType::Artist)->get();
 
+        $users->map(function ($user) {
+            $user->is_following = $user->followers->contains('id', auth('sanctum')->id());
+            return $user;
+        });
+
         return MinimumUserResource::collection($users);
     }
 

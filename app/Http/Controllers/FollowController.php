@@ -34,11 +34,11 @@ class FollowController extends Controller
 
     public function followers(): AnonymousResourceCollection
     {
-        return MinimumUserResource::collection(auth()->user()->followers()->paginate());
+        return MinimumUserResource::collection(auth()->user()->followers);
     }
 
     public function followings(): AnonymousResourceCollection
     {
-        return MinimumUserResource::collection(auth()->user()->followings()->paginate());
+        return MinimumUserResource::collection(auth()->user()->followings);
     }
 }
