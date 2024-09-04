@@ -161,6 +161,8 @@ class CollectionResource extends Resource
                     ->sortable()->label('Active'),
                 Tables\Columns\ToggleColumn::make('is_featured')
                     ->sortable()->label('Featured'),
+                Tables\Columns\ToggleColumn::make('is_trending')
+                    ->sortable()->label('Trending'),
             ])
             ->reorderable('order_column')
             ->defaultSort('updated_at', 'desc')

@@ -19,7 +19,7 @@ class FilterFactory extends Factory
         return [
             'name' => $this->faker->word,
             'url' => $this->faker->url,
-            'image' => '01J6Z2VP28S13EV0W1H54FEB2A.jpg'
+            'image' => '01J6Z5EZV437HXBAJKVN4Q8RR3.jpg'
         ];
     }
 }

@@ -33,9 +33,10 @@ class CollectionFactory extends Factory
             'sales_type'=> fake()->randomElement(['free','paid','subscription']),
             'is_active' => $isActive = fake()->boolean,
             'is_featured' => $isActive && fake()->boolean,
-            'avatar' => '01J6Z2VP28S13EV0W1H54FEB2A.jpg',
-            'thumbnail' => '01J6Z2VP28S13EV0W1H54FEB2A.jpg',
-            'cover' => '01J6Z2VP28S13EV0W1H54FEB2A.jpg'
+            'is_trending' => $isActive && fake()->boolean,
+            'avatar' => '01J6Z5EZV437HXBAJKVN4Q8RR3.jpg',
+            'thumbnail' => '01J6Z5EZV437HXBAJKVN4Q8RR3.jpg',
+            'cover' => '01J6Z5EZV437HXBAJKVN4Q8RR3.jpg'
         ];
     }
 

@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('cover')->nullable();
             $table->boolean('is_active')->default(false);
             $table->boolean('is_featured')->default(false);
+            $table->boolean('is_trending')->default(false);
             $table->unsignedBigInteger('order_column')->nullable();
             $table->softDeletes();
             $table->timestamps();
