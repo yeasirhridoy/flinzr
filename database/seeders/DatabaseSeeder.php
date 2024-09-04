@@ -75,9 +75,9 @@ class DatabaseSeeder extends Seeder
             )->addTags()->addColors()
         )->create();
 
-        ArtistRequest::factory(10)->create();
-        InfluencerRequest::factory(10)->create();
-        PayoutRequest::factory(10)->create();
+        ArtistRequest::factory(30)->create();
+        InfluencerRequest::factory(30)->create();
+        PayoutRequest::factory(30)->create();
         SpecialRequest::factory(10)->has(
             Conversation::factory(mt_rand(20, 100))
         )->create();
