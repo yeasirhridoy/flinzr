@@ -58,7 +58,10 @@ class ArtistRequestResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('id')
+                    ->label('Request ID'),
                 Tables\Columns\TextColumn::make('user.name')
+                    ->label('Username')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.country.name')
@@ -81,7 +84,7 @@ class ArtistRequestResource extends Resource
             ->actions([
                 Tables\Actions\Action::make('Visit')
                     ->icon('heroicon-o-arrow-top-right-on-square')
-                    ->url(fn (ArtistRequest $record) => $record->url)
+                    ->url(fn(ArtistRequest $record) => $record->url)
                     ->openUrlInNewTab(),
             ])
             ->bulkActions([
@@ -91,7 +94,8 @@ class ArtistRequestResource extends Resource
             ]);
     }
 
-    public static function infolist(Infolist $infolist): Infolist {
+    public static function infolist(Infolist $infolist): Infolist
+    {
         return $infolist
             ->schema([
                 Section::make()->schema([

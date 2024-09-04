@@ -45,7 +45,10 @@ class InfluencerRequestResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('id')
+                    ->label('Request ID'),
                 Tables\Columns\TextColumn::make('user.name')
+                    ->label('Username')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('country.name')

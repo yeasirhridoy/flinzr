@@ -45,6 +45,7 @@ class UserResource extends Resource
                     ->default(25)
                     ->numeric(),
                 Forms\Components\TextInput::make('name')
+                    ->label('Username')
                     ->rule('required')
                     ->markAsRequired(),
                 Forms\Components\TextInput::make('email')
