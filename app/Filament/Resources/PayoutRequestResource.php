@@ -79,7 +79,7 @@ class PayoutRequestResource extends Resource
         return $infolist
             ->schema([
                 Section::make()->schema([
-                    TextEntry::make('full_name'),
+                    TextEntry::make('full_name')->label('Beneficiary'),
                     TextEntry::make('id_no'),
                     TextEntry::make('phone'),
                     TextEntry::make('user.balance')->label('Balance')->badge()->money()->color('success'),
