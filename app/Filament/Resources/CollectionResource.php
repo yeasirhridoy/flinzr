@@ -195,6 +195,10 @@ class CollectionResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('Approve')->color('success'),
+                    Tables\Actions\Action::make('Reject')->color('danger'),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
