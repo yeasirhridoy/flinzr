@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Str;
 
 class CollectionResource extends Resource
 {
@@ -123,6 +124,8 @@ class CollectionResource extends Resource
                             ->grid(4)
                             ->schema([
                                 Forms\Components\TextInput::make('name')->rule('required')
+                                    ->default(strtoupper(Str::random(8)))
+                                    ->readOnly()
                                     ->markAsRequired(),
                                 Forms\Components\TextInput::make('url')->url()->rule('required')
                                     ->markAsRequired(),
@@ -206,50 +209,6 @@ class CollectionResource extends Resource
                 ]),
             ]);
     }
-
-//    public static function infolist(Infolist $infolist): Infolist
-//    {
-//        return $infolist
-//            ->schema([
-//                Section::make('Collection Info')->schema([
-//                    Group::make([
-//                        TextEntry::make('user.name')->label('Artist'),
-//                        TextEntry::make('type'),
-//                        TextEntry::make('sales_type'),
-//                    ]),
-//                    Group::make([
-//                        TextEntry::make('category.name'),
-//                        TextEntry::make('tags.name'),
-//                        ColorEntry::make('colors.code'),
-//                        TextEntry::make('regions.name'),
-//                    ]),
-//                    Group::make([
-//                        TextEntry::make('eng_name')->label('Name (English)'),
-//                        TextEntry::make('eng_description')->label('Description (English)'),
-//                    ]),
-//                    Group::make([
-//                        TextEntry::make('arabic_name')->label('Name (Arabic)'),
-//                        TextEntry::make('arabic_description')->label('Description (Arabic)'),
-//                    ]),
-//                    Group::make([
-//                        ImageEntry::make('avatar'),
-//                        ImageEntry::make('thumbnail'),
-//                        ImageEntry::make('cover'),
-//                    ])->columns(1)->columnSpanFull()
-//                ])->columns(4),
-//                Section::make('Filters')->schema([
-//                    RepeatableEntry::make('filters')
-//                        ->hiddenLabel()
-//                        ->columnSpanFull()
-//                        ->schema([
-//                            TextEntry::make('name'),
-//                            TextEntry::make('url'),
-//                            ImageEntry::make('image')->columnSpanFull(),
-//                        ])->columns(2),
-//                ])
-//            ]);
-//    }
-
     public static function getRelations(): array
     {
         return [
