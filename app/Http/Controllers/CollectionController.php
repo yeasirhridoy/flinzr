@@ -77,10 +77,11 @@ class CollectionController extends Controller
         }
 
         if ((auth('sanctum')->check() && auth('sanctum')->user()->country_id) || request()->filled('country_id')) {
-            $collections->where(function ($query) {
-                $query->whereHas('regions', function ($query) {
-                    $query->whereHas('countries', function ($query) {
-                        $query->where('country_id', auth('sanctum')->user()->country_id);
+            $countryId = auth('sanctum')->check() ? auth('sanctum')->user()->country_id : request('country_id');
+            $collections->where(function ($query) use ($countryId) {
+                $query->whereHas('regions', function ($query) use ($countryId) {
+                    $query->whereHas('countries', function ($query) use ($countryId) {
+                        $query->where('country_id', $countryId);
                     });
                 })->orWhereDoesntHave('regions');
             });
