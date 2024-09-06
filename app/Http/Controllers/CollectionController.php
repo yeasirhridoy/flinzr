@@ -76,7 +76,7 @@ class CollectionController extends Controller
             });
         }
 
-        if (auth('sanctum')->check() && auth('sanctum')->user()->country_id) {
+        if ((auth('sanctum')->check() && auth('sanctum')->user()->country_id) || request()->filled('country_id')) {
             $collections->where(function ($query) {
                 $query->whereHas('regions', function ($query) {
                     $query->whereHas('countries', function ($query) {
@@ -85,6 +85,7 @@ class CollectionController extends Controller
                 })->orWhereDoesntHave('regions');
             });
         }
+
         $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
         $collections = $collections->get()->map(function ($collection) use ($favoriteCollections) {
             $collection->is_favorite = $favoriteCollections->contains($collection->id);
