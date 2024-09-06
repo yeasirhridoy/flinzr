@@ -32,11 +32,12 @@ class AdminPanelProvider extends PanelProvider
             ->passwordReset()
             ->spa()
             ->databaseNotifications()
-            ->favicon(asset('favicon.ico'))
+            ->favicon(asset('logo.svg'))
             ->brandLogo(asset('logo.svg'))
+            ->brandLogoHeight('2.5rem')
             ->sidebarCollapsibleOnDesktop()
             ->colors([
-                'primary' => Color::Blue,
+                'primary' => Color::Purple,
             ])
             ->navigationGroups([
                 'Catalogs',

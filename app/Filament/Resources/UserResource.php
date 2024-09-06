@@ -13,6 +13,7 @@ use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
+use Filament\Support\Colors\Color;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -136,9 +137,9 @@ class UserResource extends Resource
                     TextEntry::make('balance')->money()->badge()->color('success'),
                 ])->columns(3),
                 Section::make([
-                    TextEntry::make('influencerRequest.snapchat')->badge()->label('Snapchat'),
-                    TextEntry::make('influencerRequest.tiktok')->badge()->label('TikTok'),
-                    TextEntry::make('influencerRequest.instagram')->badge()->label('Instagram'),
+                    TextEntry::make('influencerRequest.snapchat')->badge()->label('Snapchat')->color(Color::Yellow),
+                    TextEntry::make('influencerRequest.tiktok')->badge()->label('TikTok')->color(Color::Purple),
+                    TextEntry::make('influencerRequest.instagram')->badge()->label('Instagram')->color(Color::Pink),
                 ])->columns(3)->visible(fn(User $record) => $record->type === UserType::Influencer),
                 Section::make([
                     TextEntry::make('payoutRequest.country.name')->label('Country'),
