@@ -18,6 +18,7 @@ class MinimumUserResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'username' => $this->username,
             'image' => $this->image ? Storage::url($this->image) : null,
             'followers_count' => $this->followers_count,
             'followings_count' => $this->followings_count,
