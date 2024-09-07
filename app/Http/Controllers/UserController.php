@@ -2,17 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Price;
 use App\Enums\UserType;
 use App\Http\Requests\ArtistRequestRequest;
 use App\Http\Resources\ArtistRequestResource;
 use App\Http\Resources\MinimumUserResource;
 use App\Models\ArtistRequest;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class UserController extends Controller
 {
+    public function settings(): JsonResponse
+    {
+        $prices = [];
+        foreach (Price::cases() as $price){
+            $prices[$price->value] = $price->getPrice();
+        }
+        return response()->json($prices);
+    }
     /**
      * Display a listing of the resource.
      */
