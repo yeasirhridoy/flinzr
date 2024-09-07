@@ -24,6 +24,8 @@ class CollectionResource extends JsonResource
             'arabic_description' => $this->arabic_description,
             'sales_type' => $this->sales_type,
             'is_favorite' => $this->is_favorite,
+            'is_featured' => $this->is_featured,
+            'is_trending' => $this->is_trending,
             'avatar' => $this->avatar ? Storage::url($this->avatar) : null,
             'thumbnail' => $this->avatar ? Storage::url($this->thumbnail) : null,
             'cover' => $this->avatar ? Storage::url($this->cover) : null,

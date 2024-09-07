@@ -119,6 +119,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return $this->hasManyThrough(Collection::class, Favorite::class, 'user_id', 'id', 'id', 'collection_id');
     }
 
+    public function purchases(): HasMany
+    {
+        return $this->hasMany(Purchase::class);
+    }
+
     public function followings(): HasManyThrough
     {
         return $this->hasManyThrough(User::class, Follow::class, 'follower_id', 'id', 'id', 'followee_id');
