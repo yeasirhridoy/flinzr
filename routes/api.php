@@ -24,6 +24,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
     });
 
     Route::get('collections', [CollectionController::class, 'index']);
+    Route::get('explore', [CollectionController::class, 'explore']);
     Route::get('categories', [CategoryController::class, 'index']);
     Route::get('tags', [TagController::class, 'index']);
     Route::get('colors', [ColorController::class, 'index']);
