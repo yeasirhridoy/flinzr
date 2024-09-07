@@ -6,6 +6,7 @@ use App\Enums\PlatformType;
 use App\Http\Requests\CollectionStoreRequest;
 use App\Http\Resources\CollectionResource;
 use App\Models\Collection;
+use App\Models\Country;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Validation\Rule;
@@ -76,8 +77,12 @@ class CollectionController extends Controller
             });
         }
 
-        if ((auth('sanctum')->check() && auth('sanctum')->user()->country_id) || request()->filled('country_id')) {
-            $countryId = auth('sanctum')->check() ? auth('sanctum')->user()->country_id : request('country_id');
+        if ((auth('sanctum')->check() && auth('sanctum')->user()->country_id) || request()->filled('country_id') || request()->filled('country_code')) {
+            if (\request()->filled('country_code')) {
+                $countryId = Country::where('code', request('country_code'))->first()->id;
+            } else{
+                $countryId = auth('sanctum')->check() ? auth('sanctum')->user()->country_id : request('country_id');
+            }
             $collections->where(function ($query) use ($countryId) {
                 $query->whereHas('regions', function ($query) use ($countryId) {
                     $query->whereHas('countries', function ($query) use ($countryId) {
@@ -88,10 +93,18 @@ class CollectionController extends Controller
         }
 
         $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
-        $collections = $collections->get()->map(function ($collection) use ($favoriteCollections) {
-            $collection->is_favorite = $favoriteCollections->contains($collection->id);
-            return $collection;
-        });
+
+        if (\request('type') === PlatformType::Banner->value) {
+            $collections = $collections->get()->map(function ($collection) use ($favoriteCollections) {
+                $collection->is_favorite = $favoriteCollections->contains($collection->id);
+                return $collection;
+            });
+        } else{
+            $collections = $collections->paginate(10)->through(function ($collection) use ($favoriteCollections) {
+                $collection->is_favorite = $favoriteCollections->contains($collection->id);
+                return $collection;
+            });
+        }
 
         return CollectionResource::collection($collections);
     }

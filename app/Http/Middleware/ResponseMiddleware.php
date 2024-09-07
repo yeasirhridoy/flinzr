@@ -20,8 +20,10 @@ class ResponseMiddleware
             $response->setContent(json_encode([
                 'success' => true,
                 'message' => 'Success',
-                'data' => json_decode($response->getContent())->data ?? json_decode($response->getContent())
+                'data' => json_decode($response->getContent())->data ?? json_decode($response->getContent()),
+                'meta' => json_decode($response->getContent())->meta ?? null
             ]));
+
         } elseif ($response->headers->get('Content-Type') === 'application/json' && !$response->isSuccessful()) {
             $response->setContent(json_encode([
                 'success' => false,
