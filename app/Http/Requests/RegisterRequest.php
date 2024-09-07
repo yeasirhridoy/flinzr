@@ -24,7 +24,8 @@ class RegisterRequest extends FormRequest
     {
         return [
             'country_id' => 'required|exists:countries,id',
-            'username' => 'required|string|unique:users,name',
+            'name' => 'required|string',
+            'username' => 'required|string|unique',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
         ];

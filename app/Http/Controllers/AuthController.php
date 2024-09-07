@@ -19,8 +19,6 @@ class AuthController extends Controller
     {
         $data = $request->validated();
         $data['password'] = bcrypt($data['password']);
-        $data['name'] = $data['username'];
-        unset($data['username']);
         $user = User::create($data);
         $user->sendOtp();
         $token = $user->createToken('auth_token')->plainTextToken;
