@@ -14,6 +14,26 @@ use Illuminate\Validation\Rule;
 
 class CollectionController extends Controller
 {
+    public function purchasedCollections(): AnonymousResourceCollection
+    {
+        $purchasedCollections = Collection::with(['user', 'filters'])->whereHas('filters', function ($query) {
+            $query->whereIn('id', auth('sanctum')->user()->purchases()->pluck('filter_id'));
+        })->get();
+
+        $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
+        $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
+
+        $purchasedCollections->map(function ($collection) use ($purchasedFilters, $favoriteCollections) {
+            $collection->is_favorite = $favoriteCollections->contains($collection->id);
+            $collection->filters->map(function ($filter) use ($purchasedFilters) {
+                $filter->is_purchased = $purchasedFilters->contains($filter->id);
+                return $filter;
+            });
+            return $collection;
+        });
+
+        return CollectionResource::collection($purchasedCollections);
+    }
     public function explore(): JsonResponse
     {
         $rules = [

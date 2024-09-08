@@ -51,6 +51,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
 
         Route::post('purchase/coin',[PurchaseController::class,'purchaseCoin']);
         Route::post('purchase/filter',[PurchaseController::class,'purchaseFilter']);
+        Route::get('purchased-collections',[CollectionController::class,'purchasedCollections']);
 
         Route::post('follow', [FollowController::class, 'toggleFollow']);
         Route::get('followers', [FollowController::class, 'followers']);
