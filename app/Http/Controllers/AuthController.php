@@ -9,6 +9,7 @@ use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
+use App\Models\Device;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -72,17 +73,96 @@ class AuthController extends Controller
     public function saveFcmToken(Request $request): JsonResponse
     {
         $rules = [
-            'fcm_token' => 'string|required',
+            'fcm_token' => 'required',
+            'device_type' => 'required',
+            'device_details' => 'required',
         ];
 
         $request->validate($rules);
 
-        $user = auth()->user();
-        $user->fcm_token = $request->fcm_token;
-        $user->save();
+        $fcmToken = $request->fcm_token;
+        $deviceType = $request->device_type;
+        $requestDetails = $this->makeUpUserAgent($request->device_details);
+
+        $deviceDetails = $requestDetails;
+        $appDetails = null;
+        if (count($deviceDetails) > 5) {
+            $deviceDetails =  $requestDetails[0] . '/' . $requestDetails[3] . '/' . $requestDetails[4]. ' ' . $requestDetails[5];
+        }
+
+        if (count($requestDetails) > 6) {
+            $appDetails =  $requestDetails[2] . ' ('. $requestDetails[1] . ') / ' . $requestDetails[6];
+        }
+
+        Device::query()->updateOrCreate([
+            'user_id' => auth()->id(),
+            'device_details' => $deviceDetails,
+        ],[
+            'is_logged' => true,
+            'fcm_token' => $fcmToken,
+            'device_type' => $deviceType,
+            'app_details' => $appDetails
+        ]);
+
         return response()->json([
             'message' => 'FCM token saved',
         ]);
+    }
+
+    private function makeUpUserAgent($userAgent): array
+    {
+        $userAgent = utf8_decode(urldecode($userAgent));
+        $agentDetails = explode(' ', $userAgent);
+        $appDetails = array();
+
+        if (count($agentDetails) > 2) {
+            $appDetails[] = $agentDetails[0] . " " . $agentDetails[1] . " " . $agentDetails[2];
+            if (count($agentDetails) > 3)
+                $appDetails[] = $agentDetails[3];
+            if (count($agentDetails) > 4)
+                $appDetails[] = $agentDetails[4];
+            if (count($agentDetails) > 5)
+                $appDetails[] = $agentDetails[5];
+            if (count($agentDetails) > 6)
+                $appDetails[] = $agentDetails[6];
+        } else {
+            $appDetails[] = $agentDetails[0] . " " . $agentDetails[1];
+        }
+
+        $device = array();
+        $deviceId = array();
+        if (str_contains(strtolower($userAgent), 'ios')) {
+            for ($i = 7; $i < count($agentDetails); $i++) {
+                if ($i >= 7 && $i < 14 && count($agentDetails) >= 7) {
+                    if ($i == 8)
+                        $device[] = $agentDetails[$i] . ";";
+                    else
+                        $device[] = $agentDetails[$i];
+                }
+
+                if ($i >= 14 && count($agentDetails) >= 14) {
+                    $deviceId[] = $agentDetails[$i];
+                }
+            }
+        } else {
+            for ($i = 7; $i < count($agentDetails); $i++) {
+                if ($i >= 7 && $i < 12 && count($agentDetails) >= 7) {
+                    if ($i == 8)
+                        $device[] = $agentDetails[$i] . ";";
+                    else if ($i == 10 && $agentDetails[$i] > 20) {
+                    } else
+                        $device[] = $agentDetails[$i];
+                }
+
+                if ($i >= 12 && count($agentDetails) >= 12) {
+                    $deviceId[] = $agentDetails[$i];
+                }
+            }
+        }
+        $appDetails[] = "(" . implode(" ", $device) . ")";
+        $appDetails[] = implode("-", $deviceId);
+
+        return $appDetails;
     }
 
     public function verifyEmail(EmailVerifyRequest $request): JsonResponse
