@@ -15,7 +15,7 @@ class FavoriteController extends Controller
      */
     public function index(): AnonymousResourceCollection
     {
-        $collections = auth()->user()->favoriteCollections()->active()->with('user')->paginate()->through(function ($collection) {
+        $collections = auth()->user()->favoriteCollections()->active()->with('user')->get()->map(function ($collection) {
             $collection->is_favorite = true;
             return $collection;
         });

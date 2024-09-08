@@ -14,7 +14,7 @@ class TagController extends Controller
      */
     public function index(): AnonymousResourceCollection
     {
-        $tags = Tag::query()->where('is_active', true)->orderBy('order_column')->paginate();
+        $tags = Tag::query()->where('is_active', true)->orderBy('order_column')->get();
         return TagResource::collection($tags);
     }
 

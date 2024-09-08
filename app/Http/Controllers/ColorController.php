@@ -16,7 +16,7 @@ class ColorController extends Controller
         $colors = Color::query()
             ->where('is_active', true)
             ->orderBy('order_column')
-            ->paginate();
+            ->get();
 
         return ColorResource::collection($colors);
     }
