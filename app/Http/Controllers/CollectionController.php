@@ -35,6 +35,10 @@ class CollectionController extends Controller
             })
             ->with(['user', 'filters']);
 
+        if (request()->filled('type')) {
+            $collectionsQuery->where('type', request('type'));
+        }
+
         $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
         $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
 
