@@ -16,6 +16,7 @@ class TagResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'eng_name' => $this->eng_name,
             'arabic_name' => $this->arabic_name,
             'image' => $this->image ? Storage::url($this->image) : null,
