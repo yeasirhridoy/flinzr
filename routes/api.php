@@ -11,7 +11,6 @@ use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\ResponseMiddleware;
 use Illuminate\Support\Facades\Route;
-use Laravel\Socialite\Facades\Socialite;
 
 Route::middleware(ResponseMiddleware::class)->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -40,21 +39,23 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
         Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
         Route::post('/save-fcm-token', [AuthController::class, 'saveFcmToken']);
 
-        Route::post('collections', [CollectionController::class, 'store']);
-        Route::get('my-collections', [CollectionController::class, 'myCollections']);
+        Route::middleware(['verified'])->group(function (){
+            Route::post('collections', [CollectionController::class, 'store']);
+            Route::get('my-collections', [CollectionController::class, 'myCollections']);
 
-        Route::get('favorites', [FavoriteController::class, 'index']);
-        Route::post('favorites', [FavoriteController::class, 'store']);
+            Route::get('favorites', [FavoriteController::class, 'index']);
+            Route::post('favorites', [FavoriteController::class, 'store']);
 
-        Route::post('artist-request', [UserController::class, 'artistRequest']);
-        Route::get('artist-request', [UserController::class, 'myArtistRequest']);
+            Route::post('artist-request', [UserController::class, 'artistRequest']);
+            Route::get('artist-request', [UserController::class, 'myArtistRequest']);
 
-        Route::post('purchase/coin',[PurchaseController::class,'purchaseCoin']);
-        Route::post('purchase/filter',[PurchaseController::class,'purchaseFilter']);
-        Route::get('purchased-collections',[CollectionController::class,'purchasedCollections']);
+            Route::post('purchase/coin',[PurchaseController::class,'purchaseCoin']);
+            Route::post('purchase/filter',[PurchaseController::class,'purchaseFilter']);
+            Route::get('purchased-collections',[CollectionController::class,'purchasedCollections']);
 
-        Route::post('follow', [FollowController::class, 'toggleFollow']);
-        Route::get('followers', [FollowController::class, 'followers']);
-        Route::get('followings', [FollowController::class, 'followings']);
+            Route::post('follow', [FollowController::class, 'toggleFollow']);
+            Route::get('followers', [FollowController::class, 'followers']);
+            Route::get('followings', [FollowController::class, 'followings']);
+        });
     });
 });
