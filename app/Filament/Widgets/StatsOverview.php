@@ -30,22 +30,22 @@ class StatsOverview extends BaseWidget
                 });
             });
         }
-        $revenueData = DashboardService::getData(Trend::query($purchaseQuery), array_merge($this->filters,['period' => 'custom']))->map(fn ($value) => $value->aggregate)->toArray();
+        $revenueData = DashboardService::getData(Trend::query($purchaseQuery->clone()), array_merge($this->filters,['period' => 'custom']))->map(fn ($value) => $value->aggregate)->toArray();
 
         $specialOrderQuery = SpecialRequest::query()->whereBetween('created_at', [$start, $end]);
         if ($this->filters['type']) {
             $specialOrderQuery->where('platform', $this->filters['type']);
         }
-        $specialOrderData = DashboardService::getData(Trend::query($specialOrderQuery), array_merge($this->filters,['period' => 'custom']))->map(fn ($value) => $value->aggregate)->toArray();
+        $specialOrderData = DashboardService::getData(Trend::query($specialOrderQuery->clone()), array_merge($this->filters,['period' => 'custom']))->map(fn ($value) => $value->aggregate)->toArray();
 
         return [
-            Stat::make('Revenue', DashboardService::formatNumber($purchaseQuery->sum('amount')))->description('32k increase')
+            Stat::make('Revenue', DashboardService::formatNumber($purchaseQuery->clone()->sum('amount')))
                 ->chart($revenueData)
                 ->chartColor('success'),
-            Stat::make('Purchased Filter', DashboardService::formatNumber($purchaseQuery->count()))
+            Stat::make('Purchased Filter', DashboardService::formatNumber($purchaseQuery->clone()->count()))
                 ->chart($revenueData)
                 ->chartColor('success'),
-            Stat::make('Special Order', DashboardService::formatNumber($specialOrderQuery->count()))
+            Stat::make('Special Order', DashboardService::formatNumber($specialOrderQuery->clone()->count()))
                 ->chart($specialOrderData)
                 ->chartColor('success'),
         ];
