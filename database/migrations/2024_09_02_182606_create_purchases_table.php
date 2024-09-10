@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignIdFor(Filter::class)->nullable()->constrained()->nullOnDelete();
             $table->foreignId('artist_id');
             $table->integer('earning');
+            $table->integer('amount');
             $table->timestamps();
         });
     }

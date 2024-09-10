@@ -45,4 +45,18 @@ enum CommissionLevel: int implements HasLabel
             self::Level8 => 45,
         };
     }
+
+    public function getLabel(): ?string
+    {
+        return match ($this) {
+            self::Level1 => 'Level 1',
+            self::Level2 => 'Level 2',
+            self::Level3 => 'Level 3',
+            self::Level4 => 'Level 4',
+            self::Level5 => 'Level 5',
+            self::Level6 => 'Level 6',
+            self::Level7 => 'Level 7',
+            self::Level8 => 'Level 8',
+        };
+    }
 }

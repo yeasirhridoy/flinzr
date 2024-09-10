@@ -28,6 +28,7 @@ class SpecialRequestFactory extends Factory
             'occasion' => fake()->word(),
             'image' => 'special-requests/01J5G4FDCH1C8R02F89BGZ1EMN.jpg',
             'status' => fake()->randomElement(RequestStatus::values()),
+            'created_at' => fake()->dateTimeBetween('-1 month'),
         ];
     }
 }

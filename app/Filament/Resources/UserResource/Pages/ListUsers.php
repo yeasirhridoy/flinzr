@@ -4,6 +4,7 @@ namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Enums\UserType;
 use App\Filament\Resources\UserResource;
+use App\Models\User;
 use Filament\Actions;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
@@ -23,9 +24,11 @@ class ListUsers extends ListRecords
     {
         return collect(array_merge(['all' => null], UserType::all()))->mapWithKeys(function ($label, $type) {
             return [
-                $type => $type == 'all' ? Tab::make('All') : Tab::make($label)
+                $type => $type == 'all' ? Tab::make('All')->badge(User::query()->count()) : Tab::make($label)
                     ->query(function ($query) use ($type) {
                         $query->where('type', $type);
+                    })->badge(function () use ($type) {
+                        return User::query()->where('type', $type)->count();
                     }),
             ];
         })->toArray();

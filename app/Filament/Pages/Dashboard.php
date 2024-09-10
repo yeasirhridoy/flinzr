@@ -24,8 +24,12 @@ class Dashboard extends \Filament\Pages\Dashboard
                     ->schema([
                         Select::make('type')
                             ->label('Select Platform')
-                            ->options(PlatformType::class)
-                            ->default('today'),
+                            ->placeholder('All')
+                            ->options([
+                                PlatformType::Snapchat->value => PlatformType::Snapchat->name,
+                                PlatformType::Instagram->value => PlatformType::Instagram->name,
+                                PlatformType::Tiktok->value => PlatformType::Tiktok->name,
+                            ]),
                         DatePicker::make('start_date'),
                         DatePicker::make('end_date')
                             ->after('start_date'),

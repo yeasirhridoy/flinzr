@@ -13,6 +13,7 @@ use App\Models\ExternalLink;
 use App\Models\Filter;
 use App\Models\InfluencerRequest;
 use App\Models\PayoutRequest;
+use App\Models\Purchase;
 use App\Models\Region;
 use App\Models\SpecialRequest;
 use App\Models\Tag;
@@ -83,5 +84,6 @@ class DatabaseSeeder extends Seeder
         )->create();
         ExternalLink::factory()->create();
         CommissionLevel::factory()->create();
+        Purchase::factory(500)->create();
     }
 }

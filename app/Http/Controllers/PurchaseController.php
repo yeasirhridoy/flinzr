@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 
 class PurchaseController extends Controller
 {
-    public function purchaseCoin(CoinPurchaseRequest $request)
+    public function purchaseCoin(CoinPurchaseRequest $request): JsonResponse
     {
         $data = $request->validated();
 
@@ -73,7 +73,8 @@ class PurchaseController extends Controller
                 'user_id' => $user->id,
                 'filter_id' => $request->filter_id,
                 'artist_id' => $artist->id,
-                'earning' => $earning
+                'earning' => $earning,
+                'amount' => Price::Filter->getPrice() / 25,
             ]);
             $artist->balance += $earning;
             $downloadCount = Purchase::where('artist_id', $artist->id)->count();
