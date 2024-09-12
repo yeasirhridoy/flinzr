@@ -7,6 +7,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RecoverPasswordRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\ResetPasswordRequest;
+use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Device;
@@ -212,7 +213,7 @@ class AuthController extends Controller
         }
     }
 
-    public function updateUser(UpdateUserRequest $request)
+    public function updateUser(UpdateUserRequest $request): JsonResponse
     {
         $data = $request->validated();
         if (isset($data['password'])) {
@@ -225,5 +226,21 @@ class AuthController extends Controller
         $user = auth()->user();
         $user->update($data);
         return response()->json(new UserResource($user));
+    }
+
+    public function updatePassword(UpdatePasswordRequest $request)
+    {
+        $data = $request->validated();
+        $user = auth()->user();
+        if (!auth()->attempt(['email' => $user->email, 'password' => $data['current_password']])) {
+            return response()->json([
+                'message' => 'Current password is incorrect',
+            ], 401);
+        }
+        $user->password = bcrypt($data['password']);
+        $user->save();
+        return response()->json([
+            'message' => 'Password updated successfully',
+        ]);
     }
 }
