@@ -34,7 +34,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/user', [AuthController::class, 'user']);
         Route::put('/user', [AuthController::class, 'updateUser']);
-        Route::post('update-password', [AuthController::class, 'updatePassword']);
+        Route::post('/update-password', [AuthController::class, 'updatePassword']);
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/otp', [AuthController::class, 'otp']);
         Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
