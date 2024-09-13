@@ -16,9 +16,19 @@ class CollectionController extends Controller
 {
     public function purchasedCollections(): AnonymousResourceCollection
     {
+        request()->validate([
+            'type' => 'in:snapchat,instagram,tiktok',
+        ]);
+
         $purchasedCollections = Collection::with(['user', 'filters'])->whereHas('filters', function ($query) {
             $query->whereIn('id', auth('sanctum')->user()->purchases()->pluck('filter_id'));
-        })->get();
+        });
+
+        if (request()->filled('type')) {
+            $purchasedCollections->where('type', PlatformType::tryFrom(request('type')));
+        }
+
+        $purchasedCollections = $purchasedCollections->get();
 
         $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
         $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
