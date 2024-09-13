@@ -22,6 +22,10 @@ class ArtistRequestRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'country_id' => ['required', 'exists:countries,id'],
+            'full_name' => ['required', 'string'],
+            'phone' => ['required', 'string'],
+            'id_no' => ['required', 'string'],
             'url' => ['required', 'url'],
         ];
     }
