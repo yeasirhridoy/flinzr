@@ -14,6 +14,7 @@ use App\Models\Device;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -224,6 +225,20 @@ class AuthController extends Controller
             $data['name'] = $data['username'];
             unset($data['username']);
         }
+
+        if ($request->image) {
+            $imageData = $request->image;
+
+            $image = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $imageData));
+
+            $imageName = uniqid().uniqid();
+
+            $s3Path = 'users/' . $imageName;
+            Storage::put($s3Path, $image);
+
+            $data['image'] = $s3Path;
+        }
+
         $user = auth()->user();
         $user->update($data);
         return response()->json(new UserResource($user));
