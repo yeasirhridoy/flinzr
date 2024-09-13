@@ -88,6 +88,9 @@ class UserResource extends Resource
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->sortable()
                     ->label('Active'),
+                Tables\Columns\ToggleColumn::make('is_admin')
+                    ->sortable()
+                    ->label('Admin'),
             ])
             ->defaultSort('updated_at', 'desc')
             ->filters([
