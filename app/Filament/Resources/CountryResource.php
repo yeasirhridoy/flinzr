@@ -65,6 +65,7 @@ class CountryResource extends Resource
                     ->sortable(),
             ])
             ->reorderable('order_column')
+            ->defaultSort('order_column')
             ->defaultSort('created_at', 'desc')
             ->filters([
                 //

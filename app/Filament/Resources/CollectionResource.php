@@ -168,6 +168,7 @@ class CollectionResource extends Resource
                     ->sortable()->label('Trending'),
             ])
             ->reorderable('order_column')
+            ->defaultSort('order_column')
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Tables\Filters\Filter::make('created_at')
