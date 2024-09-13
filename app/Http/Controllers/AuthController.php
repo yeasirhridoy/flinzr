@@ -14,6 +14,7 @@ use App\Models\Device;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -228,14 +229,17 @@ class AuthController extends Controller
         return response()->json(new UserResource($user));
     }
 
-    public function updatePassword(UpdatePasswordRequest $request)
+    /**
+     * @throws ValidationException
+     */
+    public function updatePassword(UpdatePasswordRequest $request): JsonResponse
     {
         $data = $request->validated();
         $user = auth()->user();
         if (!auth()->attempt(['email' => $user->email, 'password' => $data['current_password']])) {
-            return response()->json([
-                'message' => 'Current password is incorrect',
-            ], 401);
+            throw ValidationException::withMessages([
+                'current_password' => 'Current password is incorrect',
+            ]);
         }
         $user->password = bcrypt($data['password']);
         $user->save();
