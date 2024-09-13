@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PlatformType;
 use App\Http\Requests\FavoriteStoreRequest;
 use App\Http\Resources\CollectionResource;
 use Illuminate\Http\JsonResponse;
@@ -15,12 +16,25 @@ class FavoriteController extends Controller
      */
     public function index(): AnonymousResourceCollection
     {
-        $collections = auth()->user()->favoriteCollections()->active()->with('user')->get()->map(function ($collection) {
-            $collection->is_favorite = true;
-            return $collection;
-        });
+        request()->validate([
+            'type' => 'in:snapchat,instagram,tiktok',
+        ]);
+
+        // Build the base query
+        $query = auth()->user()->favoriteCollections()->active()->with('user');
+
+        // Apply platform filter if provided
+        if ($type = request()->input('type')) {
+            $query->where('type', PlatformType::tryFrom($type));
+        }
+
+        // Fetch collections and mark them as favorite
+        $collections = $query->get()->each->setAttribute('is_favorite', true);
+
+        // Return the collection resource
         return CollectionResource::collection($collections);
     }
+
 
     /**
      * Store a newly created resource in storage.
