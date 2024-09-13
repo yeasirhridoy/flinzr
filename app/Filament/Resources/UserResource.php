@@ -92,7 +92,7 @@ class UserResource extends Resource
                     ->sortable()
                     ->label('Admin'),
             ])
-            ->defaultSort('updated_at', 'desc')
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 Tables\Filters\Filter::make('created_at')
                     ->form([

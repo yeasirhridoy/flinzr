@@ -143,7 +143,7 @@ class CommissionLevelResource extends Resource
                     ->numeric(),
             ])
             ->paginated(false)
-            ->defaultSort('updated_at', 'desc')
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

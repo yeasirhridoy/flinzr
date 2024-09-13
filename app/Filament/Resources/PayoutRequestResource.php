@@ -61,7 +61,7 @@ class PayoutRequestResource extends Resource
                     ->sortable()
                     ->options(RequestStatus::class),
             ])
-            ->defaultSort('updated_at', 'desc')
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

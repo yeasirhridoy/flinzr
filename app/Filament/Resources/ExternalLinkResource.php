@@ -57,7 +57,7 @@ class ExternalLinkResource extends Resource
                 Tables\Columns\TextColumn::make('help_center')->wrap(),
             ])
             ->paginated(false)
-            ->defaultSort('updated_at', 'desc')
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

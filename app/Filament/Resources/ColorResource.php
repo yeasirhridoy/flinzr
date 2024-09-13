@@ -58,7 +58,7 @@ class ColorResource extends Resource
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->sortable()->label('Active'),
             ])
-            ->defaultSort('updated_at', 'desc')
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

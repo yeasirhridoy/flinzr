@@ -60,7 +60,7 @@ class SpecialRequestResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')->since()->sortable(),
                 Tables\Columns\SelectColumn::make('status')->options(RequestStatus::class)->searchable()->sortable(),
             ])
-            ->defaultSort('updated_at', 'desc')
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

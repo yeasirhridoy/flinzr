@@ -79,7 +79,7 @@ class ArtistRequestResource extends Resource
                     ->sortable()
                     ->searchable(),
             ])
-            ->defaultSort('updated_at', 'desc')
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

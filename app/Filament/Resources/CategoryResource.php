@@ -55,7 +55,7 @@ class CategoryResource extends Resource
                     ->sortable()
                     ->label('Active'),
             ])
-            ->defaultSort('updated_at', 'desc')
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
