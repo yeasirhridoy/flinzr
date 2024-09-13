@@ -31,7 +31,7 @@ class TopSalesByArtists extends BaseWidget
             )
             ->columns([
                 Tables\Columns\ImageColumn::make('image')->circular()->default(fn($record) => 'https://ui-avatars.com/api/?length=1&name=' . urlencode($record->name))->width(40),
-                Tables\Columns\TextColumn::make('total_earned')->label('User')->money()->description(fn($record) => $record->username),
+                Tables\Columns\TextColumn::make('total_earned')->label('Revenue')->money()->description(fn($record) => $record->username),
                 Tables\Columns\TextColumn::make('level')->badge(),
             ])
             ->paginated(false);

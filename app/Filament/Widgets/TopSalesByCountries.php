@@ -35,7 +35,7 @@ class TopSalesByCountries extends BaseWidget
             )
             ->columns([
                 Tables\Columns\ImageColumn::make('image')->circular()->width(40),
-                Tables\Columns\TextColumn::make('total_sales')->label('User')
+                Tables\Columns\TextColumn::make('total_sales')->label('Revenue')
                     ->money()
                    ->description(fn($record) => $record->name),
                 Tables\Columns\TextColumn::make('percent')
