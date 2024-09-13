@@ -89,17 +89,17 @@ class AuthController extends Controller
         $deviceDetails = $requestDetails;
         $appDetails = null;
         if (count($deviceDetails) > 5) {
-            $deviceDetails =  $requestDetails[0] . '/' . $requestDetails[3] . '/' . $requestDetails[4]. ' ' . $requestDetails[5];
+            $deviceDetails = $requestDetails[0] . '/' . $requestDetails[3] . '/' . $requestDetails[4] . ' ' . $requestDetails[5];
         }
 
         if (count($requestDetails) > 6) {
-            $appDetails =  $requestDetails[2] . ' ('. $requestDetails[1] . ') / ' . $requestDetails[6];
+            $appDetails = $requestDetails[2] . ' (' . $requestDetails[1] . ') / ' . $requestDetails[6];
         }
 
         Device::query()->updateOrCreate([
             'user_id' => auth()->id(),
             'device_details' => $deviceDetails,
-        ],[
+        ], [
             'is_logged' => true,
             'fcm_token' => $fcmToken,
             'device_type' => $deviceType,
@@ -181,10 +181,16 @@ class AuthController extends Controller
             ], 401);
         } else {
             cache()->forget('otp_' . $user->email);
-            $user->markEmailAsVerified();
-            return response()->json([
-                'message' => 'Email verified',
-            ]);
+            if ($request->is_reg) {
+                $user->markEmailAsVerified();
+                return response()->json([
+                    'message' => 'Email verified',
+                ]);
+            } else {
+                return response()->json([
+                    'message' => true,
+                ]);
+            }
         }
     }
 
@@ -201,17 +207,11 @@ class AuthController extends Controller
     {
         $data = $request->validated();
         $user = User::where('email', $data['email'])->first();
-        if ($user->validateOtp($data['otp'])) {
-            $user->password = bcrypt($data['password']);
-            $user->save();
-            return response()->json([
-                'message' => 'Password reset successfully',
-            ]);
-        } else {
-            return response()->json([
-                'message' => 'OTP is invalid',
-            ], 401);
-        }
+        $user->password = bcrypt($data['password']);
+        $user->save();
+        return response()->json([
+            'message' => 'Password reset successfully',
+        ]);
     }
 
     public function updateUser(UpdateUserRequest $request): JsonResponse
