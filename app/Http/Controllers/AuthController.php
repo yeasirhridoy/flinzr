@@ -15,6 +15,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -231,10 +232,10 @@ class AuthController extends Controller
 
             $image = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $imageData));
 
-            $imageName = uniqid().uniqid();
+            $imageName = Str::random(32);
 
             $s3Path = 'users/' . $imageName;
-            Storage::put($s3Path, $image);
+            Storage::put($s3Path, $image,'public');
 
             $data['image'] = $s3Path;
         }
