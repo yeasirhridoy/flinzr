@@ -25,9 +25,7 @@ class TagResource extends Resource
     {
         return $form
             ->schema([
-
                 Forms\Components\FileUpload::make('image')
-                    ->required()
                     ->imageEditor()
                     ->image()
                     ->columnSpanFull(),
@@ -57,6 +55,8 @@ class TagResource extends Resource
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->sortable()->label('Active'),
             ])
+            ->reorderable('order_column',)
+            ->defaultSort('order_column')
             ->defaultSort('created_at', 'desc')
             ->filters([
                 //

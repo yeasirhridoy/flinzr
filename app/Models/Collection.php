@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PlatformType;
 use App\Enums\SalesType;
+use App\Traits\MoveToTop;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +17,7 @@ use Spatie\EloquentSortable\SortableTrait;
 
 class Collection extends Model implements Sortable
 {
-    use HasFactory, SortableTrait, SoftDeletes;
+    use HasFactory, SortableTrait, SoftDeletes, MoveToTop;
 
     protected $guarded = [];
 
