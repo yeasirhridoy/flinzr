@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Enums\CommissionLevel;
 use App\Enums\Price;
 use App\Http\Requests\CoinPurchaseRequest;
+use App\Http\Requests\GiftFilterRequest;
 use App\Http\Requests\PurchaseFilterRequest;
 use App\Models\Filter;
+use App\Models\Gift;
 use App\Models\Purchase;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -99,6 +102,39 @@ class PurchaseController extends Controller
             auth()->user()->filters()->syncWithoutDetaching($request->filter_id);
             DB::commit();
             return response()->json(['message' => 'Purchase successful']);
+        }
+    }
+
+    public function giftFilter(GiftFilterRequest $request): JsonResponse
+    {
+        $user = User::find($request->user_id);
+        if ($user->filters->pluck('id')->contains($request->filter_id)) {
+            return response()->json(['message' => 'Filter already purchased'], 400);
+        } else {
+            DB::beginTransaction();
+            $sender = auth()->user();
+            $coin = $sender->coin;
+            if ($coin < Price::GiftFilter->getPrice()) {
+                DB::rollBack();
+                return response()->json(['message' => 'Insufficient coin'], 400);
+            }
+            $coin -= Price::GiftFilter->getPrice();
+            $sender->update(['coin' => $coin]);
+            $artist = Filter::findOrFail($request->filter_id)->collection->user;
+            $commissionLevel = $artist->level;
+            $percentage = $commissionLevel->getCommission();
+            $earning = (Price::GiftFilter->getPrice() / 25) * ($percentage / 100);
+            Gift::create([
+                'user_id' => $user->id,
+                'sender_id' => $sender->id,
+                'filter_id' => $request->filter_id,
+                'artist_id' => $artist->id,
+                'earning' => $earning,
+                'amount' => Price::GiftFilter->getPrice() / 25,
+            ]);
+            $user->filters()->syncWithoutDetaching($request->filter_id);
+            DB::commit();
+            return response()->json(['message' => 'Gift successful']);
         }
     }
 }

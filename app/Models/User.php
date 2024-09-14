@@ -33,7 +33,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         return $this->image ? Storage::url($this->image) : "https://ui-avatars.com/api/?name=" . urlencode($this->name);
     }
 
-    protected static function booted()
+    protected static function booted(): void
     {
         parent::saving(function (User $user) {
             if ($user->isDirty('type') && $user->getOriginal('type') === UserType::Influencer && $user->type !== UserType::Influencer) {
@@ -123,6 +123,16 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     public function purchases(): HasMany
     {
         return $this->hasMany(Purchase::class);
+    }
+
+    public function gifts(): HasMany
+    {
+        return $this->hasMany(Gift::class);
+    }
+
+    public function sentGifts(): HasMany
+    {
+        return $this->hasMany(Gift::class, 'sender_id');
     }
 
     public function followings(): HasManyThrough
