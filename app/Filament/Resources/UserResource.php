@@ -81,6 +81,9 @@ class UserResource extends Resource
                     ->wrap()
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\IconColumn::make('subscription_exists')->exists([
+                    'subscription' => fn(Builder $query) => $query->where('is_active', true),
+                ])->label('Subscribed'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -138,6 +141,7 @@ class UserResource extends Resource
                     TextEntry::make('email'),
                     TextEntry::make('coin')->badge()->color('primary'),
                     TextEntry::make('balance')->money()->badge()->color('success'),
+                    TextEntry::make('level')->badge()->color('info')->visible(fn(User $record) => $record->type === UserType::Artist),
                 ])->columns(3),
                 Section::make([
                     TextEntry::make('influencerRequest.snapchat')->badge()->label('Snapchat')->color(Color::Yellow),
