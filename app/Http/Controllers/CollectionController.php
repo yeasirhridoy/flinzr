@@ -217,9 +217,17 @@ class CollectionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id): CollectionResource
     {
-        //
+        $collection = Collection::with(['user', 'filters'])->where('is_active',true)->findOrFail($id);
+        $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
+        $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
+        $collection->is_favorite = $favoriteCollections->contains($collection->id);
+        $collection->filters->map(function ($filter) use ($purchasedFilters) {
+            $filter->is_purchased = $purchasedFilters->contains($filter->id);
+            return $filter;
+        });
+        return new CollectionResource($collection);
     }
 
     /**
