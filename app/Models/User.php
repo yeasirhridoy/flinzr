@@ -23,10 +23,11 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
+use Stephenjude\FilamentTwoFactorAuthentication\TwoFactorAuthenticatable;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerifyEmail
 {
-    use HasFactory, Notifiable, SoftDeletes, HasApiTokens;
+    use HasFactory, Notifiable, SoftDeletes, HasApiTokens, TwoFactorAuthenticatable;
 
     public function getFilamentAvatarUrl(): ?string
     {
