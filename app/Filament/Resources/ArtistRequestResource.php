@@ -70,7 +70,7 @@ class ArtistRequestResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('id')
-                    ->label('Request ID'),
+                    ->label('Request Id'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->since()
                     ->sortable(),
@@ -99,8 +99,8 @@ class ArtistRequestResource extends Resource
             ->schema([
                 Section::make()->schema([
                     TextEntry::make('full_name')->label('Beneficiary'),
-                    TextEntry::make('id_no'),
-                    TextEntry::make('phone'),
+                    TextEntry::make('id_no')->label('Id No.'),
+                    TextEntry::make('phone')->label('Mobile No.'),
                     TextEntry::make('url')->state('Visit')->icon('heroicon-o-arrow-top-right-on-square')->url(fn($record) => $record->url,true),
                 ])->columns(4)
             ]);

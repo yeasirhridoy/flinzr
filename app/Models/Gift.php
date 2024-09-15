@@ -21,4 +21,9 @@ class Gift extends Model
     {
         return $this->belongsTo(User::class, 'sender_id');
     }
+
+    public function filter(): BelongsTo
+    {
+        return $this->belongsTo(Filter::class);
+    }
 }

@@ -53,7 +53,7 @@ class PayoutRequestResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('id')
-                    ->label('Request ID'),
+                    ->label('Request Id'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->since()
                     ->sortable(),
@@ -80,8 +80,8 @@ class PayoutRequestResource extends Resource
             ->schema([
                 Section::make()->schema([
                     TextEntry::make('full_name')->label('Beneficiary'),
-                    TextEntry::make('id_no'),
-                    TextEntry::make('phone'),
+                    TextEntry::make('id_no')->label('Id No.'),
+                    TextEntry::make('phone')->label('Mobile No.'),
                     TextEntry::make('user.balance')->label('Balance')->badge()->money()->color('success'),
                 ])->columnSpanFull()->columns(2)
             ]);

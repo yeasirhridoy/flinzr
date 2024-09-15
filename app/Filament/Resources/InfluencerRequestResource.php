@@ -54,7 +54,7 @@ class InfluencerRequestResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('id')
-                    ->label('Request ID'),
+                    ->label('Request Id'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->since()
                     ->sortable(),
