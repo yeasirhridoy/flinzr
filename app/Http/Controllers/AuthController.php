@@ -169,7 +169,7 @@ class AuthController extends Controller
         return $appDetails;
     }
 
-    public function verifyEmail(EmailVerifyRequest $request): JsonResponse
+    public function verifyEmail(EmailVerifyRequest $request): UserResource|JsonResponse
     {
         $otp = $request->otp;
         $user = auth()->user();
@@ -185,9 +185,7 @@ class AuthController extends Controller
             cache()->forget('otp_' . $user->email);
             if ($request->is_reg) {
                 $user->markEmailAsVerified();
-                return response()->json([
-                    'message' => 'Email verified',
-                ]);
+                return new UserResource($user->load('country')->loadCount('followers', 'followings'));
             } else {
                 return response()->json([
                     'message' => true,
