@@ -10,6 +10,7 @@ use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\ResponseMiddleware;
+use App\Http\Resources\CountryResource;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(ResponseMiddleware::class)->group(function () {
@@ -29,6 +30,9 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
     Route::get('tags', [TagController::class, 'index']);
     Route::get('colors', [ColorController::class, 'index']);
     Route::get('settings', [UserController::class, 'settings']);
+    Route::get('countries',function (){
+        return CountryResource::collection(\App\Models\Country::all());
+    });
 
     Route::get('artists', [UserController::class, 'artists']);
 
