@@ -51,12 +51,12 @@ class UserController extends Controller
 
     public function myArtistRequest(): JsonResponse|ArtistRequestResource
     {
-        $artistRequest = ArtistRequest::query()->where('user_id', auth()->id())->first();
+        $artistRequest = ArtistRequest::query()->where('user_id', auth()->id())->where('created_at','>',now()->subMonth())->first();
 
         if ($artistRequest){
             return new ArtistRequestResource($artistRequest);
         } else{
-            return response()->json(['message' => 'No artist request found'], 404);
+            return response()->json(['message' => 'No request in last 30 days']);
         }
     }
 
