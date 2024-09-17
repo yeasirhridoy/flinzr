@@ -172,7 +172,7 @@ class AuthController extends Controller
     public function verifyEmail(EmailVerifyRequest $request): UserResource|JsonResponse
     {
         $otp = $request->otp;
-        $user = auth()->user();
+        $user = User::where('email', $request->email)->firstOrFail();
         if (!cache()->has('otp_' . $user->email)) {
             return response()->json([
                 'message' => 'OTP is invalid or expired',
