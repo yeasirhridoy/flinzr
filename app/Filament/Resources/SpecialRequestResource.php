@@ -85,6 +85,7 @@ class SpecialRequestResource extends Resource
                     TextEntry::make('platform')->badge(),
                     TextEntry::make('category.eng_name'),
                     TextEntry::make('occasion'),
+                    TextEntry::make('description')->columnSpanFull(),
                     Actions::make([
                         Action::make('download')
                             ->action(function (SpecialRequest $record) {
