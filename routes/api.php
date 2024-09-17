@@ -40,6 +40,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/user', [AuthController::class, 'user']);
         Route::put('/user', [AuthController::class, 'updateUser']);
+        Route::get('/artist-setting',[UserController::class,'artistSetting']);
         Route::post('/update-password', [AuthController::class, 'updatePassword']);
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/otp', [AuthController::class, 'otp']);
