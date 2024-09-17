@@ -78,6 +78,8 @@ class UserController extends Controller
         $data['level'] = auth('sanctum')->user()->level;
         $data['earnings'] = Purchase::query()->where('artist_id', auth('sanctum')->id())->sum('earning');
         $data['downloads'] = Purchase::query()->where('artist_id', auth('sanctum')->id())->count();
+        $data['next_level_target'] = auth('sanctum')->user()->level->getNextTarget();
+        $data['percent_completed'] = ($data['next_level_target'] - $data['downloads'])/($data['next_level_target'] - auth('sanctum')->user()->level->getTarget()) * 100;
         $data['payout_request'] = auth('sanctum')->user()->payoutRequest;
         $data['upload_requests'] = CountryResource::collection(auth('sanctum')->user()->collections()->latest()->get());
 
