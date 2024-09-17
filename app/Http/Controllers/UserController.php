@@ -18,17 +18,18 @@ class UserController extends Controller
     public function settings(): JsonResponse
     {
         $prices = [];
-        foreach (Price::cases() as $price){
+        foreach (Price::cases() as $price) {
             $prices[$price->value] = $price->getPrice();
         }
         return response()->json($prices);
     }
+
     /**
      * Display a listing of the resource.
      */
     public function artists(): AnonymousResourceCollection
     {
-        $users = User::query()->withCount('followers','followings')->where('type', UserType::Artist)->get();
+        $users = User::query()->withCount('followers', 'followings')->where('type', UserType::Artist)->get();
 
         $users->map(function ($user) {
             $user->is_following = $user->followers->contains('id', auth('sanctum')->id());
@@ -49,14 +50,22 @@ class UserController extends Controller
         return new ArtistRequestResource($artistRequest);
     }
 
-    public function myArtistRequest(): JsonResponse|ArtistRequestResource
+    public function myArtistRequest()
     {
-        $artistRequest = ArtistRequest::query()->where('user_id', auth()->id())->where('created_at','>',now()->subMonth())->first();
+        $artistRequest = ArtistRequest::query()->where('user_id', auth('sanctum')->id())->where('created_at', '>', now()->subMonth())->latest()->first();
 
-        if ($artistRequest){
-            return new ArtistRequestResource($artistRequest);
-        } else{
-            return response()->json(['message' => 'No request in last 30 days']);
+        if ($artistRequest) {
+            return response()->json([
+                'requested' => true,
+                'status' => $artistRequest->status->getLabel(),
+                'message' => 'Requested in last 30 days'
+            ]);
+        } else {
+            return response()->json([
+                'requested' => false,
+                'status' => null,
+                'message' => 'No request in last 30 days'
+            ]);
         }
     }
 
