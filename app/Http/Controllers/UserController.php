@@ -6,8 +6,11 @@ use App\Enums\Price;
 use App\Enums\UserType;
 use App\Http\Requests\ArtistRequestRequest;
 use App\Http\Resources\ArtistRequestResource;
+use App\Http\Resources\CountryResource;
 use App\Http\Resources\MinimumUserResource;
+use App\Http\Resources\PayoutRequestResource;
 use App\Models\ArtistRequest;
+use App\Models\Purchase;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -69,34 +72,22 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function artistSetting(): JsonResponse
     {
-        //
-    }
+        $data = [];
+        $data['level'] = auth('sanctum')->user()->level;
+        $data['earnings'] = Purchase::query()->where('artist_id', auth('sanctum')->id())->sum('earning');
+        $data['downloads'] = Purchase::query()->where('artist_id', auth('sanctum')->id())->count();
+        $data['payout_request'] = PayoutRequestResource::make(auth('sanctum')->user()->payoutRequest);
+        $data['upload_requests'] = CountryResource::collection(auth('sanctum')->user()->collections()->latest()->get());
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+        return response()->json($data);
     }
 
     /**
      * Display the specified resource.
      */
     public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
     {
         //
     }
