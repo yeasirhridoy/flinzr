@@ -50,7 +50,7 @@ class UserController extends Controller
         return new ArtistRequestResource($artistRequest);
     }
 
-    public function myArtistRequest()
+    public function myArtistRequest(): JsonResponse
     {
         $artistRequest = ArtistRequest::query()->where('user_id', auth('sanctum')->id())->where('created_at', '>', now()->subMonth())->latest()->first();
 
