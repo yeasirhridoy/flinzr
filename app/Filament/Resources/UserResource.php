@@ -93,7 +93,7 @@ class UserResource extends Resource
                     ->label('Active'),
                 Tables\Columns\ToggleColumn::make('is_admin')
                     ->sortable()
-                    ->label('Manager')->visible(fn() => auth()->user()->email == 'devoartsa@gmail.com'),
+                    ->label('Editor')->visible(fn() => auth()->user()->email == 'devoartsa@gmail.com'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
