@@ -2,12 +2,15 @@
 
 namespace App\Enums;
 
+use App\Traits\EnumFeatures;
 use Filament\Support\Colors\Color;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
 enum SalesType: string implements HasLabel, HasColor
 {
+    use EnumFeatures;
+
     case Free = 'free';
     case Paid = 'paid';
     case Subscription = 'subscription';

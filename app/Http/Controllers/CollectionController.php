@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PlatformType;
+use App\Enums\SalesType;
 use App\Http\Requests\CollectionStoreRequest;
 use App\Http\Resources\CollectionResource;
 use App\Models\Collection;
@@ -136,6 +137,7 @@ class CollectionController extends Controller
             'query' => 'string',
             'tags' => 'string|regex:/^[0-9,]+$/',
             'colors' => 'string|regex:/^[0-9,]+$/',
+            'sales_type' => [Rule::in(SalesType::values())],
         ];
 
         request()->validate($rules);
@@ -149,6 +151,10 @@ class CollectionController extends Controller
             $collections->where('type', request('type'));
         } else {
             $collections->whereNot('type', PlatformType::Banner);
+        }
+
+        if (request()->filled('sales_type')) {
+            $collections->where('sales_type', request('sales_type'));
         }
 
         if (request()->filled('category_id')) {
