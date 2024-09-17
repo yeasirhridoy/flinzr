@@ -21,7 +21,7 @@ class FavoriteController extends Controller
         ]);
 
         // Build the base query
-        $query = auth()->user()->favoriteCollections()->active()->with('user');
+        $query = auth()->user()->favoriteCollections()->active()->with(['user','filters']);
 
         // Apply platform filter if provided
         if ($type = request()->input('type')) {
