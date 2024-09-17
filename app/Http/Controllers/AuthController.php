@@ -237,17 +237,17 @@ class AuthController extends Controller
 //
 //            $data['image'] = $s3Path;
 //        }
-        if ($request->image) {
-            $svgData = $request->image;
-
-            $imageName = Str::random(32) . '.svg';
-
-            $s3Path = 'users/' . $imageName;
-
-            Storage::put($s3Path, $svgData, 'public');
-
-            $data['image'] = $s3Path;
-        }
+//        if ($request->image) {
+//            $svgData = $request->image;
+//
+//            $imageName = Str::random(32) . '.svg';
+//
+//            $s3Path = 'users/' . $imageName;
+//
+//            Storage::put($s3Path, $svgData, 'public');
+//
+//            $data['image'] = $s3Path;
+//        }
 
         $user = auth()->user();
         $user->update($data);

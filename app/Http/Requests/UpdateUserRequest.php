@@ -26,6 +26,7 @@ class UpdateUserRequest extends FormRequest
             'username' => 'string|unique:users,name,' . auth()->id(),
             'country_id' => 'exists:countries,id',
             'password' => 'string|min:6',
+            'image' => 'string|nullable'
         ];
     }
 }
