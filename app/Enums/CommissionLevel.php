@@ -9,7 +9,6 @@ enum CommissionLevel: int implements HasLabel
 {
     use EnumFeatures;
 
-    case Level0 = 0;
     case Level1 = 1;
     case Level2 = 2;
     case Level3 = 3;
@@ -22,7 +21,6 @@ enum CommissionLevel: int implements HasLabel
     public function getTarget(): int
     {
         return match ($this) {
-            self::Level0 => 0,
             self::Level1 => 500,
             self::Level2 => 1000,
             self::Level3 => 2000,
@@ -34,25 +32,9 @@ enum CommissionLevel: int implements HasLabel
         };
     }
 
-    public function getNextTarget(): ?int
-    {
-        return match ($this) {
-            self::Level0 => 500,
-            self::Level1 => 1000,
-            self::Level2 => 2000,
-            self::Level3 => 4000,
-            self::Level4 => 8000,
-            self::Level5 => 16000,
-            self::Level6 => 32000,
-            self::Level7 => 64000,
-            self::Level8 => null,
-        };
-    }
-
     public function getCommission(): int
     {
         return match ($this) {
-            self::Level0 => 0,
             self::Level1 => 10,
             self::Level2 => 15,
             self::Level3 => 20,
@@ -67,7 +49,6 @@ enum CommissionLevel: int implements HasLabel
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::Level0 => 'Level 0',
             self::Level1 => 'Level 1',
             self::Level2 => 'Level 2',
             self::Level3 => 'Level 3',

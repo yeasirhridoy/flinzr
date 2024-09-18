@@ -17,6 +17,7 @@ class CollectionResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'category_id' => $this->category_id,
             'type' => $this->type,
             'eng_name' => $this->eng_name,
             'eng_description' => $this->eng_description,
@@ -31,6 +32,8 @@ class CollectionResource extends JsonResource
             'cover' => $this->avatar ? Storage::url($this->cover) : null,
             'user'=> new MinimumUserResource($this->whenLoaded('user')),
             'filters' => FilterResource::collection($this->whenLoaded('filters')),
+            'colors' => ColorResource::collection($this->whenLoaded('colors')),
+            'created_at' => $this->created_at,
         ];
     }
 }
