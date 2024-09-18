@@ -21,7 +21,7 @@ class CollectionController extends Controller
             'type' => 'in:snapchat,instagram,tiktok',
         ]);
 
-        $purchasedCollections = Collection::with(['user', 'filters'])->whereHas('filters', function ($query) {
+        $purchasedCollections = Collection::with(['user', 'filters','colors'])->whereHas('filters', function ($query) {
             $query->whereIn('id', auth('sanctum')->user()->purchases()->pluck('filter_id'));
         });
 
@@ -48,7 +48,7 @@ class CollectionController extends Controller
 
     public function giftedCollections()
     {
-        $giftedCollections = Collection::with(['user', 'filters'])->whereHas('filters', function ($query) {
+        $giftedCollections = Collection::with(['user', 'filters', 'colors'])->whereHas('filters', function ($query) {
             $query->whereIn('id', auth('sanctum')->user()->gifts()->pluck('filter_id'));
         })->get();
 
@@ -86,7 +86,7 @@ class CollectionController extends Controller
                     });
                 })->orWhereDoesntHave('regions');
             })
-            ->with(['user', 'filters']);
+            ->with(['user', 'filters','colors']);
 
         if (request()->filled('type')) {
             $collectionsQuery->where('type', request('type'));
@@ -144,7 +144,7 @@ class CollectionController extends Controller
 
         $collections = Collection::query()
             ->where('is_active', true)
-            ->with(['user', 'filters'])
+            ->with(['user', 'filters','colors'])
             ->orderBy('order_column');
 
         if (request()->filled('type')) {
@@ -247,7 +247,7 @@ class CollectionController extends Controller
      */
     public function show(string $id): CollectionResource
     {
-        $collection = Collection::with(['user', 'filters'])->where('is_active',true)->findOrFail($id);
+        $collection = Collection::with(['user', 'filters', 'colors'])->where('is_active',true)->findOrFail($id);
         $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
         $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
         $collection->is_favorite = $favoriteCollections->contains($collection->id);
