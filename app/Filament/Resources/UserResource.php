@@ -95,6 +95,9 @@ class UserResource extends Resource
                     ->sortable()
                     ->label('Editor')->visible(fn() => auth()->user()->email == 'devoartsa@gmail.com'),
             ])
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->whereNot('email','devoartsa@gmail.com');
+            })
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Tables\Filters\Filter::make('created_at')

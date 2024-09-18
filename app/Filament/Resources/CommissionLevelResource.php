@@ -32,65 +32,81 @@ class CommissionLevelResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Level 1')->schema([
                     Forms\Components\TextInput::make('level_1_target')
+                        ->label('Target')
                         ->required()
                         ->numeric(),
                     Forms\Components\TextInput::make('level_1_commission')
+                        ->label('Percentage')
                         ->required()
                         ->numeric(),
                 ])->columnSpan(1),
                 Forms\Components\Section::make('Level 2')->schema([
                     Forms\Components\TextInput::make('level_2_target')
+                        ->label('Target')
                         ->required()
                         ->numeric(),
                     Forms\Components\TextInput::make('level_2_commission')
+                        ->label('Percentage')
                         ->required()
                         ->numeric(),
                 ])->columnSpan(1),
                 Forms\Components\Section::make('Level 3')->schema([
                     Forms\Components\TextInput::make('level_3_target')
+                        ->label('Target')
                         ->required()
                         ->numeric(),
                     Forms\Components\TextInput::make('level_3_commission')
+                        ->label('Percentage')
                         ->required()
                         ->numeric(),
                 ])->columnSpan(1),
                 Forms\Components\Section::make('Level 4')->schema([
                     Forms\Components\TextInput::make('level_4_target')
+                        ->label('Target')
                         ->required()
                         ->numeric(),
                     Forms\Components\TextInput::make('level_4_commission')
+                        ->label('Percentage')
                         ->required()
                         ->numeric(),
                 ])->columnSpan(1),
                 Forms\Components\Section::make('Level 5')->schema([
                     Forms\Components\TextInput::make('level_5_target')
+                        ->label('Target')
                         ->required()
                         ->numeric(),
                     Forms\Components\TextInput::make('level_5_commission')
+                        ->label('Percentage')
                         ->required()
                         ->numeric(),
                 ])->columnSpan(1),
                 Forms\Components\Section::make('Level 6')->schema([
                     Forms\Components\TextInput::make('level_6_target')
+                        ->label('Target')
                         ->required()
                         ->numeric(),
                     Forms\Components\TextInput::make('level_6_commission')
+                        ->label('Percentage')
                         ->required()
                         ->numeric(),
                 ])->columnSpan(1),
                 Forms\Components\Section::make('Level 7')->schema([
                     Forms\Components\TextInput::make('level_7_target')
+                        ->label('Target')
                         ->required()
                         ->numeric(),
                     Forms\Components\TextInput::make('level_7_commission')
+                        ->label('Percentage')
                         ->required()
                         ->numeric(),
                 ])->columnSpan(1),
                 Forms\Components\Section::make('Level 8')->schema([
                     Forms\Components\TextInput::make('level_8_target')
+                        ->label('Target')
                         ->required()
                         ->numeric(),
                     Forms\Components\TextInput::make('level_8_commission')
+                        ->label('Percentage')
                         ->required()
                         ->numeric(),
                 ])->columnSpan(1),
