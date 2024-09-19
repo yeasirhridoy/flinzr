@@ -33,11 +33,13 @@ class CollectionController extends Controller
 
         $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
         $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
+        $giftedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->gifts()->pluck('filter_id') : collect();
 
-        $purchasedCollections->map(function ($collection) use ($purchasedFilters, $favoriteCollections) {
+        $purchasedCollections->map(function ($collection) use ($giftedFilters, $purchasedFilters, $favoriteCollections) {
             $collection->is_favorite = $favoriteCollections->contains($collection->id);
-            $collection->filters->map(function ($filter) use ($purchasedFilters) {
+            $collection->filters->map(function ($filter) use ($giftedFilters, $purchasedFilters) {
                 $filter->is_purchased = $purchasedFilters->contains($filter->id);
+                $filter->is_gifted = $giftedFilters->contains($filter->id);
                 return $filter;
             });
             return $collection;
@@ -46,7 +48,7 @@ class CollectionController extends Controller
         return CollectionResource::collection($purchasedCollections);
     }
 
-    public function giftedCollections()
+    public function giftedCollections(): AnonymousResourceCollection
     {
         $giftedCollections = Collection::with(['user', 'filters', 'colors'])->whereHas('filters', function ($query) {
             $query->whereIn('id', auth('sanctum')->user()->gifts()->pluck('filter_id'));
@@ -59,6 +61,7 @@ class CollectionController extends Controller
             $collection->is_favorite = $favoriteCollections->contains($collection->id);
             $collection->filters->map(function ($filter) use ($purchasedFilters) {
                 $filter->is_purchased = $purchasedFilters->contains($filter->id);
+                $filter->is_gifted = true;
                 return $filter;
             });
             return $collection;
@@ -94,19 +97,22 @@ class CollectionController extends Controller
 
         $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
         $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
+        $giftedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->gifts()->pluck('filter_id') : collect();
 
-        $trendingCollections = $collectionsQuery->where('is_trending', true)->get()->map(function ($collection) use ($purchasedFilters, $favoriteCollections) {
+        $trendingCollections = $collectionsQuery->where('is_trending', true)->get()->map(function ($collection) use ($giftedFilters, $purchasedFilters, $favoriteCollections) {
             $collection->is_favorite = $favoriteCollections->contains($collection->id);
-            $collection->filters->map(function ($filter) use ($purchasedFilters) {
+            $collection->filters->map(function ($filter) use ($giftedFilters, $purchasedFilters) {
                 $filter->is_purchased = $purchasedFilters->contains($filter->id);
+                $filter->is_gifted = $giftedFilters->contains($filter->id);
                 return $filter;
             });
             return $collection;
         });
-        $featuredCollections = $collectionsQuery->where('is_featured', true)->get()->map(function ($collection) use ($purchasedFilters, $favoriteCollections) {
+        $featuredCollections = $collectionsQuery->where('is_featured', true)->get()->map(function ($collection) use ($giftedFilters, $purchasedFilters, $favoriteCollections) {
             $collection->is_favorite = $favoriteCollections->contains($collection->id);
-            $collection->filters->map(function ($filter) use ($purchasedFilters) {
+            $collection->filters->map(function ($filter) use ($giftedFilters, $purchasedFilters) {
                 $filter->is_purchased = $purchasedFilters->contains($filter->id);
+                $filter->is_gifted = $giftedFilters->contains($filter->id);
                 return $filter;
             });
             return $collection;
@@ -205,21 +211,24 @@ class CollectionController extends Controller
 
         $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
         $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
+        $giftedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->gifts()->pluck('filter_id') : collect();
 
         if (\request('type') === PlatformType::Banner->value) {
-            $collections = $collections->get()->map(function ($collection) use ($purchasedFilters, $favoriteCollections) {
+            $collections = $collections->get()->map(function ($collection) use ($giftedFilters, $purchasedFilters, $favoriteCollections) {
                 $collection->is_favorite = $favoriteCollections->contains($collection->id);
-                $collection->filters->map(function ($filter) use ($purchasedFilters) {
+                $collection->filters->map(function ($filter) use ($giftedFilters, $purchasedFilters) {
                     $filter->is_purchased = $purchasedFilters->contains($filter->id);
+                    $filter->is_gifted = $giftedFilters->contains($filter->id);
                     return $filter;
                 });
                 return $collection;
             });
         } else {
-            $collections = $collections->paginate(10)->through(function ($collection) use ($purchasedFilters, $favoriteCollections) {
+            $collections = $collections->paginate(10)->through(function ($collection) use ($giftedFilters, $purchasedFilters, $favoriteCollections) {
                 $collection->is_favorite = $favoriteCollections->contains($collection->id);
-                $collection->filters->map(function ($filter) use ($purchasedFilters) {
+                $collection->filters->map(function ($filter) use ($giftedFilters, $purchasedFilters) {
                     $filter->is_purchased = $purchasedFilters->contains($filter->id);
+                    $filter->is_gifted = $giftedFilters->contains($filter->id);
                     return $filter;
                 });
                 return $collection;
@@ -250,9 +259,11 @@ class CollectionController extends Controller
         $collection = Collection::with(['user', 'filters', 'colors'])->where('is_active',true)->findOrFail($id);
         $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
         $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
+        $giftedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->gifts()->pluck('filter_id') : collect();
         $collection->is_favorite = $favoriteCollections->contains($collection->id);
-        $collection->filters->map(function ($filter) use ($purchasedFilters) {
+        $collection->filters->map(function ($filter) use ($giftedFilters, $purchasedFilters) {
             $filter->is_purchased = $purchasedFilters->contains($filter->id);
+            $filter->is_gifted = $giftedFilters->contains($filter->id);
             return $filter;
         });
         return new CollectionResource($collection);
