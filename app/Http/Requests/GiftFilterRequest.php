@@ -23,7 +23,7 @@ class GiftFilterRequest extends FormRequest
     {
         return [
             'filter_id' => 'required|exists:filters,id',
-            'user_id' => 'required|exists:users,id',
+            'username' => 'required|exists:users,username',
         ];
     }
 }

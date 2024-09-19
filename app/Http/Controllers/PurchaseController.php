@@ -107,7 +107,7 @@ class PurchaseController extends Controller
 
     public function giftFilter(GiftFilterRequest $request): JsonResponse
     {
-        $user = User::find($request->user_id);
+        $user = User::query()->where('username',$request->username)->first();
         if ($user->filters->pluck('id')->contains($request->filter_id)) {
             return response()->json(['message' => 'Filter already purchased'], 400);
         } else {
