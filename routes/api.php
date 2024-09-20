@@ -68,6 +68,8 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
             Route::get('followings', [FollowController::class, 'followings']);
 
             Route::post('subscription',[SubscriptionController::class,'store']);
+
+            Route::post('daily-coin',[SubscriptionController::class,'dailyCoin']);
         });
     });
 });

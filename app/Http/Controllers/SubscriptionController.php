@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SubscriptionController extends Controller
 {
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $rules = [
             'data' => 'nullable|array',
@@ -23,5 +24,18 @@ class SubscriptionController extends Controller
         }
 
         return response()->json(['message' => 'Subscription updated successfully']);
+    }
+
+    public function dailyCoin()
+    {
+        $subscription = auth('sanctum')->user()->subscription;
+        $cacheKey = 'daily-coin-claim-' . auth('sanctum')->id() . '-' . now()->format('Y-m-d');
+        if ($subscription && ($subscription->ends_at >= now() || $subscription->ends_at == null) && !cache()->has($cacheKey)) {
+            auth('sanctum')->user()->increment('coins', 10);
+            cache()->put($cacheKey, true, now()->addDay());
+            return response()->json(['message' => 'Coins added successfully']);
+        } else {
+            return response()->json(['message' => 'You have already claimed your daily coins']);
+        }
     }
 }
