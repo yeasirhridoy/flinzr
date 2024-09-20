@@ -26,7 +26,7 @@ class SubscriptionController extends Controller
         return response()->json(['message' => 'Subscription updated successfully']);
     }
 
-    public function dailyCoin()
+    public function dailyCoin(): JsonResponse
     {
         $subscription = auth('sanctum')->user()->subscription;
         $cacheKey = 'daily-coin-claim-' . auth('sanctum')->id() . '-' . now()->format('Y-m-d');
