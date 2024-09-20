@@ -56,12 +56,13 @@ class CollectionController extends Controller
 
         $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
         $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
+        $giftedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->gifts()->pluck('filter_id') : collect();
 
-        $giftedCollections->map(function ($collection) use ($purchasedFilters, $favoriteCollections) {
+        $giftedCollections->map(function ($collection) use ($giftedFilters, $purchasedFilters, $favoriteCollections) {
             $collection->is_favorite = $favoriteCollections->contains($collection->id);
-            $collection->filters->map(function ($filter) use ($purchasedFilters) {
+            $collection->filters->map(function ($filter) use ($giftedFilters, $purchasedFilters) {
                 $filter->is_purchased = $purchasedFilters->contains($filter->id);
-                $filter->is_gifted = true;
+                $filter->is_gifted = $giftedFilters->contains($filter->id);
                 return $filter;
             });
             return $collection;

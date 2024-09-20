@@ -7,6 +7,7 @@ use App\Http\Controllers\ColorController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\ResponseMiddleware;
@@ -65,6 +66,8 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
             Route::post('follow', [FollowController::class, 'toggleFollow']);
             Route::get('followers', [FollowController::class, 'followers']);
             Route::get('followings', [FollowController::class, 'followings']);
+
+            Route::post('subscription',[SubscriptionController::class,'store']);
         });
     });
 });
