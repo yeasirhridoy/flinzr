@@ -32,7 +32,7 @@ class SubscriptionController extends Controller
         $cacheKey = 'daily-coin-claim-' . auth('sanctum')->id() . '-' . now()->format('Y-m-d');
         if ($subscription && ($subscription->ends_at >= now() || $subscription->ends_at == null)) {
             if (!cache()->has($cacheKey)) {
-                auth('sanctum')->user()->increment('coins', 10);
+                auth('sanctum')->user()->increment('coin', 10);
                 cache()->put($cacheKey, true, now()->addDay());
                 return response()->json(['message' => 'Coins added successfully']);
             } else {
