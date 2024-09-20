@@ -131,11 +131,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         return $this->hasMany(Gift::class);
     }
 
-    public function subscription(): HasOne
-    {
-        return $this->hasOne(Subscription::class);
-    }
-
     public function sentGifts(): HasMany
     {
         return $this->hasMany(Gift::class, 'sender_id');

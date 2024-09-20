@@ -30,6 +30,7 @@ class UserResource extends JsonResource
             'is_active' => $this->is_active,
             'followers_count' => $this->followers_count,
             'followings_count' => $this->followings_count,
+            'has_subscription' => $this->subscription && ($this->subscription->ends_at === null || $this->subscription->ends_at > now()),
         ];
     }
 }
