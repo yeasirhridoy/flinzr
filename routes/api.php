@@ -67,6 +67,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
             Route::post('follow', [FollowController::class, 'toggleFollow']);
             Route::get('followers', [FollowController::class, 'followers']);
             Route::get('followings', [FollowController::class, 'followings']);
+            Route::get('follow',[FollowController::class,'follow']);
 
             Route::post('subscription',[SubscriptionController::class,'store']);
 

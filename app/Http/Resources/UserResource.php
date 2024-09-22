@@ -28,6 +28,7 @@ class UserResource extends JsonResource
             'coin' => $this->coin,
             'verified' => !!$this->email_verified_at,
             'is_active' => $this->is_active,
+            'received_coin' => $this->received_coin ?? false,
             'followers_count' => $this->followers_count,
             'followings_count' => $this->followings_count,
             'has_subscription' => $this->subscription && ($this->subscription->ends_at === null || $this->subscription->ends_at > now()),

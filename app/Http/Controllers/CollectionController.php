@@ -11,6 +11,8 @@ use App\Models\Country;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class CollectionController extends Controller
@@ -21,7 +23,7 @@ class CollectionController extends Controller
             'type' => 'in:snapchat,instagram,tiktok',
         ]);
 
-        $purchasedCollections = Collection::with(['user', 'filters','colors'])->whereHas('filters', function ($query) {
+        $purchasedCollections = Collection::with(['user', 'filters', 'colors'])->whereHas('filters', function ($query) {
             $query->whereIn('id', auth('sanctum')->user()->purchases()->pluck('filter_id'));
         });
 
@@ -90,7 +92,7 @@ class CollectionController extends Controller
                     });
                 })->orWhereDoesntHave('regions');
             })
-            ->with(['user', 'filters','colors']);
+            ->with(['user', 'filters', 'colors']);
 
         if (request()->filled('type')) {
             $collectionsQuery->where('type', request('type'));
@@ -151,7 +153,7 @@ class CollectionController extends Controller
 
         $collections = Collection::query()
             ->where('is_active', true)
-            ->with(['user', 'filters','colors'])
+            ->with(['user', 'filters', 'colors'])
             ->orderBy('order_column');
 
         if (request()->filled('type')) {
@@ -245,10 +247,27 @@ class CollectionController extends Controller
     public function store(CollectionStoreRequest $request): CollectionResource
     {
         $data = $request->validated();
-        $filtersData = $data['filters'];
+        $filters = $data['filters'];
         $collectionData = collect($data)->except('filters')->toArray();
+        $collectionData['type'] = PlatformType::Snapchat;
+        $collectionData['sales_type'] = SalesType::Paid;
         $collection = Collection::create($collectionData);
-        $collection->filters()->createMany($filtersData);
+
+        $filtersData = collect($filters)->map(function ($filter) {
+            $image = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $filter));
+            $path = 'filters/' . uniqid() . '.png';
+            Storage::put($path, $image, 'public');
+            return $path;
+        });
+
+        $formattedFilters = collect($filtersData)->map(function ($filter) {
+            return [
+                'image' => $filter,
+                'name' => strtoupper(Str::random(8))
+            ];
+        });
+
+        $collection->filters()->createMany($formattedFilters);
         return new CollectionResource($collection->load('filters'));
     }
 
@@ -257,7 +276,7 @@ class CollectionController extends Controller
      */
     public function show(string $id): CollectionResource
     {
-        $collection = Collection::with(['user', 'filters', 'colors'])->where('is_active',true)->findOrFail($id);
+        $collection = Collection::with(['user', 'filters', 'colors'])->where('is_active', true)->findOrFail($id);
         $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
         $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
         $giftedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->gifts()->pluck('filter_id') : collect();

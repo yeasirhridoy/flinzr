@@ -63,7 +63,16 @@ class AuthController extends Controller
 
     public function user(Request $request): JsonResponse
     {
-        return response()->json(new UserResource($request->user()->load('country')->loadCount('followers', 'followings')));
+        $user = $request->user();
+        $subscription = $user->subscription;
+        $cacheKey = 'daily-coin-claim-' . auth('sanctum')->id() . '-' . now()->format('Y-m-d');
+        $user->received_coin = false;
+        if ($subscription && ($subscription->ends_at >= now() || $subscription->ends_at == null) && !cache()->has($cacheKey)) {
+            auth('sanctum')->user()->increment('coin', 1);
+            cache()->put($cacheKey, true, now()->addDay());
+            $user->received_coin = true;
+        }
+        return response()->json(new UserResource($user->load('country')->loadCount('followers', 'followings')));
     }
 
     public function otp(): JsonResponse

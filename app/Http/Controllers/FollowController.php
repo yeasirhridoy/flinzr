@@ -41,4 +41,11 @@ class FollowController extends Controller
     {
         return MinimumUserResource::collection(auth()->user()->followings);
     }
+
+    public function follow(): JsonResponse
+    {
+        $data['followers'] = MinimumUserResource::collection(auth()->user()->followers);
+        $data['followings'] = MinimumUserResource::collection(auth()->user()->followings);
+        return response()->json($data);
+    }
 }

@@ -26,18 +26,9 @@ class CollectionStoreRequest extends FormRequest
     {
         return [
             'category_id' => 'required|exists:categories,id',
-            'type' => ['required', Rule::enum(PlatformType::class)],
             'eng_name' => 'required|string|max:255',
             'eng_description' => 'required|string|max:255',
-            'arabic_name' => 'required|string|max:255',
-            'arabic_description' => 'required|string|max:255',
-            'sales_type' => ['required', Rule::enum(SalesType::class)],
-            'avatar' => 'required',
-            'thumbnail' => 'required',
-            'cover' => 'required',
             'filters' => 'required|array|min:1|max:8',
-            'filters.*.name' => 'required|string|max:255',
-            'filters.*.image' => 'required|string|max:255',
         ];
     }
 }

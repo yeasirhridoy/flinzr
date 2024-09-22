@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CollectionRequestRequest;
 use App\Http\Requests\InfluencerRequestRequest;
 use App\Models\Country;
 use Illuminate\Http\JsonResponse;
@@ -27,5 +28,10 @@ class RequestController extends Controller
             $influencerRequest->update($data);
         }
         return response()->json($influencerRequest);
+    }
+
+    public function storeCollectionRequest(CollectionRequestRequest $request)
+    {
+
     }
 }
