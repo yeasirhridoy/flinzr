@@ -197,12 +197,8 @@ class CollectionController extends Controller
             });
         }
 
-        if ((auth('sanctum')->check() && auth('sanctum')->user()->country_id) || request()->filled('country_id') || request()->filled('country_code')) {
-            if (\request()->filled('country_code')) {
-                $countryId = Country::where('code', request('country_code'))->first()->id;
-            } else {
-                $countryId = auth('sanctum')->check() ? auth('sanctum')->user()->country_id : request('country_id');
-            }
+        if (request()->filled('country_code')) {
+            $countryId = Country::where('code', request('country_code'))->first()->id;
             $collections->where(function ($query) use ($countryId) {
                 $query->whereHas('regions', function ($query) use ($countryId) {
                     $query->whereHas('countries', function ($query) use ($countryId) {

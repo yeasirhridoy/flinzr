@@ -37,6 +37,17 @@ class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         $data = $request->validated();
+        $data['email'] = $data['username'];
+        if (!filter_var($data['username'], FILTER_VALIDATE_EMAIL)) {
+            $user = User::where('username', $data['username'])->first();
+            if (!$user) {
+                return response()->json([
+                    'message' => 'Invalid credentials',
+                ], 401);
+            }
+            $data['email'] = $user->email;
+        }
+        unset($data['username']);
         if (!auth()->attempt($data)) {
             return response()->json([
                 'message' => 'Invalid credentials',
