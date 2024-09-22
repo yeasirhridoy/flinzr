@@ -7,6 +7,7 @@ use App\Http\Controllers\ColorController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\RequestController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
@@ -70,6 +71,8 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
             Route::post('subscription',[SubscriptionController::class,'store']);
 
             Route::post('daily-coin',[SubscriptionController::class,'dailyCoin']);
+            Route::get('influencer-request',[RequestController::class,'getInfluencerRequest']);
+            Route::post('influencer-request',[RequestController::class,'storeInfluencerRequest']);
         });
     });
 });
