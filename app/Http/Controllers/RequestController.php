@@ -30,8 +30,24 @@ class RequestController extends Controller
         return response()->json($influencerRequest);
     }
 
-    public function storeCollectionRequest(CollectionRequestRequest $request)
+    public function storePayoutRequest(Request $request)
     {
+        $request->validate([
+            'full_name' => ['required', 'string'],
+            'id_no' => ['required', 'string'],
+            'phone' => ['required', 'string'],
+            'country_code' => ['required', 'string', 'exists:countries,code'],
+        ]);
+        $data = $request->all();
+        $data['country_id'] = Country::where('code', $data['country_code'])->first()->id;
+        unset($data['country_code']);
+        $payoutRequest = $request->user()->payoutRequest;
 
+        if ($payoutRequest) {
+            $payoutRequest->update($data);
+        } else {
+            $payoutRequest = $request->user()->payoutRequest()->create($data);
+        }
+        return response()->json($payoutRequest->fresh());
     }
 }

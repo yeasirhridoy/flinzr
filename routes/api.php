@@ -78,6 +78,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
             Route::post('daily-coin',[SubscriptionController::class,'dailyCoin']);
             Route::get('influencer-request',[RequestController::class,'getInfluencerRequest']);
             Route::post('influencer-request',[RequestController::class,'storeInfluencerRequest']);
+            Route::post('payout-request',[RequestController::class,'storePayoutRequest']);
         });
     });
 });
