@@ -45,7 +45,7 @@ class PayoutRequestResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
-                    ->description(fn($record) => $record->user->username)
+                    ->description(fn($record) => $record->user?->username ?? 'Deleted User')
                     ->label('User')
                     ->searchable()
                     ->sortable(),
