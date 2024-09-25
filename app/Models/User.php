@@ -31,7 +31,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
 
     public function getFilamentAvatarUrl(): ?string
     {
-        return $this->image ? Storage::url($this->image) : "https://ui-avatars.com/api/?name=" . urlencode($this->name);
+        return "https://ui-avatars.com/api/?name=" . urlencode($this->name);
     }
 
     protected static function booted(): void

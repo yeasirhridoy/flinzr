@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Filament\Resources\CountryResource;
 use App\Filament\Resources\UserResource;
 use App\Models\Purchase;
+use App\Services\DashboardService;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
@@ -37,6 +38,7 @@ class TopSalesByCountries extends BaseWidget
                 Tables\Columns\ImageColumn::make('image')->circular()->width(40),
                 Tables\Columns\TextColumn::make('total_sales')->label('Revenue')
                     ->money()
+                    ->state(fn($record) => DashboardService::formatNumber($record->total_sales / 100))
                    ->description(fn($record) => $record->name),
                 Tables\Columns\TextColumn::make('percent')
                     ->color('success')

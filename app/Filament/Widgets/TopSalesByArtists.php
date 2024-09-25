@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Filament\Resources\UserResource;
 use App\Models\User;
+use App\Services\DashboardService;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
@@ -30,8 +31,12 @@ class TopSalesByArtists extends BaseWidget
                     ->limit(10)
             )
             ->columns([
-                Tables\Columns\ImageColumn::make('image')->circular()->default(fn($record) => 'https://ui-avatars.com/api/?length=1&name=' . urlencode($record->name))->width(40),
-                Tables\Columns\TextColumn::make('total_earned')->label('Revenue')->money()->description(fn($record) => $record->username),
+                Tables\Columns\ImageColumn::make('image')->circular()->state(fn($record) => 'https://ui-avatars.com/api/?length=1&name=' . urlencode($record->name))->width(40),
+                Tables\Columns\TextColumn::make('total_earned')
+                    ->label('Revenue')
+                    ->money()
+                    ->state(fn($record) => DashboardService::formatNumber($record->total_earned / 100))
+                    ->description(fn($record) => $record->username),
                 Tables\Columns\TextColumn::make('level')->badge(),
             ])
             ->paginated(false);

@@ -49,7 +49,7 @@ class StatsOverview extends BaseWidget
         $specialOrderData = DashboardService::getData(Trend::query($specialOrderQuery->clone()), array_merge($this->filters,['period' => 'custom']))->map(fn ($value) => $value->aggregate)->toArray();
 
         return [
-            Stat::make('Revenue', DashboardService::formatNumber($purchaseQuery->clone()->sum('amount')))
+            Stat::make('Revenue', DashboardService::formatNumber($purchaseQuery->clone()->sum('amount') / 100))
                 ->chart($revenueData)
                 ->chartColor('success'),
             Stat::make('Purchased Filter', DashboardService::formatNumber($purchaseQuery->clone()->count()))

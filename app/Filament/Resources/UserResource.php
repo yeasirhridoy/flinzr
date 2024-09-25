@@ -71,7 +71,7 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('image')->circular()->default(fn(User $record) => 'https://ui-avatars.com/api/?length=1&name=' . urlencode($record->name)),
+                Tables\Columns\ImageColumn::make('image')->circular()->state(fn(User $record) => 'https://ui-avatars.com/api/?length=1&name=' . urlencode($record->name)),
                 Tables\Columns\TextColumn::make('name')
                     ->label('User')
                     ->description(fn(User $record) => $record->username)
