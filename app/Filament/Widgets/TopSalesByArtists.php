@@ -35,7 +35,7 @@ class TopSalesByArtists extends BaseWidget
                 Tables\Columns\TextColumn::make('total_earned')
                     ->label('Revenue')
                     ->money()
-                    ->state(fn($record) => DashboardService::formatNumber($record->total_earned / 100))
+                    ->state(fn($record) => $record->total_earned / 100)
                     ->description(fn($record) => $record->username),
                 Tables\Columns\TextColumn::make('level')->badge(),
             ])

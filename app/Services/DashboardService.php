@@ -43,7 +43,7 @@ class DashboardService
     public static function formatNumber(int $number): string
     {
         if ($number < 1000) {
-            return number_format($number);
+            return $number;
         }
 
         $units = ['', 'k', 'M', 'B', 'T'];

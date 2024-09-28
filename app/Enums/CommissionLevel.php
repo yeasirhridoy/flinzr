@@ -21,14 +21,14 @@ enum CommissionLevel: int implements HasLabel
     public function getTarget(): int
     {
         return match ($this) {
-            self::Level1 => 500,
-            self::Level2 => 1000,
-            self::Level3 => 2000,
-            self::Level4 => 4000,
-            self::Level5 => 8000,
-            self::Level6 => 16000,
-            self::Level7 => 32000,
-            self::Level8 => 64000,
+            self::Level1 => 5,
+            self::Level2 => 10,
+            self::Level3 => 15,
+            self::Level4 => 20,
+            self::Level5 => 25,
+            self::Level6 => 30,
+            self::Level7 => 35,
+            self::Level8 => 40,
         };
     }
 
