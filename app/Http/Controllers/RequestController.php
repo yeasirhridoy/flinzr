@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CollectionRequestRequest;
+use App\Enums\RequestStatus;
 use App\Http\Requests\InfluencerRequestRequest;
 use App\Models\Country;
 use Illuminate\Http\JsonResponse;
@@ -30,7 +30,7 @@ class RequestController extends Controller
         return response()->json($influencerRequest);
     }
 
-    public function storePayoutRequest(Request $request)
+    public function storePayoutRequest(Request $request): JsonResponse
     {
         $request->validate([
             'full_name' => ['required', 'string'],
@@ -41,7 +41,16 @@ class RequestController extends Controller
         $data = $request->all();
         $data['country_id'] = Country::where('code', $data['country_code'])->first()->id;
         unset($data['country_code']);
+
+        if ($request->user()->balance < 50) {
+            return response()->json(['message' => 'You need minimum $50 for payout request.'], 400);
+        }
+
         $payoutRequest = $request->user()->payoutRequest;
+
+        if ($payoutRequest && ($payoutRequest->status !== RequestStatus::Complete || $payoutRequest->status !== RequestStatus::Cancelled)) {
+            return response()->json(['message' => 'You have already requested for payout.'], 400);
+        }
 
         if ($payoutRequest) {
             $payoutRequest->update($data);

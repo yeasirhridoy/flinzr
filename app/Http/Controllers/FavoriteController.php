@@ -29,7 +29,7 @@ class FavoriteController extends Controller
         }
 
         // Fetch collections and mark them as favorite
-        $collections = $query->get()->each->setAttribute('is_favorite', true);
+        $collections = $query->get();
 
         // Return the collection resource
         return CollectionResource::collection($collections);

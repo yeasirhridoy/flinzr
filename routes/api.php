@@ -12,8 +12,12 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\ResponseMiddleware;
+use App\Http\Resources\ConversationResource;
 use App\Http\Resources\CountryResource;
+use App\Models\Conversation;
 use App\Models\Country;
+use App\Models\SpecialRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(ResponseMiddleware::class)->group(function () {
@@ -79,6 +83,29 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
             Route::get('influencer-request',[RequestController::class,'getInfluencerRequest']);
             Route::post('influencer-request',[RequestController::class,'storeInfluencerRequest']);
             Route::post('payout-request',[RequestController::class,'storePayoutRequest']);
+
+            Route::post('chat',function (Request $request){
+                $rules = [
+                    'special_request_id' => 'required|exists:special_requests,id',
+                    'message' => 'required|string'
+                ];
+
+                $request->validate($rules);
+
+                $conversation = Conversation::create([
+                    'conversationable_id' => $request->special_request_id,
+                    'conversationable_type' => SpecialRequest::class,
+                    'message' => $request->message,
+                    'sender' => 'user'
+                ]);
+
+                return ConversationResource::make($conversation);
+            });
+            Route::get('chat/{id}',function ($id){
+                $specialRequest = SpecialRequest::findOrFail($id);
+                $conversations = $specialRequest->conversations()->get();
+                return ConversationResource::collection($conversations);
+            });
         });
     });
 });

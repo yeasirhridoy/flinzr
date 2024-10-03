@@ -81,19 +81,19 @@ class PurchaseController extends Controller
             ]);
             $artist->balance += $earning;
             $downloadCount = Purchase::where('artist_id', $artist->id)->count();
-            if ($downloadCount > CommissionLevel::Level8->getTarget()) {
+            if ($downloadCount > CommissionLevel::Level7->getTarget()) {
                 $artist->level = CommissionLevel::Level8;
-            } elseif ($downloadCount > CommissionLevel::Level7->getTarget()) {
-                $artist->level = CommissionLevel::Level7;
             } elseif ($downloadCount > CommissionLevel::Level6->getTarget()) {
-                $artist->level = CommissionLevel::Level6;
+                $artist->level = CommissionLevel::Level7;
             } elseif ($downloadCount > CommissionLevel::Level5->getTarget()) {
-                $artist->level = CommissionLevel::Level5;
+                $artist->level = CommissionLevel::Level6;
             } elseif ($downloadCount > CommissionLevel::Level4->getTarget()) {
-                $artist->level = CommissionLevel::Level4;
+                $artist->level = CommissionLevel::Level5;
             } elseif ($downloadCount > CommissionLevel::Level3->getTarget()) {
-                $artist->level = CommissionLevel::Level3;
+                $artist->level = CommissionLevel::Level4;
             } elseif ($downloadCount > CommissionLevel::Level2->getTarget()) {
+                $artist->level = CommissionLevel::Level3;
+            } elseif ($downloadCount > CommissionLevel::Level1->getTarget()) {
                 $artist->level = CommissionLevel::Level2;
             } else {
                 $artist->level = CommissionLevel::Level1;

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Gift;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -22,6 +23,7 @@ class FilterResource extends JsonResource
             'url' => $this->url,
             'is_purchased' => $this->is_purchased,
             'is_gifted' => $this->is_gifted,
+            'username' => $this->when($this->is_gifted, Gift::query()->where('user_id', auth('sanctum')->id())->first()->sender->username),
         ];
     }
 }

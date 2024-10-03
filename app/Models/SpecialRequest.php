@@ -13,6 +13,13 @@ class SpecialRequest extends Model
 {
     use HasFactory;
 
+    protected static function booted(): void
+    {
+        parent::creating(function ($model) {
+            $model->request_number = uniqid();
+        });
+    }
+
     protected $guarded = [];
 
     protected $casts = [

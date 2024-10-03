@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ArtistRequestResource extends JsonResource
+class ConversationResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,13 +16,9 @@ class ArtistRequestResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'request_number' => $this->request_number,
-            'country_id' => $this->country_id,
-            'full_name' => $this->full_name,
-            'phone' => $this->phone,
-            'id_no' => $this->id_no,
-            'url' => $this->url,
-            'status' => $this->status,
+            'sender' => $this->sender,
+            'message' => $this->message,
+            'created_at' => $this->created_at,
         ];
     }
 }

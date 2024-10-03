@@ -13,6 +13,13 @@ class InfluencerRequest extends Model
 
     protected $guarded = [];
 
+    protected static function booted(): void
+    {
+        parent::creating(function ($model) {
+            $model->request_number = uniqid();
+        });
+    }
+
     protected $casts = [
         'status' => RequestStatus::class
     ];

@@ -10,6 +10,7 @@ use App\Http\Resources\CountryResource;
 use App\Http\Resources\MinimumUserResource;
 use App\Http\Resources\PayoutRequestResource;
 use App\Models\ArtistRequest;
+use App\Models\InfluencerRequest;
 use App\Models\Purchase;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -56,20 +57,40 @@ class UserController extends Controller
     public function myArtistRequest(): JsonResponse
     {
         $artistRequest = ArtistRequest::query()->where('user_id', auth('sanctum')->id())->where('created_at', '>', now()->subMonth())->latest()->first();
+        $influencerRequest = InfluencerRequest::query()->where('user_id', auth('sanctum')->id())->where('created_at', '>', now()->subMonth())->latest()->first();
 
         if ($artistRequest) {
-            return response()->json([
+            $artistResponse = [
                 'requested' => true,
                 'status' => $artistRequest->status->getLabel(),
                 'message' => 'Requested in last 30 days'
-            ]);
+            ];
         } else {
-            return response()->json([
+            $artistResponse = [
                 'requested' => false,
                 'status' => null,
                 'message' => 'No request in last 30 days'
-            ]);
+            ];
         }
+
+        if ($influencerRequest) {
+            $influencerResponse = [
+                'requested' => true,
+                'status' => $influencerRequest->status->getLabel(),
+                'message' => 'Requested in last 30 days'
+            ];
+        } else {
+            $influencerResponse = [
+                'requested' => false,
+                'status' => null,
+                'message' => 'No request in last 30 days'
+            ];
+        }
+
+        return response()->json([
+            'artist' => $artistResponse,
+            'influencer' => $influencerResponse
+        ]);
     }
 
     public function artistSetting(): JsonResponse

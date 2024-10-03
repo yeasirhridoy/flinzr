@@ -154,11 +154,12 @@ class CollectionController extends Controller
         $collections = Collection::query()
             ->where('is_active', true)
             ->with(['user', 'filters', 'colors'])
+            ->has('filters')
             ->orderBy('order_column');
 
         if (request()->filled('type')) {
             $collections->where('type', request('type'));
-        } else {
+        } elseif (!request()->filled('query')) {
             $collections->whereNot('type', PlatformType::Banner);
         }
 
