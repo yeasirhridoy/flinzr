@@ -71,6 +71,9 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->whereNotNull('email_verified_at');
+            })
             ->columns([
                 Tables\Columns\ImageColumn::make('image')->circular()->state(fn(User $record) => 'https://ui-avatars.com/api/?length=1&name=' . urlencode($record->name)),
                 Tables\Columns\TextColumn::make('name')
@@ -97,7 +100,7 @@ class UserResource extends Resource
                     ->label('Editor')->visible(fn() => auth()->user()->email == 'devoartsa@gmail.com'),
             ])
             ->modifyQueryUsing(function (Builder $query) {
-                $query->whereNot('email','devoartsa@gmail.com');
+                $query->whereNot('email', 'devoartsa@gmail.com');
             })
             ->defaultSort('created_at', 'desc')
             ->filters([

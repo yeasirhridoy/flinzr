@@ -36,6 +36,9 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
 
     protected static function booted(): void
     {
+        parent::creating(function (User $user) {
+            $user->coin = 25;
+        });
         parent::saving(function (User $user) {
             if ($user->isDirty('type') && $user->getOriginal('type') === UserType::Influencer && $user->type !== UserType::Influencer) {
                 $user->coin = 0;

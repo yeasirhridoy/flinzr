@@ -17,8 +17,8 @@ use App\Models\Country;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(ResponseMiddleware::class)->group(function () {
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register'])->name('api.register');
+    Route::post('/login', [AuthController::class, 'login'])->name('api.login');
     Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
