@@ -197,7 +197,14 @@ class CollectionResource extends Resource
             ->actions([
                 Tables\Actions\ReplicateAction::make()->excludeAttributes([
                     'filters_count'
-                ]),
+                ])->after(function (Collection $original, Collection $replica) {
+                    $replica->filters()->createMany($original->filters->map(function ($filter) {
+                        return $filter->only(['name', 'url', 'image']);
+                    })->toArray());
+                    $replica->colors()->sync($original->colors->pluck('id'));
+                    $replica->tags()->sync($original->tags->pluck('id'));
+                    $replica->regions()->sync($original->regions->pluck('id'));
+                }),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
