@@ -23,7 +23,7 @@ class FilterResource extends JsonResource
             'url' => $this->url,
             'is_purchased' => $this->is_purchased,
             'is_gifted' => $this->is_gifted,
-            'username' => $this->when($this->is_gifted, Gift::query()->where('user_id', auth('sanctum')->id())->first()->sender->username),
+            'username' => $this->when($this->is_gifted, Gift::query()->where('user_id', auth('sanctum')->id())->first()?->sender?->username),
         ];
     }
 }
