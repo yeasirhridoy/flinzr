@@ -6,7 +6,6 @@ use App\Enums\PlatformType;
 use App\Enums\SalesType;
 use App\Enums\UserType;
 use App\Filament\Resources\CollectionResource\Pages;
-use App\Filament\Resources\CollectionResource\RelationManagers;
 use App\Models\Collection;
 use Filament\Forms;
 use Filament\Forms\Form;
