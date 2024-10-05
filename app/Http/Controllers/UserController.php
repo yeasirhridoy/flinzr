@@ -6,6 +6,7 @@ use App\Enums\Price;
 use App\Enums\UserType;
 use App\Http\Requests\ArtistRequestRequest;
 use App\Http\Resources\ArtistRequestResource;
+use App\Http\Resources\CollectionResource;
 use App\Http\Resources\CountryResource;
 use App\Http\Resources\MinimumUserResource;
 use App\Http\Resources\PayoutRequestResource;
@@ -103,6 +104,7 @@ class UserController extends Controller
         $data['percent_completed'] = (float) number_format($data['downloads']/auth('sanctum')->user()->level->getTarget() * 100,2);
         $data['payout_request'] = PayoutRequestResource::collection(auth('sanctum')->user()->payoutRequest()->latest()->get());
         $data['upload_requests'] = CountryResource::collection(auth('sanctum')->user()->collections()->latest()->get());
+        $data['uploaded_collections'] =  CollectionResource::collection(auth('sanctum')->user()->collections()->with(['filters'])->get());
 
         return response()->json($data);
     }

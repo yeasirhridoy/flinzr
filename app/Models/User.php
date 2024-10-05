@@ -164,6 +164,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         return $this->hasOne(InfluencerRequest::class);
     }
 
+    public function specialRequests(): HasMany
+    {
+        return $this->hasMany(SpecialRequest::class);
+    }
+
     public function payoutRequest(): HasOne
     {
         return $this->hasOne(PayoutRequest::class);

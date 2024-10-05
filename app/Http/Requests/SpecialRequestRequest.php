@@ -11,7 +11,7 @@ class SpecialRequestRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -25,6 +25,24 @@ class SpecialRequestRequest extends FormRequest
             'category_id' => ['required', 'exists:categories,id'],
             'platform' => ['required', 'string','in:instagram,tiktok,snapchat,banner'],
             'occasion' => ['nullable', 'string'],
+            'description' => ['nullable', 'string'],
+            'image' => ['nullable', 'string', function ($attribute, $value, $fail) {
+                if (preg_match('/^data:image\/(\w+);base64,/', $value, $type)) {
+                    $data = substr($value, strpos($value, ',') + 1);
+                    $data = base64_decode($data);
+
+                    if ($data === false) {
+                        $fail('The '.$attribute.' must be a valid base64 encoded image.');
+                    }
+
+                    $allowedMimeTypes = ['jpeg', 'jpg', 'png'];
+                    if (!in_array(strtolower($type[1]), $allowedMimeTypes)) {
+                        $fail('The '.$attribute.' must be a file of type: jpeg, jpg, png.');
+                    }
+                } else {
+                    $fail('The '.$attribute.' must be a valid base64 encoded image.');
+                }
+            }],
         ];
     }
 }
