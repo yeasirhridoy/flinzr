@@ -248,6 +248,16 @@ class CollectionController extends Controller
         $collectionData = collect($data)->except('filters')->toArray();
         $collectionData['type'] = PlatformType::Snapchat;
         $collectionData['sales_type'] = SalesType::Paid;
+
+        if($request->filled('cover')) {
+            $image = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $request->cover));
+            $path = 'collections/' . uniqid() . '.png';
+            Storage::put($path, $image, 'public');
+            $collectionData['cover'] = $path;
+            $collectionData['avatar'] = $path;
+            $collectionData['thumbnail'] = $path;
+        }
+
         $collection = Collection::create($collectionData);
 
         $filtersData = collect($filters)->map(function ($filter) {
