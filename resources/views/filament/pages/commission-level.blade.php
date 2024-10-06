@@ -1,8 +1,12 @@
+@php use App\Enums\CommissionLevel; @endphp
 <x-filament-panels::page>
-    <div style="display: grid;grid-template-columns: repeat(4,minmax(0,1fr));gap: 1rem">
-        @foreach(\App\Enums\CommissionLevel::cases() as $commissionLevel)
-            <div>
-                <x-filament::fieldset>
+    <div class="grid level-card gap-4">
+        @foreach(CommissionLevel::cases() as $commissionLevel)
+            <div class="col-span-1">
+                <x-filament::section>
+                    <x-slot name="heading">
+                        {{ $commissionLevel->getLabel() }}
+                    </x-slot>
                     <x-slot name="label">
                         {{ $commissionLevel->getLabel() }}
                     </x-slot>
@@ -14,8 +18,19 @@
                             Percentage: {{ $commissionLevel->getCommission() }}%
                         </div>
                     </div>
-                </x-filament::fieldset>
+                </x-filament::section>
             </div>
         @endforeach
     </div>
+    <style>
+        .level-card {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        @media (min-width: 768px) {
+            .level-card {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+    </style>
 </x-filament-panels::page>
