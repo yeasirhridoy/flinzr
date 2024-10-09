@@ -21,6 +21,9 @@ class TopSalesByCountries extends BaseWidget
         $end = $this->filters['end_date'] ?? now()->endOfDay();
 
         $total = Purchase::query()->whereBetween('created_at', [$start, $end])->sum('amount');
+        if ($total === 0) {
+            $total = 1;
+        }
 
         return $table
             ->query(
