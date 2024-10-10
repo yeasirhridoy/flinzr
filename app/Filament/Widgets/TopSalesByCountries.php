@@ -21,9 +21,6 @@ class TopSalesByCountries extends BaseWidget
         $end = $this->filters['end_date'] ?? now()->endOfDay();
 
         $total = Purchase::query()->whereBetween('created_at', [$start, $end])->sum('amount');
-        if ($total === 0) {
-            $total = 1;
-        }
 
         return $table
             ->query(
@@ -46,7 +43,7 @@ class TopSalesByCountries extends BaseWidget
                    ->description(fn($record) => $record->name),
                 Tables\Columns\TextColumn::make('percent')
                     ->color('success')
-                    ->state(fn($record) => round($record->total_sales / $total * 100) . '%'),
+                    ->state(fn($record) => $total ? round(($record->total_sales / $total) * 100) . '%' : '0%'),
             ])
             ->paginated(false);
     }
