@@ -20,7 +20,10 @@ class TopSalesByCountries extends BaseWidget
         $start = $this->filters['start_date'] ?? now()->startOfDay();
         $end = $this->filters['end_date'] ?? now()->endOfDay();
 
-        $total = Purchase::query()->whereBetween('created_at', [$start, $end])->sum('amount');
+        $total = Purchase::query()
+            ->when($this->filters['start_date'], fn($query) => $query->where('created_at', '>=', $start))
+            ->when($this->filters['end_date'], fn($query) => $query->where('created_at', '<=', $end))
+            ->sum('amount');
 
         return $table
             ->query(
