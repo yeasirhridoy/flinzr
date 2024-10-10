@@ -25,6 +25,8 @@ class TopSalesByCountries extends BaseWidget
             ->when($this->filters['end_date'], fn($query) => $query->where('created_at', '<=', $end))
             ->sum('amount');
 
+        info($total);
+
         return $table
             ->query(
                 CountryResource::getEloquentQuery()
@@ -46,7 +48,8 @@ class TopSalesByCountries extends BaseWidget
                    ->description(fn($record) => $record->name),
                 Tables\Columns\TextColumn::make('percent')
                     ->color('success')
-                    ->state(fn($record) => $total ? round(($record->total_sales / $total) * 100) . '%' : '0%'),
+                    ->state(fn($record) => $record->total_sales),
+//                    ->state(fn($record) => $total ? round(($record->total_sales / $total) * 100) . '%' : '0%'),
             ])
             ->paginated(false);
     }
