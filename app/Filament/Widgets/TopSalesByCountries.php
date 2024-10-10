@@ -48,8 +48,7 @@ class TopSalesByCountries extends BaseWidget
                    ->description(fn($record) => $record->name),
                 Tables\Columns\TextColumn::make('percent')
                     ->color('success')
-                    ->state(fn($record) => $record->total_sales),
-//                    ->state(fn($record) => $total ? round(($record->total_sales / $total) * 100) . '%' : '0%'),
+                    ->state(fn($record) => $total ? round(($record->total_sales / $total) * 100) . '%' : '0%'),
             ])
             ->paginated(false);
     }
