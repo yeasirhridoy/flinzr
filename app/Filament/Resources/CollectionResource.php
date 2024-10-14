@@ -39,9 +39,9 @@ class CollectionResource extends Resource
                 Forms\Components\Wizard::make([
                     Forms\Components\Wizard\Step::make('Collection Info')->schema([
                         Forms\Components\Group::make([
-                            Forms\Components\ToggleButtons::make('type')->options(PlatformType::class)->rule('required')
+                            Forms\Components\ToggleButtons::make('type')->options(PlatformType::class)
                                 ->markAsRequired()->inline()->columnSpan(2),
-                            Forms\Components\ToggleButtons::make('sales_type')->options(SalesType::class)->rule('required')
+                            Forms\Components\ToggleButtons::make('sales_type')->options(SalesType::class)
                                 ->markAsRequired()->inline(),
                         ])->columns(3)->columnSpanFull(),
                         Forms\Components\Group::make([
@@ -49,7 +49,6 @@ class CollectionResource extends Resource
                                 ->label('Category')
                                 ->relationship('category', 'eng_name')
                                 ->preload()
-                                ->rule('required')
                                 ->markAsRequired()
                                 ->searchable(),
                             Forms\Components\Select::make('colors')
@@ -57,7 +56,6 @@ class CollectionResource extends Resource
                                 ->relationship('colors', 'eng_name')
                                 ->multiple()
                                 ->preload()
-                                ->rule('required')
                                 ->markAsRequired()
                                 ->searchable(),
                             Forms\Components\Select::make('tags')
@@ -65,7 +63,6 @@ class CollectionResource extends Resource
                                 ->relationship('tags', 'eng_name')
                                 ->multiple()
                                 ->preload()
-                                ->rule('required')
                                 ->markAsRequired()
                                 ->searchable(),
                             Forms\Components\Select::make('regions')
@@ -73,12 +70,10 @@ class CollectionResource extends Resource
                                 ->relationship('regions', 'name')
                                 ->multiple()
                                 ->preload()
-                                ->rule('required')
                                 ->markAsRequired()
                                 ->searchable(),
                             Forms\Components\Select::make('user_id')
                                 ->label('Artist')
-                                ->rule('required')
                                 ->markAsRequired()
                                 ->searchable()
                                 ->preload()
@@ -88,31 +83,24 @@ class CollectionResource extends Resource
                         ])->columns(5)->columnSpanFull(),
                         Forms\Components\Group::make([
                             Forms\Components\TextInput::make('eng_name')
-                                ->rule('required')
                                 ->markAsRequired()
                                 ->label('Name (English)'),
                             Forms\Components\Textarea::make('eng_description')
-                                ->rule('required')
                                 ->markAsRequired()
                                 ->label('Description (English)'),
                         ]),
                         Forms\Components\Group::make([
                             Forms\Components\TextInput::make('arabic_name')
-                                ->rule('required')
                                 ->markAsRequired()
                                 ->label('Name (Arabic)'),
                             Forms\Components\Textarea::make('arabic_description')
-                                ->rule('required')
                                 ->markAsRequired()
                                 ->label('Description (Arabic)'),
                         ]),
                         Forms\Components\Group::make([
-                            Forms\Components\FileUpload::make('avatar')
-                                ->required()->image()->imageEditor(),
-                            Forms\Components\FileUpload::make('thumbnail')
-                                ->required()->image()->imageEditor(),
-                            Forms\Components\FileUpload::make('cover')
-                                ->required()->image()->imageEditor(),
+                            Forms\Components\FileUpload::make('avatar')->image()->imageEditor(),
+                            Forms\Components\FileUpload::make('thumbnail')->image()->imageEditor(),
+                            Forms\Components\FileUpload::make('cover')->image()->imageEditor(),
                         ])->columns(3)->columnSpanFull(),
                     ])->columns(2),
                     Forms\Components\Wizard\Step::make('Filters')->schema([
@@ -122,14 +110,13 @@ class CollectionResource extends Resource
                             ->maxItems(8)
                             ->grid(4)
                             ->schema([
-                                Forms\Components\TextInput::make('name')->rule('required')
+                                Forms\Components\TextInput::make('name')
                                     ->default(strtoupper(Str::random(8)))
                                     ->readOnly()
                                     ->markAsRequired(),
-                                Forms\Components\TextInput::make('url')->url()->rule('required')
+                                Forms\Components\TextInput::make('url')->url()
                                     ->markAsRequired(),
-                                Forms\Components\FileUpload::make('image')
-                                    ->required()->image()->imageEditor(),
+                                Forms\Components\FileUpload::make('image')->image()->imageEditor(),
                             ])
                     ])->columnSpanFull()
                 ])
@@ -219,48 +206,48 @@ class CollectionResource extends Resource
             ]);
     }
 
-    public static function infolist(Infolist $infolist): Infolist
-    {
-        return $infolist
-            ->schema([
-                Section::make('Collection Info')->schema([
-                    Group::make([
-                        TextEntry::make('user.name')->label('Artist'),
-                        TextEntry::make('type'),
-                        TextEntry::make('sales_type'),
-                    ]),
-                    Group::make([
-                        TextEntry::make('category.name'),
-                        TextEntry::make('tags.name'),
-                        ColorEntry::make('colors.code'),
-                        TextEntry::make('regions.name'),
-                    ]),
-                    Group::make([
-                        TextEntry::make('eng_name')->label('Name (English)'),
-                        TextEntry::make('eng_description')->label('Description (English)'),
-                    ]),
-                    Group::make([
-                        TextEntry::make('arabic_name')->label('Name (Arabic)'),
-                        TextEntry::make('arabic_description')->label('Description (Arabic)'),
-                    ]),
-                    Group::make([
-                        ImageEntry::make('avatar'),
-                        ImageEntry::make('thumbnail'),
-                        ImageEntry::make('cover'),
-                    ])->columns(1)->columnSpanFull()
-                ])->columns(4),
-                Section::make('Filters')->schema([
-                    RepeatableEntry::make('filters')
-                        ->hiddenLabel()
-                        ->columnSpanFull()
-                        ->schema([
-                            TextEntry::make('name'),
-                            TextEntry::make('url'),
-                            ImageEntry::make('image')->columnSpanFull(),
-                        ])->columns(2),
-                ])
-            ]);
-    }
+//    public static function infolist(Infolist $infolist): Infolist
+//    {
+//        return $infolist
+//            ->schema([
+//                Section::make('Collection Info')->schema([
+//                    Group::make([
+//                        TextEntry::make('user.name')->label('Artist'),
+//                        TextEntry::make('type'),
+//                        TextEntry::make('sales_type'),
+//                    ]),
+//                    Group::make([
+//                        TextEntry::make('category.name'),
+//                        TextEntry::make('tags.name'),
+//                        ColorEntry::make('colors.code'),
+//                        TextEntry::make('regions.name'),
+//                    ]),
+//                    Group::make([
+//                        TextEntry::make('eng_name')->label('Name (English)'),
+//                        TextEntry::make('eng_description')->label('Description (English)'),
+//                    ]),
+//                    Group::make([
+//                        TextEntry::make('arabic_name')->label('Name (Arabic)'),
+//                        TextEntry::make('arabic_description')->label('Description (Arabic)'),
+//                    ]),
+//                    Group::make([
+//                        ImageEntry::make('avatar'),
+//                        ImageEntry::make('thumbnail'),
+//                        ImageEntry::make('cover'),
+//                    ])->columns(1)->columnSpanFull()
+//                ])->columns(4),
+//                Section::make('Filters')->schema([
+//                    RepeatableEntry::make('filters')
+//                        ->hiddenLabel()
+//                        ->columnSpanFull()
+//                        ->schema([
+//                            TextEntry::make('name'),
+//                            TextEntry::make('url'),
+//                            ImageEntry::make('image')->columnSpanFull(),
+//                        ])->columns(2),
+//                ])
+//            ]);
+//    }
 
     public static function getRelations(): array
     {
