@@ -19,6 +19,8 @@ use App\Models\Country;
 use App\Models\SpecialRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 Route::middleware(ResponseMiddleware::class)->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->name('api.register');
@@ -90,15 +92,29 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
             Route::post('chat',function (Request $request){
                 $rules = [
                     'special_request_id' => 'required|exists:special_requests,id',
-                    'message' => 'required|string'
+                    'message' => 'string|required_without:attachments',
+                    'attachments' => 'array|required_without:message',
+                    'attachments.*' => 'string'
                 ];
 
                 $request->validate($rules);
+
+                if ($request->has('attachments')) {
+                    $attachments = [];
+                    foreach ($request->attachments as $attachment) {
+                        $image = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $attachment));
+                        $imageName = Str::random(32);
+                        $s3Path = 'special-requests/' . $imageName;
+                        Storage::put($s3Path, $image, 'public');
+                        $attachments[] = $s3Path;
+                    }
+                }
 
                 $conversation = Conversation::create([
                     'conversationable_id' => $request->special_request_id,
                     'conversationable_type' => SpecialRequest::class,
                     'message' => $request->message,
+                    'attachments' => $attachments ?? [],
                     'sender' => 'user'
                 ]);
 
