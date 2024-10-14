@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PlatformType;
+use App\Enums\RequestStatus;
 use App\Enums\SalesType;
 use App\Http\Requests\CollectionStoreRequest;
 use App\Http\Resources\CollectionResource;
@@ -15,6 +16,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class CollectionController extends Controller
 {
@@ -254,16 +256,41 @@ class CollectionController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     * @throws ValidationException
      */
+
     public function store(CollectionStoreRequest $request): CollectionResource
     {
         $data = $request->validated();
+        $user = $request->user();
         $filters = $data['filters'];
+
+        $pendingRequests = Collection::where('user_id', $user->id)
+            ->where('is_active', false)
+            ->exists();
+
+        if ($pendingRequests) {
+            throw ValidationException::withMessages([
+                'request' => 'You have a pending request. Please wait until it is processed.'
+            ]);
+        }
+
+        $currentMonthCount = Collection::where('user_id', $user->id)
+            ->whereMonth('created_at', now()->month)
+            ->count();
+
+        if ($currentMonthCount >= 6) {
+            throw ValidationException::withMessages([
+                'request' => 'You can only submit up to 6 collections per month.'
+            ]);
+        }
+
         $collectionData = collect($data)->except('filters')->toArray();
         $collectionData['type'] = PlatformType::Snapchat;
         $collectionData['sales_type'] = SalesType::Paid;
+        $collectionData['user_id'] = $user->id; // Ensure the collection is associated with the user
 
-        if($request->filled('cover')) {
+        if ($request->filled('cover')) {
             $image = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $request->cover));
             $path = 'collections/' . uniqid() . '.png';
             Storage::put($path, $image, 'public');
@@ -289,8 +316,10 @@ class CollectionController extends Controller
         });
 
         $collection->filters()->createMany($formattedFilters);
-        return new CollectionResource($collection->load('filters'));
+
+        return new CollectionResource($collection->refresh()->load('filters'));
     }
+
 
     /**
      * Display the specified resource.

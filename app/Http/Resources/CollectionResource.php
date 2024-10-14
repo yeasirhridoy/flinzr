@@ -24,6 +24,7 @@ class CollectionResource extends JsonResource
             'arabic_name' => $this->arabic_name,
             'arabic_description' => $this->arabic_description,
             'sales_type' => $this->sales_type,
+            'is_active' => $this->is_active,
             'is_favorite' => $this->is_favorite,
             'is_featured' => $this->is_featured,
             'is_trending' => $this->is_trending,
