@@ -85,6 +85,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
             Route::post('influencer-request',[RequestController::class,'storeInfluencerRequest']);
             Route::post('payout-request',[RequestController::class,'storePayoutRequest']);
             Route::post('special-request',[RequestController::class,'storeSpecialRequest']);
+            Route::get('special-request',[RequestController::class,'getSpecialRequest']);
 
             Route::post('chat',function (Request $request){
                 $rules = [

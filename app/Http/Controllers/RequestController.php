@@ -9,12 +9,13 @@ use App\Http\Resources\SpecialRequestResource;
 use App\Models\Country;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class RequestController extends Controller
 {
-    public function storeSpecialRequest(SpecialRequestRequest $request)
+    public function storeSpecialRequest(SpecialRequestRequest $request): SpecialRequestResource
     {
         $data = $request->validated();
         $data['user_id'] = $request->user()->id;
@@ -35,6 +36,12 @@ class RequestController extends Controller
         $specialRequest = $request->user()->specialRequests()->create($data);
         return new SpecialRequestResource($specialRequest);
     }
+
+    public function getSpecialRequest(): AnonymousResourceCollection
+    {
+        return SpecialRequestResource::collection(auth()->user()->specialRequests);
+    }
+
     public function getInfluencerRequest(): JsonResponse
     {
         return response()->json(auth()->user()->influencerRequest);
@@ -67,9 +74,9 @@ class RequestController extends Controller
         $data['country_id'] = Country::where('code', $data['country_code'])->first()->id;
         unset($data['country_code']);
 
-        if ($request->user()->balance < 50) {
-            return response()->json(['message' => 'You need minimum $50 for payout request.'], 400);
-        }
+//        if ($request->user()->balance < 50) {
+//            return response()->json(['message' => 'You need minimum $50 for payout request.'], 400);
+//        }
 
         $payoutRequest = $request->user()->payoutRequest;
 
