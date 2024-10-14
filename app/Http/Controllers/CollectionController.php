@@ -6,6 +6,7 @@ use App\Enums\PlatformType;
 use App\Enums\SalesType;
 use App\Http\Requests\CollectionStoreRequest;
 use App\Http\Resources\CollectionResource;
+use App\Http\Resources\FilterResource;
 use App\Models\Collection;
 use App\Models\Country;
 use Illuminate\Http\JsonResponse;
@@ -71,6 +72,19 @@ class CollectionController extends Controller
         });
 
         return CollectionResource::collection($giftedCollections);
+    }
+
+    public function giftedFilters(): AnonymousResourceCollection
+    {
+        $filters = auth('sanctum')->user()->gifts;
+        $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
+        $filters->map(function ($filter) use ($purchasedFilters) {
+            $filter->is_purchased = $purchasedFilters->contains($filter->id);
+            $filter->is_gifted = true;
+            return $filter;
+        });
+
+        return FilterResource::collection($filters);
     }
 
     public function explore(): JsonResponse

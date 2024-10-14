@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserType;
 use App\Models\ArtistRequest;
 use App\Models\Category;
 use App\Models\Collection;
@@ -10,6 +11,7 @@ use App\Models\CommissionLevel;
 use App\Models\Conversation;
 use App\Models\Country;
 use App\Models\ExternalLink;
+use App\Models\Favorite;
 use App\Models\Filter;
 use App\Models\InfluencerRequest;
 use App\Models\PayoutRequest;
@@ -64,6 +66,25 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
             'is_admin' => true,
         ]);
+        User::factory()->has(
+            ArtistRequest::factory()
+        )->create([
+            'name' => 'Artist',
+            'email' => 'artist@example.com',
+            'type' => UserType::Artist,
+        ]);
+        User::factory()->has(
+            InfluencerRequest::factory()
+        )->create([
+            'name' => 'Influencer',
+            'email' => 'influencer@example.com',
+            'type' => UserType::Influencer,
+        ]);
+        User::factory()->create([
+            'name' => 'Customer',
+            'email' => 'customer@example.com',
+            'type' => UserType::Customer,
+        ]);
         User::factory(50)->create();
         Category::factory(5)->has(
             Collection::factory(5)->sequence(
@@ -77,6 +98,9 @@ class DatabaseSeeder extends Seeder
             )->addTags()->addColors()->addRegions()
         )->create();
 
+        Favorite::factory(5)->state(
+            ['user_id' => User::where('email', 'customer@example.com')->first()->id]
+        )->create();
         ArtistRequest::factory(30)->create();
         InfluencerRequest::factory(30)->create();
         PayoutRequest::factory(30)->create();

@@ -20,18 +20,27 @@ class FavoriteController extends Controller
             'type' => 'in:snapchat,instagram,tiktok',
         ]);
 
-        // Build the base query
         $query = auth()->user()->favoriteCollections()->active()->with(['user','filters','colors']);
 
-        // Apply platform filter if provided
         if ($type = request()->input('type')) {
             $query->where('type', PlatformType::tryFrom($type));
         }
 
-        // Fetch collections and mark them as favorite
         $collections = $query->get();
 
-        // Return the collection resource
+        $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
+        $giftedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->gifts()->pluck('filter_id') : collect();
+
+        $collections = $collections->map(function ($collection) use ($purchasedFilters, $giftedFilters) {
+            $collection->is_favorite = true;
+            $collection->filters->map(function ($filter) use ($giftedFilters, $purchasedFilters) {
+                $filter->is_purchased = $purchasedFilters->contains($filter->id);
+                $filter->is_gifted = $giftedFilters->contains($filter->id);
+                return $filter;
+            });
+            return $collection;
+        });
+
         return CollectionResource::collection($collections);
     }
 
