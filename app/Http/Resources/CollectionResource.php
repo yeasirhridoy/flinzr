@@ -32,7 +32,7 @@ class CollectionResource extends JsonResource
             'thumbnail' => $this->avatar ? Storage::url($this->thumbnail) : null,
             'cover' => $this->avatar ? Storage::url($this->cover) : null,
             'user'=> new MinimumUserResource($this->whenLoaded('user')),
-            'filters' => FilterResource::collection($this->whenLoaded('filters')),
+            'filters' => FilterResource::collection($this->whenLoaded('filters')->sortByDesc('is_purchased')),
             'colors' => ColorResource::collection($this->whenLoaded('colors')),
             'created_at' => $this->created_at,
         ];
