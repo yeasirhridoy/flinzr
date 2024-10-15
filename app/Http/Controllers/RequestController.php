@@ -84,11 +84,7 @@ class RequestController extends Controller
             return response()->json(['message' => 'You have already requested for payout.'], 400);
         }
 
-        if ($payoutRequest) {
-            $payoutRequest->update($data);
-        } else {
-            $payoutRequest = $request->user()->payoutRequest()->create($data);
-        }
+        $payoutRequest = $request->user()->payoutRequest()->create($data);
         return response()->json($payoutRequest->fresh());
     }
 }
