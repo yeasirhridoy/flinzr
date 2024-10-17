@@ -19,9 +19,6 @@ class VerifyToken
         if ($token && !auth('sanctum')->check()) {
             abort(401, 'Unauthorized');
         }
-        if (auth('sanctum')->check() && !auth('sanctum')->user()->hasVerifiedEmail()) {
-            abort(401,'Email not verified');
-        }
         return $next($request);
     }
 }
