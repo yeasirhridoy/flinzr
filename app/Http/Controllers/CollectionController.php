@@ -78,11 +78,14 @@ class CollectionController extends Controller
 
     public function giftedFilters(): AnonymousResourceCollection
     {
-        $filters = auth('sanctum')->user()->gifts;
+        $filters = auth('sanctum')->user()->gifts->load('filter');
         $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
         $filters->map(function ($filter) use ($purchasedFilters) {
             $filter->is_purchased = $purchasedFilters->contains($filter->id);
             $filter->is_gifted = true;
+            $filter->name = $filter->filter->name;
+            $filter->image = $filter->filter->image;
+            $filter->url = $filter->filter->url;
             return $filter;
         });
 
