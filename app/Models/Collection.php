@@ -25,6 +25,7 @@ class Collection extends Model implements Sortable
         'type' => PlatformType::class,
         'sales_type' => SalesType::class,
         'is_active' => 'boolean',
+        'is_banner' => 'boolean',
         'is_featured' => 'boolean',
     ];
 

@@ -9,19 +9,10 @@ use App\Filament\Resources\CollectionResource\Pages;
 use App\Models\Collection;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Infolists\Components\ColorEntry;
-use Filament\Infolists\Components\Group;
-use Filament\Infolists\Components\ImageEntry;
-use Filament\Infolists\Components\RepeatableEntry;
-use Filament\Infolists\Components\Section;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
-use Filament\Support\Colors\Color;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -148,6 +139,8 @@ class CollectionResource extends Resource
                     ->sortable()->since(),
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->sortable()->label('Active'),
+                Tables\Columns\ToggleColumn::make('is_banner')
+                    ->sortable()->label('Banner'),
                 Tables\Columns\ToggleColumn::make('is_featured')
                     ->sortable()->label('Featured'),
                 Tables\Columns\ToggleColumn::make('is_trending')
@@ -171,8 +164,12 @@ class CollectionResource extends Resource
                                 $data['end_date'],
                                 fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
                             );
-                    })->columnSpan(2),
+                    })->columnSpanFull(),
+                Tables\Filters\Filter::make('is_banner')->toggle()
+                    ->query(fn(Builder $query): Builder => $query->where('is_banner', true))
+                    ->columnSpanFull(),
                 Tables\Filters\SelectFilter::make('sales_type')
+                    ->columnSpanFull()
                     ->options(SalesType::class),
                 Tables\Filters\SelectFilter::make('regions')
                     ->relationship('regions', 'name')

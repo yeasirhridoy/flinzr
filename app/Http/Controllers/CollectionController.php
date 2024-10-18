@@ -159,6 +159,7 @@ class CollectionController extends Controller
             'category_id' => 'exists:categories,id',
             'user_id' => 'exists:users,id',
             'featured' => 'in:true',
+            'banner' => 'in:true',
             'query' => 'string',
             'tags' => 'string|regex:/^[0-9,]+$/',
             'colors' => 'string|regex:/^[0-9,]+$/',
@@ -173,10 +174,10 @@ class CollectionController extends Controller
             ->has('filters')
             ->orderBy('order_column');
 
+
+
         if (request()->filled('type')) {
             $collections->where('type', request('type'));
-        } elseif (!request()->filled('query')) {
-            $collections->whereNot('type', PlatformType::Banner);
         }
 
         if (request()->filled('sales_type')) {
@@ -193,6 +194,12 @@ class CollectionController extends Controller
 
         if (request()->filled('featured') && request('featured') === 'true') {
             $collections->where('is_featured', true);
+        }
+
+        if (request()->filled('banner') && request('banner') === 'true') {
+            $collections->where('is_banner', true);
+        } else {
+            $collections->where('is_banner', false);
         }
 
         if (request()->filled('query')) {
@@ -229,7 +236,7 @@ class CollectionController extends Controller
         $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
         $giftedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->gifts()->pluck('filter_id') : collect();
 
-        if (\request('type') === PlatformType::Banner->value) {
+        if (request('banner') === 'true') {
             $collections = $collections->get()->map(function ($collection) use ($giftedFilters, $purchasedFilters, $favoriteCollections) {
                 $collection->is_favorite = $favoriteCollections->contains($collection->id);
                 $collection->filters->map(function ($filter) use ($giftedFilters, $purchasedFilters) {
