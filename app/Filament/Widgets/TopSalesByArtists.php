@@ -27,7 +27,7 @@ class TopSalesByArtists extends BaseWidget
                     ->join('purchases', 'users.id', '=', 'purchases.artist_id')
                     ->when($this->filters['start_date'], fn($query) => $query->where('purchases.created_at', '>=', $start))
                     ->when($this->filters['end_date'], fn($query) => $query->where('purchases.created_at', '<=', $end))
-                    ->groupBy('users.id', 'users.username')
+                    ->groupBy('users.id')
                     ->orderByDesc('total_earned')
                     ->limit(10)
             )
