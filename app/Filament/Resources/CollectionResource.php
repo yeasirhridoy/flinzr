@@ -98,8 +98,8 @@ class CollectionResource extends Resource
                         Forms\Components\Repeater::make('filters')
                             ->relationship()
                             ->addActionLabel('Add Filter')
-                            ->maxItems(8)
-                            ->grid(4)
+                            ->maxItems(6)
+                            ->grid(3)
                             ->schema([
                                 Forms\Components\TextInput::make('name')
                                     ->default(strtoupper(Str::random(8)))
