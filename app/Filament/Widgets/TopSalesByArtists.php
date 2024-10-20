@@ -23,11 +23,11 @@ class TopSalesByArtists extends BaseWidget
             ->query(
                 UserResource::getEloquentQuery()
                     ->select('users.id', 'users.name', 'users.username', 'users.level')
-                    ->selectRaw('SUM(purchases.earning) as total_earned')
                     ->join('purchases', 'users.id', '=', 'purchases.artist_id')
+                    ->groupBy('users.id')
+                    ->selectRaw('SUM(purchases.earning) as total_earned')
                     ->when($this->filters['start_date'], fn($query) => $query->where('purchases.created_at', '>=', $start))
                     ->when($this->filters['end_date'], fn($query) => $query->where('purchases.created_at', '<=', $end))
-                    ->groupBy('users.id')
                     ->orderByDesc('total_earned')
                     ->limit(10)
             )

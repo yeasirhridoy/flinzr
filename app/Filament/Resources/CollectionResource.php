@@ -149,6 +149,7 @@ class CollectionResource extends Resource
             ->reorderable('order_column')
             ->defaultSort('order_column')
             ->filters([
+                Tables\Filters\TrashedFilter::make(),
                 Tables\Filters\Filter::make('created_at')
                     ->form([
                         Forms\Components\DatePicker::make('start_date'),
@@ -187,14 +188,16 @@ class CollectionResource extends Resource
                     $replica->colors()->sync($original->colors->pluck('id'));
                     $replica->tags()->sync($original->tags->pluck('id'));
                     $replica->regions()->sync($original->regions->pluck('id'));
-                }),
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                })->visible(fn(Collection $record) => !$record->deleted_at),
+                Tables\Actions\ViewAction::make()->visible(fn(Collection $record) => !$record->deleted_at),
+                Tables\Actions\EditAction::make()->visible(fn(Collection $record) => !$record->deleted_at),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('Approve')->color('success'),
                     Tables\Actions\Action::make('Reject')->color('danger'),
-                ])
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
