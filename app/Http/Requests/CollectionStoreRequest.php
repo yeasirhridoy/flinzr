@@ -28,7 +28,7 @@ class CollectionStoreRequest extends FormRequest
             'category_id' => 'required|exists:categories,id',
             'eng_name' => 'required|string|max:255',
             'eng_description' => 'required|string|max:255',
-            'filters' => 'required|array|min:1|max:8',
+            'filters' => 'required|array|min:1|max:6',
         ];
     }
 }
