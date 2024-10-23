@@ -24,6 +24,7 @@ class FilterResource extends JsonResource
             'is_purchased' => $this->is_purchased,
             'is_gifted' => $this->is_gifted,
             'username' => $this->when($this->is_gifted, Gift::query()->where('user_id', auth('sanctum')->id())->first()?->sender?->username),
+            'collection' => new MinimumCollectionResource($this->whenLoaded('collection')),
         ];
     }
 }

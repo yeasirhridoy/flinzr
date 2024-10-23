@@ -10,6 +10,7 @@ use App\Http\Resources\CollectionResource;
 use App\Http\Resources\FilterResource;
 use App\Models\Collection;
 use App\Models\Country;
+use App\Models\Filter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -76,16 +77,17 @@ class CollectionController extends Controller
         return CollectionResource::collection($giftedCollections);
     }
 
-    public function giftedFilters(): AnonymousResourceCollection
+    public function giftedFilters()
     {
-        $filters = auth('sanctum')->user()->gifts->load('filter');
+
+        $filterIds = auth('sanctum')->user()->gifts()->pluck('filter_id');
         $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
+
+        $filters = Filter::query()->with('collection')->find($filterIds);
+
         $filters->map(function ($filter) use ($purchasedFilters) {
             $filter->is_purchased = $purchasedFilters->contains($filter->id);
             $filter->is_gifted = true;
-            $filter->name = $filter->filter->name;
-            $filter->image = $filter->filter->image;
-            $filter->url = $filter->filter->url;
             return $filter;
         });
 
@@ -163,6 +165,7 @@ class CollectionController extends Controller
             'user_id' => 'exists:users,id',
             'featured' => 'in:true',
             'banner' => 'in:true',
+            'with_banner' => 'in:true',
             'query' => 'string',
             'tags' => 'string|regex:/^[0-9,]+$/',
             'colors' => 'string|regex:/^[0-9,]+$/',
@@ -176,7 +179,6 @@ class CollectionController extends Controller
             ->with(['user', 'filters', 'colors'])
             ->has('filters')
             ->orderBy('order_column');
-
 
 
         if (request()->filled('type')) {
@@ -201,6 +203,8 @@ class CollectionController extends Controller
 
         if (request()->filled('banner') && request('banner') === 'true') {
             $collections->where('is_banner', true);
+        } elseif (request()->filled('with_banner') && request('with_banner') === 'true') {
+            $collections->where('is_banner', true)->orWhere('is_banner', false);
         } else {
             $collections->where('is_banner', false);
         }
