@@ -27,6 +27,7 @@ class Collection extends Model implements Sortable
         'is_active' => 'boolean',
         'is_banner' => 'boolean',
         'is_featured' => 'boolean',
+        'is_trending' => 'boolean',
     ];
 
     public function scopeActive(Builder $builder): void
