@@ -158,12 +158,12 @@ class UserResource extends Resource
                     TextEntry::make('influencerRequest.tiktok')->badge()->label('TikTok')->color(Color::Purple),
                     TextEntry::make('influencerRequest.instagram')->badge()->label('Instagram')->color(Color::Pink),
                 ])->columns(3)->visible(fn(User $record) => $record->type === UserType::Influencer),
-                Section::make([
-                    TextEntry::make('payoutRequest.country.name')->label('Country'),
-                    TextEntry::make('payoutRequest.full_name')->label('Beneficiary'),
-                    TextEntry::make('payoutRequest.id_no')->label('ID No.'),
-                    TextEntry::make('payoutRequest.phone')->label('Mobile No.'),
-                ])->columns(4)->visible(fn(User $record) => $record->type === UserType::Artist),
+//                Section::make([
+//                    TextEntry::make('payoutRequest.country.name')->label('Country'),
+//                    TextEntry::make('payoutRequest.full_name')->label('Beneficiary'),
+//                    TextEntry::make('payoutRequest.id_no')->label('ID No.'),
+//                    TextEntry::make('payoutRequest.phone')->label('Mobile No.'),
+//                ])->columns(4)->visible(fn(User $record) => $record->type === UserType::Artist),
             ]);
     }
 

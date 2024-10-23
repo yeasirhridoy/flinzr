@@ -78,13 +78,13 @@ class RequestController extends Controller
 //            return response()->json(['message' => 'You need minimum $50 for payout request.'], 400);
 //        }
 
-        $payoutRequest = $request->user()->payoutRequest;
 
-        if ($payoutRequest && ($payoutRequest->status !== RequestStatus::Complete || $payoutRequest->status !== RequestStatus::Cancelled)) {
+        if ($request->user()->payoutRequests()->where('status', RequestStatus::Pending)->exists()) {
             return response()->json(['message' => 'You have already requested for payout.'], 400);
         }
 
-        $payoutRequest = $request->user()->payoutRequest()->create($data);
+        $data['amount'] = $request->user()->balance;
+        $payoutRequest = $request->user()->payoutRequests()->create($data);
         return response()->json($payoutRequest->fresh());
     }
 }

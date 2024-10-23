@@ -169,9 +169,9 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         return $this->hasMany(SpecialRequest::class);
     }
 
-    public function payoutRequest(): HasOne
+    public function payoutRequests(): HasMany
     {
-        return $this->hasOne(PayoutRequest::class);
+        return $this->hasMany(PayoutRequest::class);
     }
 
     public function coinPurchases(): HasMany

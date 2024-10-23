@@ -19,8 +19,6 @@ class PayoutRequest extends Model
 
     protected $guarded = [];
 
-    protected $hidden = ['amount'];
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

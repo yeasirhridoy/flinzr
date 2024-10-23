@@ -54,6 +54,7 @@ class PayoutRequestResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('id')
                     ->label('Request Id'),
+                Tables\Columns\TextColumn::make('amount')->sortable()->money(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->since()
                     ->sortable(),
