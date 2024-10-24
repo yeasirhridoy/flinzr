@@ -24,6 +24,7 @@ class SpecialRequestResource extends JsonResource
             'image' => $this->image ? Storage::url($this->image) : null,
             'status' => $this->status,
             'filter' => $this->filter ? Storage::url($this->filter) : null,
+            'url' => $this->url,
             'created_at' => $this->created_at,
         ];
     }

@@ -86,6 +86,7 @@ class SpecialRequestResource extends Resource
                     TextEntry::make('category.eng_name'),
                     TextEntry::make('occasion'),
                     TextEntry::make('description')->columnSpanFull(),
+                    TextEntry::make('url')->columnSpanFull(),
                     Actions::make([
                         Action::make('download')
                             ->action(function (SpecialRequest $record) {
@@ -103,6 +104,20 @@ class SpecialRequestResource extends Resource
                             ->action(function (array $data, SpecialRequest $record) {
                                 $record->update([
                                     'filter' => $data['filter']
+                                ]);
+                            }),
+                        Action::make('url')
+                            ->label('Update URL')
+                            ->icon('heroicon-o-link')
+                            ->form([
+                                Forms\Components\TextInput::make('url')
+                                    ->label('URL')
+                                    ->url()
+                                    ->required(),
+                            ])
+                            ->action(function (array $data, SpecialRequest $record) {
+                                $record->update([
+                                    'url' => $data['url']
                                 ]);
                             }),
                     ]),
