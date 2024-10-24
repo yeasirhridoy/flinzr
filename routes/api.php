@@ -40,7 +40,9 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
     Route::get('colors', [ColorController::class, 'index']);
     Route::get('settings', [UserController::class, 'settings']);
     Route::get('countries', function () {
-        return CountryResource::collection(Country::all());
+        return CountryResource::collection(Country::query()->whereHas('regions',function ($query){
+            $query->active();
+        })->active()->get());
     });
     Route::get('countries/{code}', function ($code) {
         return new CountryResource(Country::where('code', $code)->firstOrFail());

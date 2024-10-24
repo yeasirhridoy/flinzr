@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\MoveToTop;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -23,5 +24,10 @@ class Region extends Model implements Sortable
     public function collections(): BelongsToMany
     {
         return $this->belongsToMany(Collection::class);
+    }
+
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('is_active', true);
     }
 }
