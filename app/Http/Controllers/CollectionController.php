@@ -88,6 +88,8 @@ class CollectionController extends Controller
             }
         }
 
+        dd($data);
+
 
 
         return CollectionResource::collection($data);
