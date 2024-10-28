@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Price;
+use App\Enums\RequestStatus;
 use App\Enums\UserType;
 use App\Http\Requests\ArtistRequestRequest;
 use App\Http\Resources\ArtistRequestResource;
@@ -96,7 +97,12 @@ class UserController extends Controller
 
     public function artistSetting(): JsonResponse
     {
+        $user = auth('sanctum')->user();
         $data = [];
+        $pendingBalance = $user->payoutRequests()->where('status', RequestStatus::Pending)->sum('amount');
+        $userBalance = $user->balance;
+        $data['balance'] = number_format($userBalance - $pendingBalance,2);
+        $data['pending_balance'] = number_format($pendingBalance,2);
         $data['level'] = auth('sanctum')->user()->level;
         $data['earnings'] = number_format(Purchase::query()->where('artist_id', auth('sanctum')->id())->sum('earning') / 100,2);
         $data['downloads'] = Purchase::query()->where('artist_id', auth('sanctum')->id())->count();
