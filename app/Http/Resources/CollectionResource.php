@@ -29,6 +29,7 @@ class CollectionResource extends JsonResource
             'is_favorite' => $this->is_favorite,
             'is_featured' => $this->is_featured,
             'is_trending' => $this->is_trending,
+            'status' => $this->status,
             'avatar' => $this->avatar ? Storage::url($this->avatar) : null,
             'thumbnail' => $this->avatar ? Storage::url($this->thumbnail) : null,
             'cover' => $this->avatar ? Storage::url($this->cover) : null,

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\PlatformType;
+use App\Enums\RequestStatus;
 use App\Enums\SalesType;
 use App\Traits\MoveToTop;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,6 +25,7 @@ class Collection extends Model implements Sortable
     protected $casts = [
         'type' => PlatformType::class,
         'sales_type' => SalesType::class,
+        'status' => RequestStatus::class,
         'is_active' => 'boolean',
         'is_banner' => 'boolean',
         'is_featured' => 'boolean',

@@ -3,12 +3,14 @@
 namespace App\Filament\Resources;
 
 use App\Enums\PlatformType;
+use App\Enums\RequestStatus;
 use App\Enums\SalesType;
 use App\Enums\UserType;
 use App\Filament\Resources\CollectionResource\Pages;
 use App\Models\Collection;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -149,6 +151,7 @@ class CollectionResource extends Resource
             ->reorderable('order_column')
             ->defaultSort('order_column')
             ->filters([
+                Tables\Filters\SelectFilter::make('status')->options(RequestStatus::class),
                 Tables\Filters\TrashedFilter::make(),
                 Tables\Filters\Filter::make('created_at')
                     ->form([
@@ -195,8 +198,22 @@ class CollectionResource extends Resource
                 Tables\Actions\RestoreAction::make(),
                 Tables\Actions\ForceDeleteAction::make(),
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\Action::make('Approve')->color('success'),
-                    Tables\Actions\Action::make('Reject')->color('danger'),
+                    Tables\Actions\Action::make('Approve')->color('success')
+                        ->action(function(Collection $record){
+                            $record->update(['status' => RequestStatus::Complete]);
+                            Notification::make('approved')
+                                ->title('Collection Approved')
+                                ->success()
+                                ->send();
+                        }),
+                    Tables\Actions\Action::make('Reject')->color('danger')
+                        ->action(function(Collection $record){
+                            $record->update(['status' => RequestStatus::Cancelled]);
+                            Notification::make('rejected')
+                                ->title('Collection Rejected')
+                                ->danger()
+                                ->send();
+                        }),
                 ]),
             ])
             ->bulkActions([
