@@ -24,7 +24,12 @@ class AuthController extends Controller
     {
         $data = $request->validated();
         $data['password'] = bcrypt($data['password']);
+        $deviceDetails = $data['device_details'];
+        unset($data['device_details']);
         $user = User::create($data);
+        $user->devices()->create([
+            'device_details' => $deviceDetails,
+        ]);
         $user->sendOtp();
         $token = $user->createToken('auth_token')->plainTextToken;
 
