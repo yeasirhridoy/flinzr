@@ -128,6 +128,9 @@ class UserResource extends Resource
                     ->searchable()
             ])
             ->actions([
+                Tables\Actions\Action::make('reset device')
+                    ->requiresConfirmation()
+                    ->action(fn(User $record) => $record->devices()->update(['device_details' => null])),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
