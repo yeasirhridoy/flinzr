@@ -99,7 +99,7 @@ class UserController extends Controller
     {
         $user = auth('sanctum')->user();
         $data = [];
-        $pendingBalance = $user->payoutRequests()->where('status', RequestStatus::Pending)->sum('amount');
+        $pendingBalance = $user->payoutRequests()->where('status', RequestStatus::Pending)->sum('amount') / 100;
         $userBalance = $user->balance;
         $data['balance'] = number_format($userBalance - $pendingBalance,2);
         $data['pending_balance'] = number_format($pendingBalance,2);
