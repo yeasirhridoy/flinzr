@@ -99,6 +99,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         );
     }
 
+    public function devices(): HasMany
+    {
+        return $this->hasMany(Device::class);
+    }
+
     public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class);

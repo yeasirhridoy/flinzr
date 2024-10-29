@@ -48,6 +48,8 @@ class AuthController extends Controller
             $data['email'] = $user->email;
         }
         unset($data['username']);
+        $deviceDetails = $data['device_details'];
+        unset($data['device_details']);
         if (!auth()->attempt($data)) {
             return response()->json([
                 'message' => 'Invalid credentials',
@@ -55,6 +57,20 @@ class AuthController extends Controller
         }
 
         $user = auth()->user();
+
+        $userDevice = Device::query()->where('user_id', $user->id);
+
+        if ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails) {
+            return response()->json([
+                'message' => 'User already logged in another device',
+            ], 401);
+        } elseif (!$userDevice->exists()) {
+            $userDevice->create([
+                'user_id' => $user->id,
+                'device_details' => $deviceDetails,
+            ]);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -106,26 +122,16 @@ class AuthController extends Controller
 
         $fcmToken = $request->fcm_token;
         $deviceType = $request->device_type;
-        $requestDetails = $this->makeUpUserAgent($request->device_details);
-
-        $deviceDetails = $requestDetails;
-        $appDetails = null;
-        if (count($deviceDetails) > 5) {
-            $deviceDetails = $requestDetails[0] . '/' . $requestDetails[3] . '/' . $requestDetails[4] . ' ' . $requestDetails[5];
-        }
-
-        if (count($requestDetails) > 6) {
-            $appDetails = $requestDetails[2] . ' (' . $requestDetails[1] . ') / ' . $requestDetails[6];
-        }
+        $deviceDetails = $request->device_details;
 
         Device::query()->updateOrCreate([
-            'user_id' => auth()->id(),
+            'user_id' => auth('sanctum')->id(),
             'device_details' => $deviceDetails,
         ], [
             'is_logged' => true,
+            'is_active_notification' => true,
             'fcm_token' => $fcmToken,
             'device_type' => $deviceType,
-            'app_details' => $appDetails
         ]);
 
         return response()->json([
