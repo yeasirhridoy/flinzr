@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EmailVerifyRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RecoverPasswordRequest;
+use App\Http\Requests\RegisterDeviceRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\UpdatePasswordRequest;
@@ -20,6 +21,43 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    public function registerDevice(RegisterDeviceRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+        $deviceDetails = $data['device_details'];
+        $password = $data['password'];
+        unset($data['device_details']);
+        $user = auth('sanctum')->user();
+        $userDevice = Device::query()->where('user_id', $user->id);
+
+        if (auth()->attempt(['email' => $user->email, 'password' => $password])) {
+            if ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at->diffInDays(now()) < 60) {
+                return response()->json([
+                    'message' => 'User already logged in another device',
+                ], 401);
+            } elseif ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at->diffInDays(now()) >= 60) {
+                $userDevice->update([
+                    'device_details' => $deviceDetails,
+                    'device_added_at' => now(),
+                ]);
+            } elseif (!$userDevice->exists()) {
+                Device::create([
+                    'user_id' => $user->id,
+                    'device_details' => $deviceDetails,
+                    'device_added_at' => now(),
+                ]);
+            }
+        } else {
+            return response()->json([
+                'message' => 'Password is incorrect',
+            ], 401);
+        }
+
+        return response()->json([
+            'message' => 'Device registered',
+        ]);
+    }
+
     public function register(RegisterRequest $request): JsonResponse
     {
         $data = $request->validated();
