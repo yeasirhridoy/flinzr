@@ -30,27 +30,21 @@ class AuthController extends Controller
         $user = auth('sanctum')->user();
         $userDevice = Device::query()->where('user_id', $user->id);
 
-        if (auth()->attempt(['email' => $user->email, 'password' => $password])) {
-            if ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at->diffInDays(now()) < 60) {
-                return response()->json([
-                    'message' => 'User already logged in another device',
-                ], 401);
-            } elseif ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at->diffInDays(now()) >= 60) {
-                $userDevice->update([
-                    'device_details' => $deviceDetails,
-                    'device_added_at' => now(),
-                ]);
-            } elseif (!$userDevice->exists()) {
-                Device::create([
-                    'user_id' => $user->id,
-                    'device_details' => $deviceDetails,
-                    'device_added_at' => now(),
-                ]);
-            }
-        } else {
+        if ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at->diffInDays(now()) < 60) {
             return response()->json([
-                'message' => 'Password is incorrect',
+                'message' => 'User already logged in another device',
             ], 401);
+        } elseif ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at->diffInDays(now()) >= 60) {
+            $userDevice->update([
+                'device_details' => $deviceDetails,
+                'device_added_at' => now(),
+            ]);
+        } elseif (!$userDevice->exists()) {
+            Device::create([
+                'user_id' => $user->id,
+                'device_details' => $deviceDetails,
+                'device_added_at' => now(),
+            ]);
         }
 
         return response()->json([

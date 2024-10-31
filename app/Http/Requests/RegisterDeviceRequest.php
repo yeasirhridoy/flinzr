@@ -23,7 +23,7 @@ class RegisterDeviceRequest extends FormRequest
     {
         return [
             'device_details' => 'required|string',
-            'password' => 'required|string|confirmed',
+            'password' => 'required|string|confirmed|current_password',
             'password_confirmation' => 'required|string',
         ];
     }
