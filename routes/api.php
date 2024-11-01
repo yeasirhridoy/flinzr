@@ -27,6 +27,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('api.login');
     Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    Route::post('/register-device', [AuthController::class, 'login']);
 
     Route::get('login/google', function () {
 
@@ -40,7 +41,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
     Route::get('colors', [ColorController::class, 'index']);
     Route::get('settings', [UserController::class, 'settings']);
     Route::get('countries', function () {
-        return CountryResource::collection(Country::query()->whereHas('regions',function ($query){
+        return CountryResource::collection(Country::query()->whereHas('regions', function ($query) {
             $query->active();
         })->active()->get());
     });
@@ -54,12 +55,11 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/user', [AuthController::class, 'user']);
         Route::put('/user', [AuthController::class, 'updateUser']);
-        Route::get('/artist-setting',[UserController::class,'artistSetting']);
+        Route::get('/artist-setting', [UserController::class, 'artistSetting']);
         Route::post('/update-password', [AuthController::class, 'updatePassword']);
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/otp', [AuthController::class, 'otp']);
         Route::post('/save-fcm-token', [AuthController::class, 'saveFcmToken']);
-        Route::post('/register-device', [AuthController::class, 'registerDevice']);
 
         Route::middleware(['verified'])->group(function () {
             Route::post('collections', [CollectionController::class, 'store']);
@@ -81,18 +81,18 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
             Route::post('follow', [FollowController::class, 'toggleFollow']);
             Route::get('followers', [FollowController::class, 'followers']);
             Route::get('followings', [FollowController::class, 'followings']);
-            Route::get('follow',[FollowController::class,'follow']);
+            Route::get('follow', [FollowController::class, 'follow']);
 
-            Route::post('subscription',[SubscriptionController::class,'store']);
+            Route::post('subscription', [SubscriptionController::class, 'store']);
 
-            Route::post('daily-coin',[SubscriptionController::class,'dailyCoin']);
-            Route::get('influencer-request',[RequestController::class,'getInfluencerRequest']);
-            Route::post('influencer-request',[RequestController::class,'storeInfluencerRequest']);
-            Route::post('payout-request',[RequestController::class,'storePayoutRequest']);
-            Route::post('special-request',[RequestController::class,'storeSpecialRequest']);
-            Route::get('special-request',[RequestController::class,'getSpecialRequest']);
+            Route::post('daily-coin', [SubscriptionController::class, 'dailyCoin']);
+            Route::get('influencer-request', [RequestController::class, 'getInfluencerRequest']);
+            Route::post('influencer-request', [RequestController::class, 'storeInfluencerRequest']);
+            Route::post('payout-request', [RequestController::class, 'storePayoutRequest']);
+            Route::post('special-request', [RequestController::class, 'storeSpecialRequest']);
+            Route::get('special-request', [RequestController::class, 'getSpecialRequest']);
 
-            Route::post('chat',function (Request $request){
+            Route::post('chat', function (Request $request) {
                 $rules = [
                     'special_request_id' => 'required|exists:special_requests,id',
                     'message' => 'string|required_without:attachments',
@@ -123,7 +123,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
 
                 return ConversationResource::make($conversation);
             });
-            Route::get('chat/{id}',function ($id){
+            Route::get('chat/{id}', function ($id) {
                 $specialRequest = SpecialRequest::findOrFail($id);
                 $conversations = $specialRequest->conversations()->get();
                 return ConversationResource::collection($conversations);
