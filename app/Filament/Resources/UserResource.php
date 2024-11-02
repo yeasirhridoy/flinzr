@@ -130,7 +130,7 @@ class UserResource extends Resource
             ->actions([
                 Tables\Actions\Action::make('reset device')
                     ->requiresConfirmation()
-                    ->action(fn(User $record) => $record->devices()->update(['device_details' => null])),
+                    ->action(fn(User $record) => $record->devices()->update(['device_details' => null, 'device_added_at' => null])),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
