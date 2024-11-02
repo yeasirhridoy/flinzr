@@ -27,7 +27,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('api.login');
     Route::post('/recover-password', [AuthController::class, 'recoverPassword']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
-    Route::post('/register-device', [AuthController::class, 'login']);
+    Route::post('/register-device', [AuthController::class, 'registerDevice']);
 
     Route::get('login/google', function () {
 

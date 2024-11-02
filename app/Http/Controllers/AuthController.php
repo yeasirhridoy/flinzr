@@ -24,13 +24,30 @@ class AuthController extends Controller
     public function registerDevice(RegisterDeviceRequest $request): JsonResponse
     {
         $data = $request->validated();
+        $data['email'] = $data['username'];
+        if (!filter_var($data['username'], FILTER_VALIDATE_EMAIL)) {
+            $user = User::where('username', $data['username'])->first();
+            if (!$user) {
+                return response()->json([
+                    'message' => 'Invalid credentials',
+                ], 401);
+            }
+            $data['email'] = $user->email;
+        }
+        unset($data['username']);
         $deviceDetails = $data['device_details'];
-        $password = $data['password'];
         unset($data['device_details']);
-        $user = auth('sanctum')->user();
+        if (!auth()->attempt($data)) {
+            return response()->json([
+                'message' => 'Invalid credentials',
+            ], 401);
+        }
+
+        $user = auth()->user();
+
         $userDevice = Device::query()->where('user_id', $user->id);
 
-        if ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at?->diffInDays(now()) < 60) {
+        if($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at?->diffInDays(now()) < 60) {
             return response()->json([
                 'message' => 'User already logged in another device',
             ], 401);
@@ -40,15 +57,18 @@ class AuthController extends Controller
                 'device_added_at' => now(),
             ]);
         } elseif (!$userDevice->exists()) {
-            Device::create([
+            $userDevice->create([
                 'user_id' => $user->id,
                 'device_details' => $deviceDetails,
                 'device_added_at' => now(),
             ]);
         }
 
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
-            'message' => 'Device registered',
+            'token' => $token,
+            'user' => new UserResource($user->load('country')->loadCount('followers', 'followings')),
         ]);
     }
 
