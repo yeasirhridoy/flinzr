@@ -22,8 +22,9 @@ class RegisterDeviceRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'username' => 'required|string',
             'device_details' => 'required|string',
-            'password' => 'required|string|confirmed|current_password',
+            'password' => 'required|string|confirmed',
             'password_confirmation' => 'required|string',
         ];
     }
