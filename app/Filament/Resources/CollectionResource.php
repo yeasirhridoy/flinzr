@@ -151,7 +151,6 @@ class CollectionResource extends Resource
             ->reorderable('order_column')
             ->defaultSort('order_column')
             ->filters([
-                Tables\Filters\SelectFilter::make('status')->options(RequestStatus::class),
                 Tables\Filters\TrashedFilter::make(),
                 Tables\Filters\Filter::make('created_at')
                     ->form([
@@ -170,8 +169,9 @@ class CollectionResource extends Resource
                             );
                     })->columnSpanFull(),
                 Tables\Filters\Filter::make('is_banner')->toggle()
-                    ->query(fn(Builder $query): Builder => $query->where('is_banner', true))
-                    ->columnSpanFull(),
+                    ->query(fn(Builder $query): Builder => $query->where('is_banner', true)),
+                Tables\Filters\Filter::make('is_active')->toggle()
+                    ->query(fn(Builder $query): Builder => $query->where('is_active', true)),
                 Tables\Filters\SelectFilter::make('sales_type')
                     ->columnSpanFull()
                     ->options(SalesType::class),
