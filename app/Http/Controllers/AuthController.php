@@ -49,7 +49,7 @@ class AuthController extends Controller
 
         if($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at && $userDevice->first()->device_added_at->diffInDays(now()) < 60) {
             return response()->json([
-                'message' => 'User already logged in another device',
+                'message' => 'already_logged_in',
             ], 401);
         } elseif ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at && $userDevice->first()->device_added_at->diffInDays(now()) >= 60) {
             $userDevice->update([
@@ -76,10 +76,17 @@ class AuthController extends Controller
     {
         $data = $request->validated();
         $data['password'] = bcrypt($data['password']);
+        $deviceDetails = $data['device_details'];
         unset($data['device_details']);
         $user = User::create($data);
         $user->sendOtp();
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        Device::create([
+            'user_id' => $user->id,
+            'device_details' => $deviceDetails,
+            'device_added_at' => now(),
+        ]);
 
         return response()->json([
             'token' => $token,
@@ -115,8 +122,14 @@ class AuthController extends Controller
 
         if ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails) {
             return response()->json([
-                'message' => 'User already logged in another device',
+                'message' => 'already_logged_in',
             ], 401);
+        } elseif (!$userDevice->exists()) {
+            $userDevice->create([
+                'user_id' => $user->id,
+                'device_details' => $deviceDetails,
+                'device_added_at' => now(),
+            ]);
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -259,6 +272,16 @@ class AuthController extends Controller
             cache()->forget('otp_' . $user->email);
             if ($request->is_reg) {
                 $user->markEmailAsVerified();
+
+                $referredBy = $user->referred_by;
+                if ($referredBy) {
+                    $referrer = User::where('referral_code', $referredBy)->first();
+                    if ($referrer) {
+                        $referrer->coin = $referrer->coin + 10;
+                        $referrer->save();
+                    }
+                }
+
                 return new UserResource($user->load('country')->loadCount('followers', 'followings'));
             } else {
                 return response()->json([
