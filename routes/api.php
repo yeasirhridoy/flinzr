@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Plan;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CollectionController;
@@ -46,7 +47,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
         })->active()->get());
     });
     Route::get('plans', function () {
-        return collect(\App\Enums\Plan::cases())->map(fn($plan) => [
+        return collect(Plan::cases())->map(fn($plan) => [
             'name' => $plan->getLabel(),
             'price' => $plan->getPrice(),
             'features' => $plan->getFeatures()
