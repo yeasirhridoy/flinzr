@@ -45,6 +45,13 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
             $query->active();
         })->active()->get());
     });
+    Route::get('plans', function () {
+        return collect(\App\Enums\Plan::cases())->map(fn($plan) => [
+            'name' => $plan->getLabel(),
+            'price' => $plan->getPrice(),
+            'features' => $plan->getFeatures()
+        ]);
+    });
     Route::get('countries/{code}', function ($code) {
         return new CountryResource(Country::where('code', $code)->firstOrFail());
     });
