@@ -26,7 +26,7 @@ class ArtistRequestRequest extends FormRequest
             'full_name' => ['required', 'string'],
             'phone' => ['required', 'string'],
             'id_no' => ['required', 'string'],
-            'url' => ['required', 'url'],
+            'url' => ['required'],
         ];
     }
 }
