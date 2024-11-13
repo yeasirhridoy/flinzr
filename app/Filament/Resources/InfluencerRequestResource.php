@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Enums\RequestStatus;
+use App\Enums\UserType;
 use App\Filament\Resources\InfluencerRequestResource\Pages;
 use App\Filament\Resources\InfluencerRequestResource\RelationManagers;
 use App\Models\InfluencerRequest;
@@ -53,7 +54,7 @@ class InfluencerRequestResource extends Resource
                 Tables\Columns\TextColumn::make('country.name')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('id')
+                Tables\Columns\TextColumn::make('request_number')
                     ->label('Request Id'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->since()
@@ -61,6 +62,13 @@ class InfluencerRequestResource extends Resource
                 Tables\Columns\SelectColumn::make('status')
                     ->sortable()
                     ->options(RequestStatus::class)
+                ->afterStateUpdated(function (InfluencerRequest $record, $state) {
+                    if ($state === RequestStatus::Complete->value) {
+                        $record->user()->update(['type' => UserType::Influencer]);
+                    } else {
+                        $record->user()->update(['type' => UserType::Customer]);
+                    }
+                }),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
