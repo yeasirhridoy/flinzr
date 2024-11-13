@@ -275,16 +275,6 @@ class AuthController extends Controller
             cache()->forget('otp_' . $user->email);
             if ($request->is_reg) {
                 $user->markEmailAsVerified();
-
-                $referredBy = $user->referred_by;
-                if ($referredBy) {
-                    $referrer = User::where('referral_code', $referredBy)->first();
-                    if ($referrer) {
-                        $referrer->coin = $referrer->coin + 10;
-                        $referrer->save();
-                    }
-                }
-
                 return new UserResource($user->load('country')->loadCount('followers', 'followings'));
             } else {
                 return response()->json([

@@ -100,6 +100,18 @@ class PurchaseController extends Controller
             }
             $artist->save();
             auth()->user()->filters()->syncWithoutDetaching($request->filter_id);
+
+            if ($user->purchases()->count() == 1) {
+                $referredBy = $user->referred_by;
+                if ($referredBy) {
+                    $referrer = User::where('referral_code', $referredBy)->first();
+                    if ($referrer) {
+                        $referrer->coin = $referrer->coin + 25;
+                        $referrer->save();
+                    }
+                }
+            }
+
             DB::commit();
             return response()->json(['message' => 'Purchase successful']);
         }
