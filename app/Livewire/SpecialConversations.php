@@ -27,7 +27,7 @@ class SpecialConversations extends Component
 
     public function fetchNewConversations(): void
     {
-        $newConversation = $this->specialRequest->conversations()->where('id', '>', $this->conversations->last()?->id)->get();
+        $newConversation = count($this->conversations) > 0 ? $this->specialRequest->conversations()->where('id', '>', $this->conversations->last()->id)->get() : [];
         foreach ($newConversation as $conversation) {
             $this->conversations->push($conversation);
             $this->dispatch('conversationAdded');
