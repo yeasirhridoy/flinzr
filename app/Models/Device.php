@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Device extends Model
 {
     use HasFactory;
+
+    protected $guarded = [];
+
+    protected $casts = [
+        'device_added_at' => 'datetime'
+    ];
 }

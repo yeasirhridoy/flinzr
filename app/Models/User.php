@@ -38,6 +38,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     {
         parent::creating(function (User $user) {
             $user->coin = 25;
+            $user->referral_code = substr(md5($user->email), 0, 6);
         });
         parent::saving(function (User $user) {
             if ($user->isDirty('type') && $user->getOriginal('type') === UserType::Influencer && $user->type !== UserType::Influencer) {
@@ -97,6 +98,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         return Attribute::make(
             get: fn($value) => $value / 100, set: fn($value) => $value * 100
         );
+    }
+
+    public function devices(): HasMany
+    {
+        return $this->hasMany(Device::class);
     }
 
     public function country(): BelongsTo

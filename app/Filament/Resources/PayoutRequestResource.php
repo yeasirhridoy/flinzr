@@ -11,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -52,7 +53,7 @@ class PayoutRequestResource extends Resource
                 Tables\Columns\TextColumn::make('country.name')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('id')
+                Tables\Columns\TextColumn::make('request_number')
                     ->label('Request Id'),
                 Tables\Columns\TextColumn::make('amount')->sortable()->money(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -60,6 +61,24 @@ class PayoutRequestResource extends Resource
                     ->sortable(),
                 Tables\Columns\SelectColumn::make('status')
                     ->sortable()
+                    ->disabled(fn($record) => $record->status !== RequestStatus::Pending->value)
+                    ->afterStateUpdated(function(PayoutRequest $record, $state) {
+                        if ($state === RequestStatus::Complete->value) {
+                            if($record->user->balance >= $record->amount) {
+                                $record->user()->update([
+                                    'balance' => ($record->user->balance - $record->amount) * 100
+                                ]);
+                            } else {
+                                Notification::make()
+                                    ->title('Insufficient Balance')
+                                    ->warning()
+                                    ->send();
+                                $record->update([
+                                    'status' => RequestStatus::Pending
+                                ]);
+                            }
+                        }
+                    })
                     ->options(RequestStatus::class),
             ])
             ->defaultSort('created_at', 'desc')

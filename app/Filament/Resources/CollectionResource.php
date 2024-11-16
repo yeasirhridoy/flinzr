@@ -3,12 +3,14 @@
 namespace App\Filament\Resources;
 
 use App\Enums\PlatformType;
+use App\Enums\RequestStatus;
 use App\Enums\SalesType;
 use App\Enums\UserType;
 use App\Filament\Resources\CollectionResource\Pages;
 use App\Models\Collection;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -167,8 +169,9 @@ class CollectionResource extends Resource
                             );
                     })->columnSpanFull(),
                 Tables\Filters\Filter::make('is_banner')->toggle()
-                    ->query(fn(Builder $query): Builder => $query->where('is_banner', true))
-                    ->columnSpanFull(),
+                    ->query(fn(Builder $query): Builder => $query->where('is_banner', true)),
+                Tables\Filters\Filter::make('is_active')->toggle()
+                    ->query(fn(Builder $query): Builder => $query->where('is_active', true)),
                 Tables\Filters\SelectFilter::make('sales_type')
                     ->columnSpanFull()
                     ->options(SalesType::class),
@@ -195,8 +198,22 @@ class CollectionResource extends Resource
                 Tables\Actions\RestoreAction::make(),
                 Tables\Actions\ForceDeleteAction::make(),
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\Action::make('Approve')->color('success'),
-                    Tables\Actions\Action::make('Reject')->color('danger'),
+                    Tables\Actions\Action::make('Approve')->color('success')
+                        ->action(function(Collection $record){
+                            $record->update(['status' => RequestStatus::Complete]);
+                            Notification::make('approved')
+                                ->title('Collection Approved')
+                                ->success()
+                                ->send();
+                        }),
+                    Tables\Actions\Action::make('Reject')->color('danger')
+                        ->action(function(Collection $record){
+                            $record->update(['status' => RequestStatus::Cancelled]);
+                            Notification::make('rejected')
+                                ->title('Collection Rejected')
+                                ->danger()
+                                ->send();
+                        }),
                 ]),
             ])
             ->bulkActions([

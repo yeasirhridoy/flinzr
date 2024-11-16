@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\PlatformType;
 use App\Enums\RequestStatus;
+use App\Enums\UserType;
 use App\Filament\Resources\ArtistRequestResource\Pages;
 use App\Filament\Resources\ArtistRequestResource\RelationManagers;
 use App\Models\ArtistRequest;
@@ -69,7 +70,7 @@ class ArtistRequestResource extends Resource
                     ->wrap()
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('id')
+                Tables\Columns\TextColumn::make('request_number')
                     ->label('Request Id'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->since()
@@ -77,7 +78,13 @@ class ArtistRequestResource extends Resource
                 Tables\Columns\SelectColumn::make('status')
                     ->options(RequestStatus::class)
                     ->sortable()
-                    ->searchable(),
+                    ->afterStateUpdated(function (ArtistRequest $record, $state) {
+                        if ($state === RequestStatus::Complete->value) {
+                            $record->user()->update(['type' => UserType::Artist]);
+                        } else {
+                            $record->user()->update(['type' => UserType::Customer]);
+                        }
+                    }),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

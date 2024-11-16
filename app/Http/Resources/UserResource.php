@@ -28,6 +28,7 @@ class UserResource extends JsonResource
             'coin' => $this->coin,
             'verified' => !!$this->email_verified_at,
             'is_active' => $this->is_active,
+            'referral_code' => $this->referral_code,
             'received_coin' => $this->received_coin ?? false,
             'followers_count' => $this->followers_count,
             'followings_count' => $this->followings_count,

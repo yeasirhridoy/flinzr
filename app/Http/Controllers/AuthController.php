@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EmailVerifyRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RecoverPasswordRequest;
+use App\Http\Requests\RegisterDeviceRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\UpdatePasswordRequest;
@@ -20,13 +21,72 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    public function registerDevice(RegisterDeviceRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+        $data['email'] = $data['username'];
+        if (!filter_var($data['username'], FILTER_VALIDATE_EMAIL)) {
+            $user = User::where('username', $data['username'])->first();
+            if (!$user) {
+                return response()->json([
+                    'message' => 'Invalid credentials',
+                ], 401);
+            }
+            $data['email'] = $user->email;
+        }
+        unset($data['username']);
+        $deviceDetails = $data['device_details'];
+        unset($data['device_details']);
+        if (!auth()->attempt($data)) {
+            return response()->json([
+                'message' => 'Invalid credentials',
+            ], 401);
+        }
+
+        $user = auth()->user();
+
+        $userDevice = Device::query()->where('user_id', $user->id);
+
+        if ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at && $userDevice->first()->device_added_at->diffInDays(now()) < 60) {
+//            return response()->json([
+//                'message' => 'already_logged_in',
+//            ], 401);
+        } elseif ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at && $userDevice->first()->device_added_at->diffInDays(now()) >= 60) {
+            $userDevice->update([
+                'device_details' => $deviceDetails,
+                'device_added_at' => now(),
+            ]);
+        } elseif (!$userDevice->exists()) {
+            $userDevice->create([
+                'user_id' => $user->id,
+                'device_details' => $deviceDetails,
+                'device_added_at' => now(),
+            ]);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user' => new UserResource($user->load('country')->loadCount('followers', 'followings')),
+        ]);
+    }
+
     public function register(RegisterRequest $request): JsonResponse
     {
         $data = $request->validated();
         $data['password'] = bcrypt($data['password']);
+        $deviceDetails = $data['device_details'];
+        unset($data['device_details']);
         $user = User::create($data);
         $user->sendOtp();
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        Device::create([
+            'user_id' => $user->id,
+            'device_details' => $deviceDetails,
+            'device_added_at' => now(),
+        ]);
 
         return response()->json([
             'token' => $token,
@@ -48,6 +108,8 @@ class AuthController extends Controller
             $data['email'] = $user->email;
         }
         unset($data['username']);
+        $deviceDetails = $data['device_details'];
+        unset($data['device_details']);
         if (!auth()->attempt($data)) {
             return response()->json([
                 'message' => 'Invalid credentials',
@@ -55,6 +117,24 @@ class AuthController extends Controller
         }
 
         $user = auth()->user();
+
+        $userDevice = Device::query()->where('user_id', $user->id);
+
+        if ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails) {
+            return response()->json([
+                'message' => json_encode([
+                    'message' => 'already_logged_in',
+                    'remaining' => ceil(60 - $userDevice->first()->device_added_at->diffInDays(now())),
+                ]),
+            ], 401);
+        } elseif (!$userDevice->exists()) {
+            $userDevice->create([
+                'user_id' => $user->id,
+                'device_details' => $deviceDetails,
+                'device_added_at' => now(),
+            ]);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -106,26 +186,16 @@ class AuthController extends Controller
 
         $fcmToken = $request->fcm_token;
         $deviceType = $request->device_type;
-        $requestDetails = $this->makeUpUserAgent($request->device_details);
-
-        $deviceDetails = $requestDetails;
-        $appDetails = null;
-        if (count($deviceDetails) > 5) {
-            $deviceDetails = $requestDetails[0] . '/' . $requestDetails[3] . '/' . $requestDetails[4] . ' ' . $requestDetails[5];
-        }
-
-        if (count($requestDetails) > 6) {
-            $appDetails = $requestDetails[2] . ' (' . $requestDetails[1] . ') / ' . $requestDetails[6];
-        }
+        $deviceDetails = $request->device_details;
 
         Device::query()->updateOrCreate([
-            'user_id' => auth()->id(),
+            'user_id' => auth('sanctum')->id(),
             'device_details' => $deviceDetails,
         ], [
             'is_logged' => true,
+            'is_active_notification' => true,
             'fcm_token' => $fcmToken,
             'device_type' => $deviceType,
-            'app_details' => $appDetails
         ]);
 
         return response()->json([

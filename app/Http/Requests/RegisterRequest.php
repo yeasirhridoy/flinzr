@@ -28,6 +28,8 @@ class RegisterRequest extends FormRequest
             'username' => 'required|string|unique:users,username|regex:/^[a-zA-Z0-9_]+$/',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
+            'device_details' => 'required|string',
+            'referred_by' => 'nullable',
         ];
     }
 }
