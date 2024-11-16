@@ -1,5 +1,6 @@
 <div
     id="conversations"
+    wire:poll="fetchNewConversations"
     style="height: 65vh;overflow: auto;padding: 0 32px 64px"
 >
     @foreach($conversations as $conversation)

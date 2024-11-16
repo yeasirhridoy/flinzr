@@ -18,19 +18,25 @@ class SpecialConversations extends Component
         $this->conversations = $this->specialRequest->conversations;
     }
 
-//    protected $listeners = ["echo:conversation,.MessageSent" => 'addConversation'];
+    public function getListeners(): array
+    {
+        return [
+            "echo:conversation.{$this->specialRequest->id},MessageSent" => 'addConversation',
+        ];
+    }
 
-//    public function getListeners(): array
-//    {
-//        return [
-//            "echo:conversation,.".MessageSent::class => 'addConversation',
-//        ];
-//    }
+    public function fetchNewConversations(): void
+    {
+        $newConversation = $this->specialRequest->conversations()->where('id', '>', $this->conversations->last()->id)->get();
+        foreach ($newConversation as $conversation) {
+            $this->conversations->push($conversation);
+            $this->dispatch('conversationAdded');
+        }
+    }
 
-    #[On('echo:conversation,MessageSent')]
     public function addConversation($event): void
     {
-        info($event);
+        info('listening');
         $this->conversations->push($event['conversation']);
         $this->dispatch('conversationAdded');
     }
