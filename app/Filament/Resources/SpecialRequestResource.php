@@ -55,7 +55,7 @@ class SpecialRequestResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.country.name')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('id')
+                Tables\Columns\TextColumn::make('request_number')
                     ->label('Request Id'),
                 Tables\Columns\TextColumn::make('created_at')->since()->sortable(),
                 Tables\Columns\SelectColumn::make('status')->options(RequestStatus::class)->searchable()->sortable(),
