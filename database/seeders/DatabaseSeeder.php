@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\PlatformType;
 use App\Enums\UserType;
 use App\Models\ArtistRequest;
 use App\Models\Category;
@@ -88,11 +89,11 @@ class DatabaseSeeder extends Seeder
         User::factory(50)->create();
         Category::factory(5)->has(
             Collection::factory(5)->sequence(
-                ['eng_name' => 'Anniversary', 'arabic_name' => 'Anniversary'],
-                ['eng_name' => 'Birthday', 'arabic_name' => 'Birthday'],
-                ['eng_name' => 'Eid', 'arabic_name' => 'Eid'],
-                ['eng_name' => 'Congratulations', 'arabic_name' => 'Congratulations'],
-                ['eng_name' => 'Easter', 'arabic_name' => 'Easter'],
+                ['eng_name' => 'Anniversary', 'arabic_name' => 'Anniversary', 'type' => PlatformType::Snapchat],
+                ['eng_name' => 'Birthday', 'arabic_name' => 'Birthday','type' => PlatformType::Snapchat ],
+                ['eng_name' => 'Eid', 'arabic_name' => 'Eid', 'type' => PlatformType::Instagram],
+                ['eng_name' => 'Congratulations', 'arabic_name' => 'Congratulations', 'type' => PlatformType::Instagram],
+                ['eng_name' => 'Easter', 'arabic_name' => 'Easter', 'type' => PlatformType::Tiktok],
             )->has(
                 Filter::factory(3)
             )->addTags()->addColors()->addRegions()
