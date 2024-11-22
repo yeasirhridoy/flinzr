@@ -88,6 +88,8 @@ return [
 
     'revenuecat_url' => env('REVENEUECAT_URL'),
 
+    'revenuecat_project_id' => env('REVENEUECAT_PROJECT_ID'),
+
     /*
     |--------------------------------------------------------------------------
     | Encryption Key

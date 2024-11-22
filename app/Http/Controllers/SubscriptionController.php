@@ -12,10 +12,10 @@ class SubscriptionController extends Controller
     public function store(Request $request): JsonResponse
     {
         $rules = [
-            'data' => 'nullable|array',
+            'data' => 'required|array',
+            'data.customer_id' => 'required|string',
             'ends_at' => 'nullable|date',
         ];
-
         $request->validate($rules);
 
         $subscription = auth('sanctum')->user()->subscription;
@@ -28,16 +28,10 @@ class SubscriptionController extends Controller
         return response()->json(['message' => 'Subscription updated successfully']);
     }
 
-    public function dailyCoin(Request $request): JsonResponse
+    public function dailyCoin(): JsonResponse
     {
-        $rules = [
-            'project_id' => 'required|string',
-            'customer_id' => 'required|string',
-        ];
-        $request->validate($rules);
-        $projectId = $request->get('project_id');
-        $customerId = $request->get('customer_id');
         $subscription = auth('sanctum')->user()->subscription;
+        $customer_id = $subscription->data['customer_id'] ?? null;
         $cacheKey = 'daily-coin-claim-' . auth('sanctum')->id() . '-' . now()->format('Y-m-d');
         if (!$subscription || ($subscription->ends_at < now() && $subscription->ends_at !== null)) {
             return response()->json(['message' => 'You are not subscribed to claim daily coins'], 403);
@@ -46,14 +40,13 @@ class SubscriptionController extends Controller
         if (cache()->has($cacheKey)) {
             return response()->json(['message' => 'You have already claimed your daily coins'], 400);
         }
-
-        $response = $this->fetchSubscriptionStatus($request->get('project_id'), $request->get('customer_id'));
+        $response = $this->fetchSubscriptionStatus($customer_id);
         if ($response['success']) {
             $subscriptionData = $response['data'];
             $firstSubscription = $subscriptionData['items'][0] ?? null;
+            $this->updateSubscription($subscription, $firstSubscription);
 
             if ($firstSubscription && $firstSubscription['status'] === 'active') {
-                $this->updateSubscription($subscription, $firstSubscription);
                 auth('sanctum')->user()->increment('coin', 10);
                 cache()->put($cacheKey, true, now()->addDay());
                 return response()->json(['message' => 'Coins added successfully']);
@@ -66,8 +59,9 @@ class SubscriptionController extends Controller
     }
 
 
-    private function fetchSubscriptionStatus(string $projectId, string $customerId): array
+    private function fetchSubscriptionStatus(string $customerId): array
     {
+        $projectId = config('app.revenuecat_project_id');
         $baseUrl = config('app.revenuecat_url');
         $url = $baseUrl . "/projects/{$projectId}/customers/{$customerId}/subscriptions";
         $apiKey = config('app.revenuecat_api_key');
