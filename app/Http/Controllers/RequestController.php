@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Price;
 use App\Enums\RequestStatus;
 use App\Http\Requests\InfluencerRequestRequest;
 use App\Http\Requests\SpecialRequestRequest;
@@ -10,15 +11,23 @@ use App\Models\Country;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class RequestController extends Controller
 {
-    public function storeSpecialRequest(SpecialRequestRequest $request): SpecialRequestResource
+    public function storeSpecialRequest(SpecialRequestRequest $request)
     {
         $data = $request->validated();
-        $data['user_id'] = $request->user()->id;
+
+        $user = $request->user();
+        $coin = $user->coin;
+        if ($coin < Price::SpecialFilter->getPrice()) {
+            return response()->json(['message' => 'Insufficient coin'], 400);
+        }
+
+        $data['user_id'] = $user->id;
         $data['status'] = RequestStatus::Pending;
 
         if (isset($data['image'])) {
@@ -33,7 +42,15 @@ class RequestController extends Controller
             $data['image'] = $s3Path;
         }
 
-        $specialRequest = $request->user()->specialRequests()->create($data);
+        DB::beginTransaction();
+        try {
+            $specialRequest = $request->user()->specialRequests()->create($data);
+            $user->update(['coin' => $coin - Price::SpecialFilter->getPrice()]);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Something went wrong'], 500);
+        }
         return new SpecialRequestResource($specialRequest);
     }
 
