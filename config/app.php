@@ -84,6 +84,12 @@ return [
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
+    'revenuecat_api_key' => env('REVENEUECAT_API_KEY'),
+
+    'revenuecat_url' => env('REVENEUECAT_URL'),
+
+    'revenuecat_project_id' => env('REVENEUECAT_PROJECT_ID'),
+
     /*
     |--------------------------------------------------------------------------
     | Encryption Key
