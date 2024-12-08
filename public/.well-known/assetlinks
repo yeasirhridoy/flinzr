@@ -1,10 +1,14 @@
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "com.flinzr.app",
-    "sha256_cert_fingerprints": [
-      "D7:5B:80:60:DF:52:6E:86:CE:06:58:77:C6:9E:35:09:61:20:55:10:B3:99:4A:F4:67:54:1A:CC:C8:6C:58:AC"
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.flinzr.app",
+      "sha256_cert_fingerprints": [
+        "C5:AB:04:99:03:90:3C:E1:32:1E:D3:2B:68:87:C8:6F:86:20:1E:D8:56:9C:D1:F2:51:E2:32:6E:BB:AD:5A:0D"
       ]
+    }
   }
-}]
+]
