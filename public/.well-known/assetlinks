@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.flinzr.app",
+    "sha256_cert_fingerprints": [
+      "D7:5B:80:60:DF:52:6E:86:CE:06:58:77:C6:9E:35:09:61:20:55:10:B3:99:4A:F4:67:54:1A:CC:C8:6C:58:AC"
+      ]
+  }
+}]
