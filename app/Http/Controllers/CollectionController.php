@@ -219,6 +219,10 @@ class CollectionController extends Controller
             $collections->where('is_featured', true);
         }
 
+        if (request()->filled('trending') && request('trending') === 'true') {
+            $collections->where('is_trending', true);
+        }
+
         if (request()->filled('banner') && request('banner') === 'true') {
             $collections->where('is_banner', true);
         } elseif (request()->filled('with_banner') && request('with_banner') === 'true') {
