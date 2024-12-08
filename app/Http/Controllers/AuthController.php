@@ -125,7 +125,7 @@ class AuthController extends Controller
             return response()->json([
                 'message' => json_encode([
                     'message' => 'already_logged_in',
-                    'remaining' => ceil(60 - $userDevice->first()->device_added_at->diffInDays(now())),
+                    'remaining' => ceil(60 - ($userDevice->first()?->device_added_at?->diffInDays(now()) ?? 0)),
                 ]),
             ], 401);
         } elseif (!$userDevice->exists()) {
