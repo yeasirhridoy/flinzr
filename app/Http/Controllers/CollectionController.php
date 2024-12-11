@@ -301,15 +301,18 @@ class CollectionController extends Controller
         $user = $request->user();
         $filters = $data['filters'];
 
-//        $pendingRequests = Collection::where('user_id', $user->id)
-//            ->where('is_active', false)
-//            ->exists();
+        $pendingRequests = Collection::where('user_id', $user->id)
+            ->where('is_active', false)
+            ->exists();
+        $activeCollections = Collection::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->count();
 
-//        if ($pendingRequests) {
-//            throw ValidationException::withMessages([
-//                'request' => 'You have a pending request. Please wait until it is processed.'
-//            ]);
-//        }
+        if ($pendingRequests && $activeCollections === 0) {
+            throw ValidationException::withMessages([
+                'request' => 'You have a pending request. Please wait until it is processed.'
+            ]);
+        }
 
         $currentMonthCount = Collection::where('user_id', $user->id)
             ->whereMonth('created_at', now()->month)
