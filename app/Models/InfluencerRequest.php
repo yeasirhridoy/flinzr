@@ -6,6 +6,7 @@ use App\Enums\RequestStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class InfluencerRequest extends Model
 {
@@ -16,7 +17,7 @@ class InfluencerRequest extends Model
     protected static function booted(): void
     {
         parent::creating(function ($model) {
-            $model->request_number = uniqid();
+            $model->request_number = strtoupper(Str::random(8));
         });
     }
 

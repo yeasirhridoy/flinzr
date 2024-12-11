@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Str;
 
 class SpecialRequest extends Model
 {
@@ -16,7 +17,7 @@ class SpecialRequest extends Model
     protected static function booted(): void
     {
         parent::creating(function ($model) {
-            $model->request_number = uniqid();
+            $model->request_number = strtoupper(Str::random(8));
         });
     }
 
