@@ -1,3 +1,4 @@
+@php use Illuminate\Support\Facades\Storage; @endphp
 <div
     id="conversations"
     wire:poll="fetchNewConversations"
@@ -9,9 +10,22 @@
             <img class="rounded-full"
                  style="width: 2rem; "
                  src="https://ui-avatars.com/api/?&length=1&name={{$conversation->sender}}&size=64" alt=""/>
-            <div style="font-size: 14px; margin: 0 8px; background-color: {{ $conversation->sender === 'user' ? '#e2c4ff' : '#a855f7' }}; color: {{ $conversation->sender === 'user' ? '#000000' : '#FFFFFF' }}; padding: 0.75rem; border-radius: 0.5rem; display: inline-block;">
-                {{$conversation->message}}
-            </div>
+            @if($conversation->message)
+                <div
+                    style="font-size: 14px; margin: 0 8px; background-color: {{ $conversation->sender === 'user' ? '#e2c4ff' : '#a855f7' }}; color: {{ $conversation->sender === 'user' ? '#000000' : '#FFFFFF' }}; padding: 0.75rem; border-radius: 0.5rem; display: inline-block;">
+                    {{$conversation->message}}
+                </div>
+            @endif
+            @if($conversation->attachments)
+               <div class="w-1/2">
+                   @foreach($conversation->attachments as $attachment)
+                       <a href="{{ Storage::url($attachment) }}" target="_blank"
+                          style="font-size: 14px; margin: 0 8px; background-color: {{ $conversation->sender === 'user' ? '#e2c4ff' : '#a855f7' }}; color: {{ $conversation->sender === 'user' ? '#000000' : '#FFFFFF' }}; border-radius: 0.5rem; display: inline-block;">
+                           <img src="{{Storage::url($attachment)}}" alt="attachment">
+                       </a>
+                   @endforeach
+               </div>
+            @endif
         </div>
     @endforeach
 </div>

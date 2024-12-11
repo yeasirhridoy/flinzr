@@ -1,11 +1,11 @@
 <div>
-    <form wire:submit="sendMessage" class="flex gap-1">
-        <div class="flex-grow">
+    <form wire:submit="sendMessage">
+        <div class="flex-grow mb-4">
             {{ $this->form }}
         </div>
 
        <div>
-           <x-filament::button type="submit">
+           <x-filament::button type="submit" class="w-full">
                Send
            </x-filament::button>
        </div>
