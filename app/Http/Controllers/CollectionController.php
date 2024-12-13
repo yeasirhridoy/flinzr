@@ -56,7 +56,12 @@ class CollectionController extends Controller
 
     public function giftedCollections(): AnonymousResourceCollection
     {
-        $giftedCollections = Collection::with(['user', 'filters', 'colors'])->whereHas('filters', function ($query) {
+        $giftedCollections = Collection::with(['user', 'filters' => function($q2)
+        {
+            $q2->whereIn('id', auth('sanctum')->user()->gifts()->pluck('filter_id'));
+
+        },
+        'colors'])->whereHas('filters', function ($query) {
             $query->whereIn('id', auth('sanctum')->user()->gifts()->pluck('filter_id'));
         })->get();
 
