@@ -8,7 +8,7 @@
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-
+    RewriteCond %{REQUEST_URI} ^/.well-known/assetlinks\.json$ [NC]
     <Files "assetlinks.json">
         Header set Content-Type "application/json"
         Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
