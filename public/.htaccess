@@ -19,3 +19,9 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "assetlinks.json">
+        Header set Content-Type "application/json"
+    </FilesMatch>
+</IfModule>
