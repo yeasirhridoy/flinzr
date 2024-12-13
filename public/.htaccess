@@ -9,6 +9,13 @@
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
+    <Files "assetlinks.json">
+        Header set Content-Type "application/json"
+        Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+        Header set Pragma "no-cache"
+        Header set Expires 0
+    </Files>
+
     # Redirect Trailing Slashes If Not A Folder...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
@@ -20,11 +27,11 @@
     RewriteRule ^ index.php [L]
 </IfModule>
 
-<IfModule mod_headers.c>
-    <FilesMatch "assetlinks.json">
-        Header set Content-Type "application/json"
-        Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
-        Header set Pragma "no-cache"
-        Header set Expires 0
-    </FilesMatch>
-</IfModule>
+# <IfModule mod_headers.c>
+#     <FilesMatch "assetlinks.json">
+#         Header set Content-Type "application/json"
+#         Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+#         Header set Pragma "no-cache"
+#         Header set Expires 0
+#     </FilesMatch>
+# </IfModule>
