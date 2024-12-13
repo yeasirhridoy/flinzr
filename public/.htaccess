@@ -10,7 +10,6 @@
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
     # Redirect Trailing Slashes If Not A Folder...
-    RewriteCond %{REQUEST_URI} ^/.well-known/assetlinks\.json$ [NC]
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
@@ -24,5 +23,8 @@
 <IfModule mod_headers.c>
     <FilesMatch "assetlinks.json">
         Header set Content-Type "application/json"
+        Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+        Header set Pragma "no-cache"
+        Header set Expires 0
     </FilesMatch>
 </IfModule>
