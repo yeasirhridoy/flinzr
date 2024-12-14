@@ -11,6 +11,7 @@ use App\Http\Resources\FilterResource;
 use App\Models\Collection;
 use App\Models\Country;
 use App\Models\Filter;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -182,7 +183,7 @@ class CollectionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): AnonymousResourceCollection
+    public function index()
     {
         $rules = [
             'type' => [Rule::in(PlatformType::values())],
@@ -268,15 +269,23 @@ class CollectionController extends Controller
         }
 
         $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
-        $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
-        $giftedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->gifts()->pluck('filter_id') : collect();
+        $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->get(['filter_id', 'created_at'])
+            ->mapWithKeys(fn($purchase) => [$purchase->filter_id => $purchase->created_at]) : collect();
+        $giftedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->gifts()->get(['filter_id', 'created_at'])
+            ->mapWithKeys(fn($gift) => [$gift->filter_id => $gift->created_at]) : collect();
+
 
         if (request('banner') === 'true') {
             $collections = $collections->get()->map(function ($collection) use ($giftedFilters, $purchasedFilters, $favoriteCollections) {
                 $collection->is_favorite = $favoriteCollections->contains($collection->id);
-                $collection->filters->map(function ($filter) use ($giftedFilters, $purchasedFilters) {
-                    $filter->is_purchased = $purchasedFilters->contains($filter->id);
-                    $filter->is_gifted = $giftedFilters->contains($filter->id);
+
+                $collection->filters->map(function ($filter) use ($collection, $giftedFilters, $purchasedFilters) {
+                    $filter->is_purchased = $purchasedFilters->has($filter->id);
+                    $filter->is_gifted = $giftedFilters->has($filter->id);
+
+                    $filter->purchased_at = $purchasedFilters->get($filter->id, null);
+                    $filter->gifted_at = $giftedFilters->get($filter->id, null);
+                    $collection->last_purchased_at = $purchasedFilters->has($filter->id) ?  $purchasedFilters->max() : null;
                     return $filter;
                 });
                 return $collection;
@@ -284,16 +293,30 @@ class CollectionController extends Controller
         } else {
             $collections = $collections->paginate(10)->through(function ($collection) use ($giftedFilters, $purchasedFilters, $favoriteCollections) {
                 $collection->is_favorite = $favoriteCollections->contains($collection->id);
-                $collection->filters->map(function ($filter) use ($giftedFilters, $purchasedFilters) {
-                    $filter->is_purchased = $purchasedFilters->contains($filter->id);
-                    $filter->is_gifted = $giftedFilters->contains($filter->id);
+                $collection->filters->map(function ($filter) use ($collection, $giftedFilters, $purchasedFilters) {
+                    $filter->is_purchased = $purchasedFilters->has($filter->id);
+                    $filter->is_gifted = $giftedFilters->has($filter->id);
+
+                    $filter->purchased_at = $purchasedFilters->get($filter->id, null);
+                    $filter->gifted_at = $giftedFilters->get($filter->id, null);
+                    $collection->last_purchased_at = $purchasedFilters->has($filter->id) ?  $purchasedFilters->max() : null;
                     return $filter;
                 });
                 return $collection;
             });
         }
 
-        return CollectionResource::collection($collections);
+        if (request()->filled('user_id')) {
+            $user = User::find(request()->filled('user_id'));
+            return response()->json([
+                'data' => [
+                    'user' => $user,
+                    'data' => CollectionResource::collection($collections),
+                ]
+            ]);
+        } else {
+            return CollectionResource::collection($collections);
+        }
     }
 
     /**
