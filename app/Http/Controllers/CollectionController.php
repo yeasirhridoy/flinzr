@@ -55,6 +55,11 @@ class CollectionController extends Controller
             });
             return $collection;
         });
+        $purchasedCollections = $purchasedCollections->sortByDesc(function ($collection) {
+            $latestGiftedAt = $collection->filters->max('gifted_at');
+            $latestPurchasedAt = $collection->filters->max('purchased_at');
+            return max($latestGiftedAt, $latestPurchasedAt);
+        });
 
         return CollectionResource::collection($purchasedCollections);
     }
@@ -70,19 +75,29 @@ class CollectionController extends Controller
         })->get();
 
         $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
-        $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
-        $giftedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->gifts()->pluck('filter_id') : collect();
+        $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->get(['filter_id', 'created_at'])
+            ->mapWithKeys(fn($purchase) => [$purchase->filter_id => $purchase->created_at]) : collect();
+        $giftedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->gifts()->get(['filter_id', 'created_at'])
+            ->mapWithKeys(fn($gift) => [$gift->filter_id => $gift->created_at]) : collect();
 
         $giftedCollections->map(function ($collection) use ($giftedFilters, $purchasedFilters, $favoriteCollections) {
             $collection->is_favorite = $favoriteCollections->contains($collection->id);
             $collection->filters->map(function ($filter) use ($giftedFilters, $purchasedFilters) {
-                $filter->is_purchased = $purchasedFilters->contains($filter->id);
-                $filter->is_gifted = $giftedFilters->contains($filter->id);
+                $filter->is_purchased = $purchasedFilters->has($filter->id);
+                $filter->is_gifted = $giftedFilters->has($filter->id);
+
+                $filter->purchased_at = $purchasedFilters->get($filter->id, null);
+                $filter->gifted_at = $giftedFilters->get($filter->id, null);
                 return $filter;
             });
             return $collection;
         });
+        $giftedCollections = $giftedCollections->sortByDesc(function ($collection) {
+            $latestGiftedAt = $collection->filters->max('gifted_at');
+            $latestPurchasedAt = $collection->filters->max('purchased_at');
 
+            return max($latestGiftedAt, $latestPurchasedAt);
+        });
 
         return CollectionResource::collection($giftedCollections);
     }
@@ -187,58 +202,57 @@ class CollectionController extends Controller
         $collections = Collection::query()
             ->where('is_active', true)
             ->with(['user', 'filters', 'colors'])
-            ->has('filters')
-            ->orderBy('order_column');
+            ->has('filters');
 
 
         if (request()->filled('type')) {
-            $collections->where('type', request('type'));
+            $collections->where('type', request('type'))->orderBy('order_column');
         }
 
         if (request()->filled('sales_type')) {
-            $collections->where('sales_type', request('sales_type'));
+            $collections->where('sales_type', request('sales_type'))->orderBy('order_column');
         }
 
         if (request()->filled('category_id')) {
-            $collections->where('category_id', request('category_id'));
+            $collections->where('category_id', request('category_id'))->orderBy('order_column');
         }
 
         if (request()->filled('user_id')) {
-            $collections->where('user_id', request('user_id'));
+            $collections->where('user_id', request('user_id'))->orderByDesc('id');
         }
 
         if (request()->filled('featured') && request('featured') === 'true') {
-            $collections->where('is_featured', true);
+            $collections->where('is_featured', true)->orderBy('order_column');
         }
 
         if (request()->filled('trending') && request('trending') === 'true') {
-            $collections->where('is_trending', true);
+            $collections->where('is_trending', true)->orderBy('order_column');
         }
 
         if (request()->filled('banner') && request('banner') === 'true') {
-            $collections->where('is_banner', true);
+            $collections->where('is_banner', true)->orderBy('order_column');
         } elseif (request()->filled('with_banner') && request('with_banner') === 'true') {
-            $collections->where('is_banner', true)->orWhere('is_banner', false);
+            $collections->where('is_banner', true)->orWhere('is_banner', false)->orderBy('order_column');
         } else {
-            $collections->where('is_banner', false);
+            $collections->where('is_banner', false)->orderBy('order_column');
         }
 
         if (request()->filled('query')) {
             $collections->where(function ($query) {
                 $query->where('eng_name', 'like', '%' . request('query') . '%')
-                    ->orWhere('arabic_name', 'like', '%' . request('query') . '%');
+                    ->orWhere('arabic_name', 'like', '%' . request('query') . '%')->orderBy('order_column');
             });
         }
 
         if (request()->filled('tags')) {
             $collections->whereHas('tags', function ($query) {
-                $query->whereIn('tag_id', explode(',', request('tags')));
+                $query->whereIn('tag_id', explode(',', request('tags')))->orderBy('order_column');
             });
         }
 
         if (request()->filled('colors')) {
             $collections->whereHas('colors', function ($query) {
-                $query->whereIn('color_id', explode(',', request('colors')));
+                $query->whereIn('color_id', explode(',', request('colors')))->orderBy('order_column');
             });
         }
 
@@ -249,7 +263,7 @@ class CollectionController extends Controller
                     $query->whereHas('countries', function ($query) use ($countryId) {
                         $query->where('country_id', $countryId);
                     });
-                })->orWhereDoesntHave('regions');
+                })->orWhereDoesntHave('regions')->orderBy('order_column');
             });
         }
 

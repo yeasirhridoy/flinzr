@@ -32,7 +32,7 @@ class FavoriteController extends Controller
         }
 
         $collections = $query->get();
-        Log::info($collections);
+
 
         $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->get(['filter_id', 'created_at'])
             ->mapWithKeys(fn($purchase) => [$purchase->filter_id => $purchase->created_at]) : collect();
@@ -51,7 +51,7 @@ class FavoriteController extends Controller
             });
             return $collection;
         });
-
+        $collections = $collections->sortByDesc('add_favorite_at');
         return CollectionResource::collection($collections);
     }
 

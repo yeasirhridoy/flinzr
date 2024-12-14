@@ -56,7 +56,7 @@ class RequestController extends Controller
 
     public function getSpecialRequest(): AnonymousResourceCollection
     {
-        return SpecialRequestResource::collection(auth()->user()->specialRequests);
+        return SpecialRequestResource::collection(auth()->user()->specialRequests->sortByDesc('id'));
     }
 
     public function getInfluencerRequest(): JsonResponse
