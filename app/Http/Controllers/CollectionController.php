@@ -285,7 +285,6 @@ class CollectionController extends Controller
 
                     $filter->purchased_at = $purchasedFilters->get($filter->id, null);
                     $filter->gifted_at = $giftedFilters->get($filter->id, null);
-                    $collection->last_purchased_at = $purchasedFilters->has($filter->id) ?  $purchasedFilters->max() : null;
                     return $filter;
                 });
                 return $collection;
@@ -299,7 +298,6 @@ class CollectionController extends Controller
 
                     $filter->purchased_at = $purchasedFilters->get($filter->id, null);
                     $filter->gifted_at = $giftedFilters->get($filter->id, null);
-                    $collection->last_purchased_at = $purchasedFilters->has($filter->id) ?  $purchasedFilters->max() : null;
                     return $filter;
                 });
                 return $collection;

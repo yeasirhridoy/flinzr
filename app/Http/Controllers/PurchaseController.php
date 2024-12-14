@@ -14,6 +14,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PurchaseController extends Controller
 {
@@ -79,6 +80,10 @@ class PurchaseController extends Controller
                 'earning' => $earning,
                 'amount' => Price::Filter->getPrice() / 25,
             ]);
+            $collection = Filter::findOrFail($request->filter_id)->collection;
+            $collection->updated_at = now();
+            $collection->save();
+
             $artist->balance += $earning;
             $downloadCount = Purchase::where('artist_id', $artist->id)->count();
             if ($downloadCount > CommissionLevel::Level7->getTarget()) {

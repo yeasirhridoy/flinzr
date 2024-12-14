@@ -31,7 +31,6 @@ class CollectionResource extends JsonResource
             'is_featured' => $this->is_featured,
             'is_trending' => $this->is_trending,
             'status' => $this->status,
-            'last_purchased_at' => $this->last_purchased_at,
             'avatar' => $this->avatar ? Storage::url($this->avatar) : null,
             'thumbnail' => $this->avatar ? Storage::url($this->thumbnail) : null,
             'cover' => $this->avatar ? Storage::url($this->cover) : null,
@@ -39,6 +38,7 @@ class CollectionResource extends JsonResource
             'filters' => FilterResource::collection($this->whenLoaded('filters')->sortByDesc('is_purchased')),
             'colors' => ColorResource::collection($this->whenLoaded('colors')),
             'created_at' => $this->created_at,
+            'last_purchased_at' => $this->updated_at,
         ];
     }
 }
