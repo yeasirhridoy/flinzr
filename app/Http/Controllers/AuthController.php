@@ -15,6 +15,7 @@ use App\Models\Device;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -47,11 +48,11 @@ class AuthController extends Controller
 
         $userDevice = Device::query()->where('user_id', $user->id);
 
-        if ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at && $userDevice->first()->device_added_at->diffInDays(now()) < 180) {
+        if ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at && $userDevice->first()->device_added_at->diffInDays(now()) < 1) {
             return response()->json([
                 'message' => 'already_logged_in',
             ], 401);
-        } elseif ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at && $userDevice->first()->device_added_at->diffInDays(now()) >= 180) {
+        } elseif ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at && $userDevice->first()->device_added_at->diffInDays(now()) >= 1) {
             $userDevice->update([
                 'device_details' => $deviceDetails,
                 'device_added_at' => now(),
@@ -121,14 +122,14 @@ class AuthController extends Controller
 
         $userDevice = Device::query()->where('user_id', $user->id);
 
-        if ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at && $userDevice->first()->device_added_at->diffInDays(now()) < 180) {
+        if ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at && $userDevice->first()->device_added_at->diffInDays(now()) < 1) {
             return response()->json([
                 'message' => json_encode([
                     'message' => 'already_logged_in',
                     'remaining' => ceil(180 - ($userDevice->first()?->device_added_at?->diffInDays(now()) ?? 0)),
                 ]),
             ], 401);
-        }elseif ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at && $userDevice->first()->device_added_at->diffInDays(now()) >= 180) {
+        }elseif ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at && $userDevice->first()->device_added_at->diffInDays(now()) >= 1) {
             $userDevice->update([
                 'device_details' => $deviceDetails,
                 'device_added_at' => now(),
