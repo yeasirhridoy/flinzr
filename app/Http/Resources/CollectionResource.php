@@ -27,6 +27,7 @@ class CollectionResource extends JsonResource
             'is_active' => $this->is_active,
             'is_banner' => $this->is_banner,
             'is_favorite' => $this->is_favorite,
+            'add_favorite_at' => $this->add_favorite_at,
             'is_featured' => $this->is_featured,
             'is_trending' => $this->is_trending,
             'status' => $this->status,
