@@ -14,6 +14,7 @@ use App\Models\Filter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -34,18 +35,22 @@ class CollectionController extends Controller
         if (request()->filled('type')) {
             $purchasedCollections->where('type', PlatformType::tryFrom(request('type')));
         }
-
         $purchasedCollections = $purchasedCollections->get();
 
         $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
-        $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->pluck('filter_id') : collect();
-        $giftedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->gifts()->pluck('filter_id') : collect();
+        $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->get(['filter_id', 'created_at'])
+            ->mapWithKeys(fn($purchase) => [$purchase->filter_id => $purchase->created_at]) : collect();
+        $giftedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->gifts()->get(['filter_id', 'created_at'])
+            ->mapWithKeys(fn($gift) => [$gift->filter_id => $gift->created_at]) : collect();
 
         $purchasedCollections->map(function ($collection) use ($giftedFilters, $purchasedFilters, $favoriteCollections) {
             $collection->is_favorite = $favoriteCollections->contains($collection->id);
             $collection->filters->map(function ($filter) use ($giftedFilters, $purchasedFilters) {
-                $filter->is_purchased = $purchasedFilters->contains($filter->id);
-                $filter->is_gifted = $giftedFilters->contains($filter->id);
+                $filter->is_purchased = $purchasedFilters->has($filter->id);
+                $filter->is_gifted = $giftedFilters->has($filter->id);
+
+                $filter->purchased_at = $purchasedFilters->get($filter->id, null);
+                $filter->gifted_at = $giftedFilters->get($filter->id, null);
                 return $filter;
             });
             return $collection;
@@ -56,12 +61,11 @@ class CollectionController extends Controller
 
     public function giftedCollections(): AnonymousResourceCollection
     {
-        $giftedCollections = Collection::with(['user', 'filters' => function($q2)
-        {
+        $giftedCollections = Collection::with(['user', 'filters' => function ($q2) {
             $q2->whereIn('id', auth('sanctum')->user()->gifts()->pluck('filter_id'));
 
         },
-        'colors'])->whereHas('filters', function ($query) {
+            'colors'])->whereHas('filters', function ($query) {
             $query->whereIn('id', auth('sanctum')->user()->gifts()->pluck('filter_id'));
         })->get();
 
@@ -78,7 +82,6 @@ class CollectionController extends Controller
             });
             return $collection;
         });
-
 
 
         return CollectionResource::collection($giftedCollections);
