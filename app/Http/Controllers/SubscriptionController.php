@@ -48,7 +48,8 @@ class SubscriptionController extends Controller
 
             if ($firstSubscription && $firstSubscription['status'] === 'active') {
                 auth('sanctum')->user()->increment('coin', 10);
-                cache()->put($cacheKey, true, now()->addDay());
+//                cache()->put($cacheKey, true, now()->addDay());
+                cache()->put($cacheKey, true, now()->addMinutes(5));
                 return response()->json(['message' => 'Coins added successfully']);
             } else {
                 return response()->json(['message' => 'You are not subscribed to claim daily coins'], 403);
