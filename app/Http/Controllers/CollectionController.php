@@ -205,55 +205,62 @@ class CollectionController extends Controller
             ->with(['user', 'filters', 'colors'])
             ->has('filters');
 
+        if (request()->filled('user_id')) {
+            $collections->orderByDesc('id');
+        }else{
+            $collections->orderBy('order_column');
+        }
+
 
         if (request()->filled('type')) {
-            $collections->where('type', request('type'))->orderBy('order_column');
+            Log::info(request('type'));
+            $collections->where('type', request('type'));
         }
 
         if (request()->filled('sales_type')) {
-            $collections->where('sales_type', request('sales_type'))->orderBy('order_column');
+            $collections->where('sales_type', request('sales_type'));
         }
 
         if (request()->filled('category_id')) {
-            $collections->where('category_id', request('category_id'))->orderBy('order_column');
+            $collections->where('category_id', request('category_id'));
         }
 
         if (request()->filled('user_id')) {
-            $collections->where('user_id', request('user_id'))->orderByDesc('id');
+            $collections->where('user_id', request('user_id'));
         }
 
         if (request()->filled('featured') && request('featured') === 'true') {
-            $collections->where('is_featured', true)->orderBy('order_column');
+            $collections->where('is_featured', true);
         }
 
         if (request()->filled('trending') && request('trending') === 'true') {
-            $collections->where('is_trending', true)->orderBy('order_column');
+            $collections->where('is_trending', true);
         }
 
         if (request()->filled('banner') && request('banner') === 'true') {
-            $collections->where('is_banner', true)->orderBy('order_column');
+            $collections->where('is_banner', true);
         } elseif (request()->filled('with_banner') && request('with_banner') === 'true') {
-            $collections->where('is_banner', true)->orWhere('is_banner', false)->orderBy('order_column');
+            $collections->where('is_banner', true);
         } else {
-            $collections->where('is_banner', false)->orderBy('order_column');
+            $collections->where('is_banner', false);
         }
 
         if (request()->filled('query')) {
             $collections->where(function ($query) {
                 $query->where('eng_name', 'like', '%' . request('query') . '%')
-                    ->orWhere('arabic_name', 'like', '%' . request('query') . '%')->orderBy('order_column');
+                    ->orWhere('arabic_name', 'like', '%' . request('query') . '%');
             });
         }
 
         if (request()->filled('tags')) {
             $collections->whereHas('tags', function ($query) {
-                $query->whereIn('tag_id', explode(',', request('tags')))->orderBy('order_column');
+                $query->whereIn('tag_id', explode(',', request('tags')));
             });
         }
 
         if (request()->filled('colors')) {
             $collections->whereHas('colors', function ($query) {
-                $query->whereIn('color_id', explode(',', request('colors')))->orderBy('order_column');
+                $query->whereIn('color_id', explode(',', request('colors')));
             });
         }
 
@@ -264,7 +271,7 @@ class CollectionController extends Controller
                     $query->whereHas('countries', function ($query) use ($countryId) {
                         $query->where('country_id', $countryId);
                     });
-                })->orWhereDoesntHave('regions')->orderBy('order_column');
+                })->orWhereDoesntHave('regions');
             });
         }
 
