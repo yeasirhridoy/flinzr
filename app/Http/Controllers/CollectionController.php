@@ -211,9 +211,7 @@ class CollectionController extends Controller
             $collections->orderBy('order_column');
         }
 
-
         if (request()->filled('type')) {
-            Log::info(request('type'));
             $collections->where('type', request('type'));
         }
 
@@ -311,8 +309,14 @@ class CollectionController extends Controller
             });
         }
 
+
         if (request()->filled('user_id')) {
-            $user = User::find(request()->filled('user_id'));
+            $user = User::find(request('user_id'));
+
+            $user->followers_count =  $user->followers()->count();
+            $user->followings_count = $user->followings()->count();
+            $user->is_following = auth('sanctum')->check() ? $user->followers()->where('follower_id', auth('sanctum')->id())->exists() : false;
+
             return response()->json([
                 'data' => [
                     'user' => $user,
