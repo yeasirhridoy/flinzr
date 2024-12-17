@@ -238,7 +238,7 @@ class CollectionController extends Controller
         if (request()->filled('banner') && request('banner') === 'true') {
             $collections->where('is_banner', true);
         } elseif (request()->filled('with_banner') && request('with_banner') === 'true') {
-            $collections->where('is_banner', true)->orWhere('is_banner', false);
+            //do nothing
         } else {
             $collections->where('is_banner', false);
         }
