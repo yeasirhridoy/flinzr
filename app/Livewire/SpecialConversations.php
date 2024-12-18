@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Events\MessageSent;
 use App\Models\SpecialRequest;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -47,6 +48,13 @@ class SpecialConversations extends Component
         $conversation = $this->specialRequest->conversations()->create($data);
         $this->conversations->push($conversation);
         $this->dispatch('conversationAdded');
+        if ($conversation->attachments) {
+            $attachments = [];
+            foreach ($conversation->attachments as $attachment) {
+                $attachments[] =  Storage::url($attachment);
+            }
+            $conversation->attachments = $attachments;
+        }
         MessageSent::dispatch($conversation);
     }
 }

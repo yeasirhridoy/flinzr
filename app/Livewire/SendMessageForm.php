@@ -43,11 +43,6 @@ class SendMessageForm extends Component implements HasForms
     public function sendMessage(): void
     {
         $data = $this->form->getState();
-
-        if (!empty($data['attachments'])) {
-            $data['attachments'] = Storage::url($data['attachments']);
-        }
-
         $data['sender'] = 'admin';
         $this->dispatch('messageSent', $data);
         $this->form->fill();
