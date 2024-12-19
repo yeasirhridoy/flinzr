@@ -87,7 +87,6 @@ class AuthController extends Controller
         Device::create([
             'user_id' => $user->id,
             'device_details' => $deviceDetails,
-            'device_added_at' => now(),
         ]);
 
         return response()->json([
@@ -126,7 +125,7 @@ class AuthController extends Controller
             return response()->json([
                 'message' => json_encode([
                     'message' => 'already_logged_in',
-                    'remaining' => ceil(180 - ($userDevice->first()?->device_added_at?->diffInDays(now()) ?? 0)),
+                    'remaining' => $userDevice->first()?->device_added_at ? ceil(180 - ($userDevice->first()?->device_added_at?->diffInDays(now()))) : 0,
                 ]),
             ], 401);
         }elseif ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at && $userDevice->first()->device_added_at->diffInDays(now()) >= 1) {
@@ -138,7 +137,6 @@ class AuthController extends Controller
             $userDevice->create([
                 'user_id' => $user->id,
                 'device_details' => $deviceDetails,
-                'device_added_at' => now(),
             ]);
         }
 
