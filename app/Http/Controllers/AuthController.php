@@ -322,30 +322,6 @@ class AuthController extends Controller
             unset($data['username']);
         }
 
-//        if ($request->image) {
-//            $imageData = $request->image;
-//
-//            $image = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $imageData));
-//
-//            $imageName = Str::random(32);
-//
-//            $s3Path = 'users/' . $imageName;
-//            Storage::put($s3Path, $image,'public');
-//
-//            $data['image'] = $s3Path;
-//        }
-//        if ($request->image) {
-//            $svgData = $request->image;
-//
-//            $imageName = Str::random(32) . '.svg';
-//
-//            $s3Path = 'users/' . $imageName;
-//
-//            Storage::put($s3Path, $svgData, 'public');
-//
-//            $data['image'] = $s3Path;
-//        }
-
         $user = auth()->user();
         $user->update($data);
         return response()->json(new UserResource($user));
