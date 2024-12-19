@@ -64,12 +64,9 @@ class AuthController extends Controller
                 'device_added_at' => now(),
             ]);
         } else {
-            $userDevice->updateOrCreate([[
-                'user_id' => $user->id
-            ], [
+            $userDevice->update([
                 'device_added_at' => now(),
-                'device_details' => $deviceDetails
-            ]]);
+                'device_details' => $deviceDetails]);
         }
 
         $user->tokens()->delete();
