@@ -27,6 +27,8 @@ use Stephenjude\FilamentTwoFactorAuthentication\TwoFactorAuthenticatable;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerifyEmail
 {
+    public const SINGLE_DEVICE_VALIDITY = 1;
+
     use HasFactory, Notifiable, SoftDeletes, HasApiTokens, TwoFactorAuthenticatable;
 
     public function getFilamentAvatarUrl(): ?string

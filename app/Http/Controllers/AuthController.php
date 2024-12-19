@@ -121,14 +121,14 @@ class AuthController extends Controller
 
         $userDevice = Device::query()->where('user_id', $user->id);
 
-        if ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at && $userDevice->first()->device_added_at->diffInDays(now()) < 10) {
+        if ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && (!$userDevice->device_added_at || ($userDevice->first()->device_added_at && $userDevice->first()->device_added_at->diffInDays(now()) < User::SINGLE_DEVICE_VALIDITY))) {
             return response()->json([
                 'message' => json_encode([
                     'message' => 'already_logged_in',
                     'remaining' => $userDevice->first()?->device_added_at ? ceil(180 - ($userDevice->first()?->device_added_at?->diffInDays(now()))) : 0,
                 ]),
             ], 401);
-        }elseif ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at && $userDevice->first()->device_added_at->diffInDays(now()) >= 10) {
+        } elseif ($userDevice->exists() && $userDevice->first()->device_details != $deviceDetails && $userDevice->first()->device_added_at && $userDevice->first()->device_added_at->diffInDays(now()) >= User::SINGLE_DEVICE_VALIDITY) {
             $userDevice->update([
                 'device_details' => $deviceDetails,
                 'device_added_at' => now(),
