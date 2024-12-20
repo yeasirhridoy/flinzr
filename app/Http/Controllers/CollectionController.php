@@ -176,7 +176,7 @@ class CollectionController extends Controller
 
     public function myCollections(): AnonymousResourceCollection
     {
-        $collections = auth('sanctum')->user()->collections()->with(['filters'])->get();
+        $collections = auth('sanctum')->user()->collections()->latest()->with(['filters'])->get();
         return CollectionResource::collection($collections);
     }
 
