@@ -63,6 +63,32 @@ class PurchaseController extends Controller
             DB::beginTransaction();
             $user = auth()->user();
             $coin = $user->coin;
+
+
+//            $subscription = auth('sanctum')->user()->subscription;
+//            $customer_id = $subscription->data['customer_id'] ?? null;
+//            $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
+//            if ($response['success']) {
+//                $subscriptionData = $response['data'];
+//                $firstSubscription = $subscriptionData['items'][0] ?? null;
+//                if ($firstSubscription && $firstSubscription['status'] === 'active') {
+//                    $currentPeriodStartsAt = $firstSubscription['current_period_starts_at'] ?? null;
+//                    $currentPeriodEndsAt = $firstSubscription['current_period_ends_at'] ?? null;
+//
+//                    if ($currentPeriodStartsAt && $currentPeriodEndsAt) {
+//                        $startTimeSeconds = $currentPeriodStartsAt / 1000;
+//                        $endTimeSeconds = $currentPeriodEndsAt / 1000;
+//
+//                        $durationInDays = ($endTimeSeconds - $startTimeSeconds) / 86400;
+//
+//                        if ($durationInDays >= 28 && $durationInDays <= 375){
+//                            $countFilter = Purchase::where('user_id', $user->id)->count();
+//
+//                        }
+//                    }
+//                }
+//            }
+
             if ($coin < Price::Filter->getPrice()) {
                 DB::rollBack();
                 return response()->json(['message' => 'Insufficient coin'], 400);
@@ -124,7 +150,7 @@ class PurchaseController extends Controller
 
     public function giftFilter(GiftFilterRequest $request): JsonResponse
     {
-        $user = User::query()->where('username',$request->username)->first();
+        $user = User::query()->where('username', $request->username)->first();
         if ($user->filters->pluck('id')->contains($request->filter_id)) {
             return response()->json(['message' => 'Filter already purchased'], 400);
         } else {
