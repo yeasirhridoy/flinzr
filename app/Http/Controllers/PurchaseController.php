@@ -125,32 +125,32 @@ class PurchaseController extends Controller
     private function handlePaidFilter($user, $filter, $filterPrice, $artist): JsonResponse
     {
         $subscription = auth('sanctum')->user()->subscription;
-            $customer_id = $subscription->data['customer_id'] ?? null;
+        $customer_id = $subscription->data['customer_id'] ?? null;
 
-            if ($customer_id) {
-                $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
-                if ($response['success']) {
-                    $subscriptionData = $response['data'];
-                    $firstSubscription = $subscriptionData['items'][0] ?? null;
+        if ($customer_id) {
+            $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
+            if ($response['success']) {
+                $subscriptionData = $response['data'];
+                $firstSubscription = $subscriptionData['items'][0] ?? null;
 
-                    if ($firstSubscription || $firstSubscription['status'] == 'active') {
-                        $durationInDays = $this->getDurationInDays($firstSubscription);
+                if ($firstSubscription || $firstSubscription['status'] == 'active') {
+                    $durationInDays = $this->getDurationInDays($firstSubscription);
 
-                        if ($durationInDays >= 28 && $durationInDays <= 375) {
-                            $subscriptionFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $subscription->updated_at);
+                    if ($durationInDays >= 28 && $durationInDays <= 375) {
+                        $subscriptionFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $subscription->updated_at);
 
-                            if ($subscriptionFiltersPurchaseCount < 9) {
-                                $this->createPurchase($user, $filter->id, $artist, 0);
-                                $user->filters()->syncWithoutDetaching($filter->id);
-                                $this->handleReferralBonus($user);
-                                DB::commit();
+                        if ($subscriptionFiltersPurchaseCount < 9) {
+                            $this->createPurchase($user, $filter->id, $artist, 0);
+                            $user->filters()->syncWithoutDetaching($filter->id);
+                            $this->handleReferralBonus($user);
+                            DB::commit();
 
-                                return response()->json(['message' => 'Free Paid Filter purchased successfully']);
-                            }
+                            return response()->json(['message' => 'Free Paid Filter purchased successfully']);
                         }
                     }
                 }
             }
+        }
 
         if ($user->coin < $filterPrice) {
             return response()->json(['message' => 'Insufficient coin balance'], 400);
@@ -370,6 +370,40 @@ class PurchaseController extends Controller
             'favourites' => $favourites,
             'special_filters' => $specialRequestCount
         ]);
+    }
+
+
+    public function subscriptionFeature(): JsonResponse
+    {
+        $subscriptions = [
+            [
+                "type" => "monthly",
+                "price" => 19.99,
+                "features" => [
+                    "9_plus_filters" => true,
+                    "9_paid_filters" => true,
+                    "9_gifts_to_friend" => true,
+                    "50_percent_special_order" => false,
+                    "2_coin_daily" => false,
+                    "no_more_ads" => true,
+                ],
+            ],
+            [
+                "type" => "annual",
+                "price" => 119.99,
+                "monthly_equivalent" => 9.99,
+                "features" => [
+                    "9_plus_filters" => true,
+                    "9_paid_filters" => true,
+                    "9_gifts_to_friend" => true,
+                    "50_percent_special_order" => true,
+                    "2_coin_daily" => true,
+                    "no_more_ads" => true,
+                ],
+            ],
+        ];
+
+        return response()->json($subscriptions);
     }
 
 }

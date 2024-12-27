@@ -86,6 +86,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
             Route::get('gifted-collections', [CollectionController::class, 'giftedCollections']);
             Route::get('gifted-filters', [CollectionController::class, 'giftedFilters']);
 
+            Route::get('subscription-feature', [PurchaseController::class, 'subscriptionFeature']);
             Route::get('monthly-used-counter', [PurchaseController::class, 'monthlyUsedCounter']);
             Route::get('counter', [PurchaseController::class, 'profileCounter']);
 
