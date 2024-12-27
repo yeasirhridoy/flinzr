@@ -326,12 +326,12 @@ class PurchaseController extends Controller
         }
     }
 
-    public function profileCounter()
+    public function profileCounter(): JsonResponse
     {
         $purchaseCount = Purchase::where('user_id', auth()->id())->count();
         $giftCount = Gift::where('sender_id', auth()->id())->count();
         $favourites = Favorite::where('user_id', auth()->id())->count();
-        $specialRequestCount = SpecialRequest::where('user_id', auth()->id())->count();
+        $specialRequestCount = SpecialRequest::where('user_id', auth()->id())->whereNotNull('url')->count();
 
 
         return response()->json([
