@@ -7,9 +7,11 @@ use App\Enums\Price;
 use App\Http\Requests\CoinPurchaseRequest;
 use App\Http\Requests\GiftFilterRequest;
 use App\Http\Requests\PurchaseFilterRequest;
+use App\Models\Favorite;
 use App\Models\Filter;
 use App\Models\Gift;
 use App\Models\Purchase;
+use App\Models\SpecialRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -153,5 +155,21 @@ class PurchaseController extends Controller
             DB::commit();
             return response()->json(['message' => 'Gift successful']);
         }
+    }
+
+    public function profileCounter()
+    {
+        $purchaseCount = Purchase::where('user_id', auth()->id())->count();
+        $giftCount = Gift::where('sender_id', auth()->id())->count();
+        $favourites = Favorite::where('user_id', auth()->id())->count();
+        $specialRequestCount = SpecialRequest::where('user_id', auth()->id())->count();
+
+
+        return response()->json([
+            'purchase_count' => $purchaseCount,
+            'gift_count' => $giftCount,
+            'favourites' => $favourites,
+            'special_filters' => $specialRequestCount
+        ]);
     }
 }
