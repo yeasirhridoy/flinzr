@@ -8,9 +8,11 @@ use App\Enums\SalesType;
 use App\Http\Requests\CoinPurchaseRequest;
 use App\Http\Requests\GiftFilterRequest;
 use App\Http\Requests\PurchaseFilterRequest;
+use App\Models\Favorite;
 use App\Models\Filter;
 use App\Models\Gift;
 use App\Models\Purchase;
+use App\Models\SpecialRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -283,4 +285,62 @@ class PurchaseController extends Controller
             return response()->json(['message' => 'Gift successful']);
         }
     }
+
+    public function monthlyUsedCounter()
+    {
+        $user = auth()->user();
+        $subscription = auth('sanctum')->user()->subscription;
+        $customer_id = $subscription->data['customer_id'] ?? null;
+
+        if ($customer_id) {
+            $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
+            if ($response['success']) {
+                $subscriptionData = $response['data'];
+                $firstSubscription = $subscriptionData['items'][0] ?? null;
+                if ($firstSubscription || $firstSubscription['status'] == 'active') {
+                    $durationInDays = $this->getDurationInDays($firstSubscription);
+                    if ($durationInDays >= 28 && $durationInDays <= 375) {
+
+                        $plusFilter = Purchase::where('user_id', $user->id)
+                            ->where('created_at', '>', $subscription->updated_at)
+                            ->whereHas('filter.collection', function ($query) {
+                                $query->where('sales_type', 'paid');
+                            })->count();
+
+                        $subscriptionFilter = Purchase::where('user_id', $user->id)->where('created_at', '>', $subscription->updated_at)
+                            ->whereHas('filter.collection', function ($query) {
+                                $query->where('sales_type', 'subscription');
+                            })->count();
+
+                        $giftFilter = Gift::where('sender_id', $user->id)->where('created_at', '>', $subscription->updated_at)->count();
+                        $coinDailyReward = null;
+                        return response()->json([
+                            'plus_filter' => $plusFilter,
+                            'subscription_filter' => $subscriptionFilter,
+                            'gift_filter' => $giftFilter,
+                            'coin_daily_reward' => $coinDailyReward
+                        ]);
+                    }
+                }
+            }
+        }
+    }
+
+    public function profileCounter()
+    {
+        $purchaseCount = Purchase::where('user_id', auth()->id())->count();
+        $giftCount = Gift::where('sender_id', auth()->id())->count();
+        $favourites = Favorite::where('user_id', auth()->id())->count();
+        $specialRequestCount = SpecialRequest::where('user_id', auth()->id())->count();
+
+
+        return response()->json([
+            'purchase_count' => $purchaseCount,
+            'gift_count' => $giftCount,
+            'favourites' => $favourites,
+            'special_filters' => $specialRequestCount
+        ]);
+    }
+
+
 }
