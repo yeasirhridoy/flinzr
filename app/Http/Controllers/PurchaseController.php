@@ -343,4 +343,20 @@ class PurchaseController extends Controller
     }
 
 
+
+    public function profileCounter()
+    {
+        $purchaseCount = Purchase::where('user_id', auth()->id())->count();
+        $giftCount = Gift::where('sender_id', auth()->id())->count();
+        $favourites = Favorite::where('user_id', auth()->id())->count();
+        $specialRequestCount = SpecialRequest::where('user_id', auth()->id())->count();
+
+
+        return response()->json([
+            'purchase_count' => $purchaseCount,
+            'gift_count' => $giftCount,
+            'favourites' => $favourites,
+            'special_filters' => $specialRequestCount
+        ]);
+    }
 }
