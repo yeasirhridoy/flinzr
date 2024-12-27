@@ -102,9 +102,11 @@ class SubscriptionController extends Controller
             ? date('Y-m-d H:i:s', $currentPeriodEndsAt / 1000)
             : null;
 
-        $subscription->data = $firstSubscription;
-        $subscription->is_active = $firstSubscription['status'] === 'active' ? 1 : 0;
-        $subscription->ends_at = $currentPeriodEndsAtDate;
-        $subscription->save();
+        if($subscription->data != $firstSubscription){
+            $subscription->data = $firstSubscription;
+            $subscription->is_active = $firstSubscription['status'] === 'active' ? 1 : 0;
+            $subscription->ends_at = $currentPeriodEndsAtDate;
+            $subscription->save();
+        }
     }
 }

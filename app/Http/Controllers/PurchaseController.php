@@ -67,72 +67,102 @@ class PurchaseController extends Controller
 
         DB::beginTransaction();
         try {
-            $subscription = auth('sanctum')->user()->subscription;
-            $customer_id = $subscription->data['customer_id'] ?? null;
-
-            if (!$customer_id) {
-                return response()->json(['message' => 'Invalid customer ID'], 400);
-            }
-
-            $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
-            if (!$response['success']) {
-                return response()->json(['message' => 'Subscription validation failed'], 400);
-            }
-
-            $subscriptionData = $response['data'];
-            $firstSubscription = $subscriptionData['items'][0] ?? null;
-
-            if (!$firstSubscription || $firstSubscription['status'] !== 'active') {
-                return response()->json(['message' => 'Subscription is not active'], 400);
-            }
-
-            $durationInDays = $this->getDurationInDays($firstSubscription);
-            if ($durationInDays < 28 || $durationInDays > 375) {
-                return response()->json(['message' => 'Invalid subscription duration'], 400);
-            }
-
+            $filter = Filter::findOrFail($request->filter_id);
             $filterType = Filter::findOrFail($request->filter_id)->collection->sales_type;
             $filterPrice = Price::Filter->getPrice();
             $artist = Filter::findOrFail($request->filter_id)->collection->user;
 
-            if ($filterType === SalesType::Paid) {
-                $paidFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $subscription->updated_at);
-                if ($paidFiltersPurchaseCount > 9 && $user->coin < $filterPrice) {
-                    return response()->json(['message' => 'Insufficient coin'], 400);
-                }
-
-                if ($paidFiltersPurchaseCount > 9) {
-                    $user->decrement('coin', $filterPrice);
-                }
-
-                $this->createPurchase($user, $request->filter_id, $artist, $filterPrice);
-                $this->updateArtistDetails($artist);
-                $user->filters()->syncWithoutDetaching($request->filter_id);
-                $this->handleReferralBonus($user);
-
-                DB::commit();
-                $purchaseType = $paidFiltersPurchaseCount > 9 ? 'Purchase successful' : 'Free Purchase successful';
-                return response()->json(['message' => $purchaseType]);
-            }
-
             if ($filterType === SalesType::Subscription) {
-                $subscriptionFiltersPurchaseCount = $this->getSubscriptionFiltersPurchaseCount($user, $subscription->updated_at);
-                if ($subscriptionFiltersPurchaseCount > 9) {
-                    return response()->json(['message' => 'Subscription filter limit reached'], 400);
-                }
-                $this->createPurchase($user, $request->filter_id, $artist, $filterPrice);
-                $this->updateArtistDetails($artist);
-                $user->filters()->syncWithoutDetaching($request->filter_id);
-                $this->handleReferralBonus($user);
-
-                DB::commit();
-                return response()->json(['message' => 'Free Purchase successful']);
+                return $this->handleSubscriptionFilter($user, $filter, $filterPrice, $artist);
+            } elseif ($filterType === SalesType::Paid) {
+                return $this->handlePaidFilter($user, $filter, $filterPrice, $artist);
             }
+
+            DB::rollBack();
+            return response()->json(['message' => 'Invalid filter type'], 400);
 
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'An error occurred', 'error' => $e->getMessage()], 500);
         }
+    }
+
+    private function handleSubscriptionFilter($user, $filter, $filterPrice, $artist): JsonResponse
+    {
+        $subscription = auth('sanctum')->user()->subscription;
+        $customer_id = $subscription->data['customer_id'] ?? null;
+
+        if (!$customer_id) {
+            return response()->json(['message' => 'No active subscription'], 400);
+        }
+
+        $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
+        if (!$response['success']) {
+            return response()->json(['message' => 'Subscription not active'], 400);
+        }
+
+        $subscriptionData = $response['data'];
+        $firstSubscription = $subscriptionData['items'][0] ?? null;
+        $durationInDays = $this->getDurationInDays($firstSubscription ?? null);
+        if ($durationInDays < 28 || $durationInDays > 375) {
+            return response()->json(['message' => 'Invalid subscription duration'], 400);
+        }
+
+        $subscriptionFiltersPurchaseCount = $this->getSubscriptionFiltersPurchaseCount($user, $subscription->updated_at);
+        if ($subscriptionFiltersPurchaseCount > 9) {
+            return response()->json(['message' => 'Subscription filter limit reached'], 400);
+        }
+
+        // Create the purchase
+        $this->createPurchase($user, $filter->id, $artist, $filterPrice);
+        $user->filters()->syncWithoutDetaching($filter->id);
+        $this->handleReferralBonus($user);
+        DB::commit();
+
+        return response()->json(['message' => 'Filter purchased successfully']);
+    }
+
+    private function handlePaidFilter($user, $filter, $filterPrice, $artist): JsonResponse
+    {
+        $subscription = auth('sanctum')->user()->subscription;
+            $customer_id = $subscription->data['customer_id'] ?? null;
+
+            if ($customer_id) {
+                $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
+                if ($response['success']) {
+                    $subscriptionData = $response['data'];
+                    $firstSubscription = $subscriptionData['items'][0] ?? null;
+
+                    if ($firstSubscription || $firstSubscription['status'] == 'active') {
+                        $durationInDays = $this->getDurationInDays($firstSubscription);
+
+                        if ($durationInDays >= 28 && $durationInDays <= 375) {
+                            $subscriptionFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $subscription->updated_at);
+
+                            if ($subscriptionFiltersPurchaseCount < 9) {
+                                $this->createPurchase($user, $filter->id, $artist, 0);
+                                $user->filters()->syncWithoutDetaching($filter->id);
+                                $this->handleReferralBonus($user);
+                                DB::commit();
+
+                                return response()->json(['message' => 'Free Paid Filter purchased successfully']);
+                            }
+                        }
+                    }
+                }
+            }
+
+        if ($user->coin < $filterPrice) {
+            return response()->json(['message' => 'Insufficient coin balance'], 400);
+        }
+
+        $user->decrement('coin', $filterPrice);
+        $this->createPurchase($user, $filter->id, $artist, $filterPrice);
+        $user->filters()->syncWithoutDetaching($filter->id);
+        $this->handleReferralBonus($user);
+        DB::commit();
+
+        return response()->json(['message' => 'Paid Filter purchased successfully']);
     }
 
 
