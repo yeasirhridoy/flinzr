@@ -350,7 +350,11 @@ class PurchaseController extends Controller
                             'coin_daily_reward' => $coinDailyReward
                         ]);
                     }
+                } else {
+                    return response()->json(['message' => 'Subscription not active'], 400);
                 }
+            } else {
+                return response()->json(['message' => 'Subscription not active'], 400);
             }
         } else {
             return response()->json(['message' => 'No active subscription'], 400);
