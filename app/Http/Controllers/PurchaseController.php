@@ -327,10 +327,9 @@ class PurchaseController extends Controller
             if ($response['success']) {
                 $subscriptionData = $response['data'];
                 $firstSubscription = $subscriptionData['items'][0] ?? null;
-                if ($firstSubscription || $firstSubscription['status'] == 'active') {
+                if ($firstSubscription && $firstSubscription['status'] == 'active') {
                     $durationInDays = $this->getDurationInDays($firstSubscription);
                     if ($durationInDays >= 28 && $durationInDays <= 375) {
-
                         $plusFilter = Purchase::where('user_id', $user->id)
                             ->where('created_at', '>', $subscription->updated_at)
                             ->whereHas('filter.collection', function ($query) {
@@ -353,6 +352,8 @@ class PurchaseController extends Controller
                     }
                 }
             }
+        } else {
+            return response()->json(['message' => 'No active subscription'], 400);
         }
     }
 
