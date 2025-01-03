@@ -93,18 +93,22 @@ class PurchaseController extends Controller
         $customer_id = $subscription->data['customer_id'] ?? null;
 
         if (!$customer_id) {
-            return response()->json(['message' => 'No active subscription'], 400);
+            return response()->json(['message' => 'Invalid customer ID'], 400);
         }
 
         $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
         if (!$response['success']) {
-            return response()->json(['message' => 'Subscription not active'], 400);
+            return response()->json(['message' => 'Subscription validation failed'], 400);
         }
 
         $subscriptionData = $response['data'];
         $firstSubscription = $subscriptionData['items'][0] ?? null;
-        $durationInDays = $this->getDurationInDays($firstSubscription ?? null);
-        if ($durationInDays < 28 || $durationInDays > 375) {
+
+        if (!$firstSubscription || $firstSubscription['status'] !== 'active') {
+            return response()->json(['message' => 'Subscription is not active'], 400);
+        }
+        $durationInDays = $this->getDurationInDays($firstSubscription);
+        if ($durationInDays < 28) {
             return response()->json(['message' => 'Invalid subscription duration'], 400);
         }
 
@@ -136,7 +140,7 @@ class PurchaseController extends Controller
                 if ($firstSubscription || $firstSubscription['status'] == 'active') {
                     $durationInDays = $this->getDurationInDays($firstSubscription);
 
-                    if ($durationInDays >= 28 && $durationInDays <= 375) {
+                    if ($durationInDays >= 28 ) {
                         $subscriptionFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $subscription->updated_at);
 
                         if ($subscriptionFiltersPurchaseCount < 9) {
@@ -145,7 +149,7 @@ class PurchaseController extends Controller
                             $this->handleReferralBonus($user);
                             DB::commit();
 
-                            return response()->json(['message' => 'Free Paid Filter purchased successfully']);
+                            return response()->json(['message' => 'Paid Filter purchased successfully']);
                         }
                     }
                 }
@@ -262,57 +266,146 @@ class PurchaseController extends Controller
         $user = User::query()->where('username', $request->username)->first();
         if ($user->filters->pluck('id')->contains($request->filter_id)) {
             return response()->json(['message' => 'Filter already purchased'], 400);
-        } else {
-            $subscription = auth('sanctum')->user()->subscription;
-            $customer_id = $subscription->data['customer_id'] ?? null;
+        }
 
-            if (!$customer_id) {
-                return response()->json(['message' => 'Invalid customer ID'], 400);
-            }
-
-            $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
-            if (!$response['success']) {
-                return response()->json(['message' => 'Subscription validation failed'], 400);
-            }
-
-            $subscriptionData = $response['data'];
-            $firstSubscription = $subscriptionData['items'][0] ?? null;
-
-            if (!$firstSubscription || $firstSubscription['status'] !== 'active') {
-                return response()->json(['message' => 'Subscription is not active'], 400);
-            }
-
-            $durationInDays = $this->getDurationInDays($firstSubscription);
-            if ($durationInDays < 28 || $durationInDays > 375) {
-                return response()->json(['message' => 'Invalid subscription duration'], 400);
-            }
-            $giftFilterCount = Gift::where('sender_id', auth()->id())->where('created_at', '>', $subscription->updated_at)->count();
-            DB::beginTransaction();
-            $sender = auth()->user();
-            $coin = $sender->coin;
-            $filterPrice = Price::GiftFilter->getPrice();
-            if ($giftFilterCount > 9) {
-                if ($sender->coin < $filterPrice) {
-                    return response()->json(['message' => 'Insufficient coin'], 400);
-                }
-                $sender->decrement('coin', $filterPrice);
-            }
-
+            $filter = Filter::findOrFail($request->filter_id);
+            $filterType = Filter::findOrFail($request->filter_id)->collection->sales_type;
+            $filterPrice = Price::Filter->getPrice();
             $artist = Filter::findOrFail($request->filter_id)->collection->user;
-            $commissionLevel = $artist->level;
-            $percentage = $commissionLevel->getCommission();
-            $earning = (Price::GiftFilter->getPrice() / 25) * ($percentage / 100);
+
+            if ($filterType === SalesType::Subscription) {
+                return $this->giftSubscriptionFilter($user, $filter, $filterPrice, $artist);
+            } elseif ($filterType === SalesType::Paid) {
+                return $this->giftPaidFilter($user, $filter, $filterPrice, $artist);
+            }
+    }
+
+
+    private function giftSubscriptionFilter($user, $filter, $filterPrice, $artist): JsonResponse
+    {
+        $subscription = auth('sanctum')->user()->subscription;
+        $customer_id = $subscription->data['customer_id'] ?? null;
+
+        if (!$customer_id) {
+            return response()->json(['message' => 'Invalid customer ID'], 400);
+        }
+
+        $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
+        if (!$response['success']) {
+            return response()->json(['message' => 'Subscription validation failed'], 400);
+        }
+
+        $subscriptionData = $response['data'];
+        $firstSubscription = $subscriptionData['items'][0] ?? null;
+
+        if (!$firstSubscription || $firstSubscription['status'] !== 'active') {
+            return response()->json(['message' => 'Subscription is not active'], 400);
+        }
+        $durationInDays = $this->getDurationInDays($firstSubscription);
+        if ($durationInDays < 28) {
+            return response()->json(['message' => 'Invalid subscription duration'], 400);
+        }
+
+        $giftFilterCount = Gift::where('sender_id', auth()->id())->where('created_at', '>', $subscription->updated_at)->count();
+
+        if ($giftFilterCount > 9) {
+            return response()->json(['message' => 'Gift filter limit reached'], 400);
+        }
+
+        DB::beginTransaction();
+        $sender = auth()->user();
+        $commissionLevel = $artist->level;
+        $percentage = $commissionLevel->getCommission();
+        $earning = (Price::GiftFilter->getPrice() / 25) * ($percentage / 100);
+        Gift::create([
+            'user_id' => $user->id,
+            'sender_id' => $sender->id,
+            'filter_id' => $filter->id,
+            'artist_id' => $artist->id,
+            'earning' => $earning,
+            'amount' => Price::GiftFilter->getPrice() / 25,
+        ]);
+        $user->filters()->syncWithoutDetaching($filter->id);
+        DB::commit();
+        return response()->json(['message' => 'Gift successful']);
+    }
+
+    private function giftPaidFilter($user, $filter, $filterPrice, $artist): JsonResponse
+    {
+        $subscription = auth('sanctum')->user()->subscription;
+        $customer_id = $subscription->data['customer_id'] ?? null;
+
+        $sender = auth()->user();
+        $commissionLevel = $artist->level;
+        $percentage = $commissionLevel->getCommission();
+        $amount = Price::GiftFilter->getPrice() / 25;
+        $earning = $amount * ($percentage / 100);
+
+
+        if ($customer_id) {
+            $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
+
+            if ($response['success']) {
+                $subscriptionData = $response['data'];
+                $firstSubscription = $subscriptionData['items'][0] ?? null;
+
+                if ($firstSubscription && $firstSubscription['status'] === 'active') {
+                    $durationInDays = $this->getDurationInDays($firstSubscription);
+
+                    if ($durationInDays >= 28) {
+                        $giftFilterCount = Gift::where('sender_id', $sender->id)
+                            ->where('created_at', '>', $subscription->updated_at)
+                            ->count();
+
+                        if ($giftFilterCount < 9) {
+                            DB::beginTransaction();
+
+                            try {
+                                Gift::create([
+                                    'user_id' => $user->id,
+                                    'sender_id' => $sender->id,
+                                    'filter_id' => $filter->id,
+                                    'artist_id' => $artist->id,
+                                    'earning' => $earning,
+                                    'amount' => $amount,
+                                ]);
+
+                                $user->filters()->syncWithoutDetaching($filter->id);
+                                DB::commit();
+
+                                return response()->json(['message' => 'Gift successful']);
+                            } catch (\Exception $e) {
+                                DB::rollBack();
+                                return response()->json(['message' => 'Gift failed', 'error' => $e->getMessage()], 500);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($sender->coin < $filterPrice) {
+            return response()->json(['message' => 'Insufficient coin'], 400);
+        }
+        $sender->decrement('coin', $filterPrice);
+        DB::beginTransaction();
+
+        try {
             Gift::create([
                 'user_id' => $user->id,
                 'sender_id' => $sender->id,
-                'filter_id' => $request->filter_id,
+                'filter_id' => $filter->id,
                 'artist_id' => $artist->id,
                 'earning' => $earning,
-                'amount' => Price::GiftFilter->getPrice() / 25,
+                'amount' => $amount,
             ]);
-            $user->filters()->syncWithoutDetaching($request->filter_id);
+            $user->filters()->syncWithoutDetaching($filter->id);
             DB::commit();
+
             return response()->json(['message' => 'Gift successful']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Gift failed', 'error' => $e->getMessage()], 500);
         }
     }
 
@@ -329,7 +422,7 @@ class PurchaseController extends Controller
                 $firstSubscription = $subscriptionData['items'][0] ?? null;
                 if ($firstSubscription && $firstSubscription['status'] == 'active') {
                     $durationInDays = $this->getDurationInDays($firstSubscription);
-                    if ($durationInDays >= 28 && $durationInDays <= 375) {
+                    if ($durationInDays >= 28) {
                         $plusFilter = Purchase::where('user_id', $user->id)
                             ->where('created_at', '>', $subscription->updated_at)
                             ->whereHas('filter.collection', function ($query) {
