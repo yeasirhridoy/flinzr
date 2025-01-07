@@ -72,7 +72,7 @@ class UserResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $query->whereNotNull('email_verified_at');
+                $query->whereNotNull('email_verified_at')->whereNot('email', 'devoartsa@gmail.com');
             })
             ->columns([
                 Tables\Columns\ImageColumn::make('image')->circular()->state(fn(User $record) => 'https://ui-avatars.com/api/?length=1&name=' . urlencode($record->name)),
@@ -99,9 +99,6 @@ class UserResource extends Resource
                     ->sortable()
                     ->label('Editor')->visible(fn() => auth()->user()->email == 'devoartsa@gmail.com'),
             ])
-            ->modifyQueryUsing(function (Builder $query) {
-                $query->whereNot('email', 'devoartsa@gmail.com');
-            })
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
