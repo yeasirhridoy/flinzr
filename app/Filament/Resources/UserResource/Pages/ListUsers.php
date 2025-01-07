@@ -28,7 +28,7 @@ class ListUsers extends ListRecords
                     ->query(function ($query) use ($type) {
                         $query->where('type', $type);
                     })->badge(function () use ($type) {
-                        return User::query()->where('type', $type)->count();
+                        return User::query()->where('type', $type)->whereNotNull('email_verified_at')->whereNot('email', 'devoartsa@gmail.com')->count();
                     }),
             ];
         })->toArray();
