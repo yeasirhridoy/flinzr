@@ -187,6 +187,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         return $this->hasMany(CoinPurchase::class);
     }
 
+    public function payoutMethod(): HasOne
+    {
+        return $this->hasOne(PayoutMethod::class);
+    }
+
     public function sendOtp(): void
     {
         if (!cache()->has('otp_' . $this->email)) {

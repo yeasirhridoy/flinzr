@@ -50,7 +50,7 @@ class PayoutRequestResource extends Resource
                     ->label('User')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('country.name')
+                Tables\Columns\TextColumn::make('user.payoutMethod.country.name')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('request_number')
@@ -99,9 +99,9 @@ class PayoutRequestResource extends Resource
         return $infolist
             ->schema([
                 Section::make()->schema([
-                    TextEntry::make('full_name')->label('Beneficiary'),
-                    TextEntry::make('id_no')->label('Id No.'),
-                    TextEntry::make('phone')->label('Mobile No.'),
+                    TextEntry::make('user.payoutMethod.full_name')->label('Beneficiary'),
+                    TextEntry::make('user.payoutMethod.id_no')->label('Id No.'),
+                    TextEntry::make('user.payoutMethod.phone')->label('Mobile No.'),
                     TextEntry::make('user.balance')->label('Balance')->badge()->money()->color('success'),
                 ])->columnSpanFull()->columns(2)
             ]);
