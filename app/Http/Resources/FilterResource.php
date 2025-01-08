@@ -21,6 +21,7 @@ class FilterResource extends JsonResource
             'name' => $this->name,
             'image' => $this->image ? Storage::url($this->image) : null,
             'url' => $this->url,
+            'audio_url' => $this->audio_url,
             'is_purchased' => $this->is_purchased,
             'purchased_at' => $this->purchased_at,
             'is_gifted' => $this->is_gifted,

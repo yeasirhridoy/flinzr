@@ -59,6 +59,9 @@ class UserResource extends Resource
                     ->email()
                     ->rule('required')
                     ->markAsRequired(),
+                Forms\Components\TextInput::make('balance')
+                    ->default(0)
+                    ->numeric(),
                 Forms\Components\TextInput::make('password')
                     ->visibleOn(['create'])
                     ->minLength(6)
@@ -72,7 +75,7 @@ class UserResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $query->whereNotNull('email_verified_at')->whereNot('email', 'devoartsa@gmail.com');
+                $query->whereNot('email', 'devoartsa@gmail.com');
             })
             ->columns([
                 Tables\Columns\ImageColumn::make('image')->circular()->state(fn(User $record) => 'https://ui-avatars.com/api/?length=1&name=' . urlencode($record->name)),
@@ -101,7 +104,14 @@ class UserResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\TernaryFilter::make('email_verified_at')
+                    ->label('Verified')
+                    ->columnSpanFull()
+                    ->placeholder('All users')
+                    ->trueLabel('Verified users')
+                    ->falseLabel('Not verified users')
+                    ->nullable(),
+                Tables\Filters\TrashedFilter::make()->columnSpanFull(),
                 Tables\Filters\Filter::make('created_at')
                     ->form([
                         Forms\Components\DatePicker::make('start_date'),
@@ -158,12 +168,6 @@ class UserResource extends Resource
                     TextEntry::make('influencerRequest.tiktok')->badge()->label('TikTok')->color(Color::Purple),
                     TextEntry::make('influencerRequest.instagram')->badge()->label('Instagram')->color(Color::Pink),
                 ])->columns(3)->visible(fn(User $record) => $record->type === UserType::Influencer),
-//                Section::make([
-//                    TextEntry::make('payoutRequest.country.name')->label('Country'),
-//                    TextEntry::make('payoutRequest.full_name')->label('Beneficiary'),
-//                    TextEntry::make('payoutRequest.id_no')->label('ID No.'),
-//                    TextEntry::make('payoutRequest.phone')->label('Mobile No.'),
-//                ])->columns(4)->visible(fn(User $record) => $record->type === UserType::Artist),
             ]);
     }
 

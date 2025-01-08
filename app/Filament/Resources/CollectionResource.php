@@ -108,7 +108,10 @@ class CollectionResource extends Resource
                                     ->readOnly()
                                     ->markAsRequired(),
                                 Forms\Components\TextInput::make('url')->url()
+                                    ->label('Filter URL')
                                     ->markAsRequired(),
+                                Forms\Components\TextInput::make('audio_url')->url()
+                                    ->label('Audio URL'),
                                 Forms\Components\FileUpload::make('image')->image()->imageEditor(),
                             ])
                     ])->columnSpanFull()

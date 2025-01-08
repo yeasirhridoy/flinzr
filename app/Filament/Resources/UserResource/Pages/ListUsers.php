@@ -24,11 +24,11 @@ class ListUsers extends ListRecords
     {
         return collect(array_merge(['all' => null], UserType::all()))->mapWithKeys(function ($label, $type) {
             return [
-                $type => $type == 'all' ? Tab::make('All')->badge(User::query()->whereNotNull('email_verified_at')->whereNot('email', 'devoartsa@gmail.com')->count()) : Tab::make($label)
+                $type => $type == 'all' ? Tab::make('All')->badge(User::query()->whereNot('email', 'devoartsa@gmail.com')->count()) : Tab::make($label)
                     ->query(function ($query) use ($type) {
                         $query->where('type', $type);
                     })->badge(function () use ($type) {
-                        return User::query()->where('type', $type)->whereNotNull('email_verified_at')->whereNot('email', 'devoartsa@gmail.com')->count();
+                        return User::query()->where('type', $type)->whereNot('email', 'devoartsa@gmail.com')->count();
                     }),
             ];
         })->toArray();
