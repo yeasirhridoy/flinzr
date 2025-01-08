@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Country;
 use App\Models\PayoutMethod;
 use Illuminate\Http\Request;
 
@@ -28,7 +29,25 @@ class PayoutMethodController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $rules = [
+            'country_code' => 'required|exists:countries,code',
+            'full_name' => 'required|string',
+            'id_no' => 'required|string',
+            'phone' => 'required|string',
+        ];
+
+        $request->validate($rules);
+
+        $payoutMethod = PayoutMethod::query()->updateOrCreate([
+            'user_id' => auth()->id(),
+        ], [
+            'country_id' => Country::where('code', $request->country_code)->first()->id,
+            'full_name' => $request->full_name,
+            'id_no' => $request->id_no,
+            'phone' => $request->phone,
+        ]);
+
+        return response()->json($payoutMethod);
     }
 
     /**

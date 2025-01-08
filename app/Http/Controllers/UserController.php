@@ -111,6 +111,7 @@ class UserController extends Controller
         $data['payout_requests'] = PayoutRequestResource::collection(auth('sanctum')->user()->payoutRequests()->latest()->get());
         $data['upload_requests'] = CountryResource::collection(auth('sanctum')->user()->collections()->latest()->get());
         $data['uploaded_collections'] =  CollectionResource::collection(auth('sanctum')->user()->collections()->with(['filters'])->get());
+        $data['payout_method'] = $user->payoutMethod;
 
         return response()->json($data);
     }
