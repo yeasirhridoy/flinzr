@@ -23,10 +23,17 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => 'string|unique:users,name,' . auth()->id(),
+            'username' => 'string|unique:users,username,' . auth()->id(),
             'country_id' => 'exists:countries,id',
             'password' => 'string|min:6',
             'image' => 'string|nullable'
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'username.unique' => 'The nickname has already been taken.',
         ];
     }
 }

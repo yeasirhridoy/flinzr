@@ -323,7 +323,7 @@ class AuthController extends Controller
         }
         if (isset($data['username'])) {
             $data['name'] = $data['username'];
-            unset($data['username']);
+//            unset($data['username']);
         }
 
         $user = auth()->user();
