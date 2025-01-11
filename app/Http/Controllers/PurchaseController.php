@@ -114,9 +114,9 @@ class PurchaseController extends Controller
             return response()->json(['message' => 'Subscription is not active'], 400);
         }
         $durationInDays = $this->getDurationInDays($firstSubscription);
-        if ($durationInDays < 28) {
-            return response()->json(['message' => 'Invalid subscription duration'], 400);
-        }
+//        if ($durationInDays < 28) {
+//            return response()->json(['message' => 'Invalid subscription duration'], 400);
+//        }
 
         $subscriptionFiltersPurchaseCount = $this->getSubscriptionFiltersPurchaseCount($user, $subscription->updated_at);
         if ($subscriptionFiltersPurchaseCount > 9) {
@@ -146,7 +146,7 @@ class PurchaseController extends Controller
                 if ($firstSubscription || $firstSubscription['status'] == 'active') {
                     $durationInDays = $this->getDurationInDays($firstSubscription);
 
-                    if ($durationInDays >= 28 ) {
+//                    if ($durationInDays >= 28 ) {
                         $subscriptionFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $subscription->updated_at);
 
                         if ($subscriptionFiltersPurchaseCount < 9) {
@@ -157,7 +157,7 @@ class PurchaseController extends Controller
 
                             return response()->json(['message' => 'Paid Filter purchased successfully']);
                         }
-                    }
+//                    }
                 }
             }
         }
@@ -308,9 +308,9 @@ class PurchaseController extends Controller
             return response()->json(['message' => 'Subscription is not active'], 400);
         }
         $durationInDays = $this->getDurationInDays($firstSubscription);
-        if ($durationInDays < 28) {
-            return response()->json(['message' => 'Invalid subscription duration'], 400);
-        }
+//        if ($durationInDays < 28) {
+//            return response()->json(['message' => 'Invalid subscription duration'], 400);
+//        }
 
         $giftFilterCount = Gift::where('sender_id', auth()->id())->where('created_at', '>', $subscription->updated_at)->count();
 
@@ -358,7 +358,7 @@ class PurchaseController extends Controller
                 if ($firstSubscription && $firstSubscription['status'] === 'active') {
                     $durationInDays = $this->getDurationInDays($firstSubscription);
 
-                    if ($durationInDays >= 28) {
+//                    if ($durationInDays >= 28) {
                         $giftFilterCount = Gift::where('sender_id', $sender->id)
                             ->where('created_at', '>', $subscription->updated_at)
                             ->count();
@@ -385,7 +385,7 @@ class PurchaseController extends Controller
                                 return response()->json(['message' => 'Gift failed', 'error' => $e->getMessage()], 500);
                             }
                         }
-                    }
+//                    }
                 }
             }
         }
@@ -428,7 +428,7 @@ class PurchaseController extends Controller
                 $firstSubscription = $subscriptionData['items'][0] ?? null;
                 if ($firstSubscription && $firstSubscription['status'] == 'active') {
                     $durationInDays = $this->getDurationInDays($firstSubscription);
-                    if ($durationInDays >= 28) {
+//                    if ($durationInDays >= 28) {
                         $plusFilter = Purchase::where('user_id', $user->id)
                             ->where('created_at', '>', $subscription->updated_at)
                             ->whereHas('filter.collection', function ($query) {
@@ -448,7 +448,7 @@ class PurchaseController extends Controller
                             'gift_filter' => $giftFilter,
                             'coin_daily_reward' => $coinDailyReward
                         ]);
-                    }
+//                    }
                 } else {
                     return response()->json(['message' => 'Subscription not active'], 400);
                 }
