@@ -76,6 +76,12 @@ class PurchaseController extends Controller
                 return $this->handleSubscriptionFilter($user, $filter, $filterPrice, $artist);
             } elseif ($filterType === SalesType::Paid) {
                 return $this->handlePaidFilter($user, $filter, $filterPrice, $artist);
+            } elseif($filterType === SalesType::Free){
+                $this->createPurchase($user, $filter->id, $artist, 0);
+                $user->filters()->syncWithoutDetaching($filter->id);
+                $this->handleReferralBonus($user);
+                DB::commit();
+                return response()->json(['message' => 'Filter purchased successfully']);
             }
 
             DB::rollBack();
@@ -139,6 +145,8 @@ class PurchaseController extends Controller
 
                 if ($firstSubscription || $firstSubscription['status'] == 'active') {
                     $durationInDays = $this->getDurationInDays($firstSubscription);
+
+                    $durationInDays = 365;
 
                     if ($durationInDays >= 28 ) {
                         $subscriptionFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $subscription->updated_at);
