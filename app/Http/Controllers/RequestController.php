@@ -17,13 +17,21 @@ use Illuminate\Support\Str;
 
 class RequestController extends Controller
 {
-    public function storeSpecialRequest(SpecialRequestRequest $request)
+    public function storeSpecialRequest(SpecialRequestRequest $request): SpecialRequestResource|JsonResponse
     {
         $data = $request->validated();
 
         $user = $request->user();
+        $duration = SubscriptionController::checkSubscription();
+
+        if ($duration && $duration >= 355 && $duration <= 375) {
+            $price = Price::SpecialFilter->getPrice() / 2;
+        } else {
+            $price = Price::SpecialFilter->getPrice();
+        }
+
         $coin = $user->coin;
-        if ($coin < Price::SpecialFilter->getPrice()) {
+        if ($coin < $price) {
             return response()->json(['message' => 'Insufficient coin'], 400);
         }
 
@@ -37,7 +45,7 @@ class RequestController extends Controller
             $imageName = Str::random(32);
 
             $s3Path = 'special-requests/' . $imageName;
-            Storage::put($s3Path, $image,'public');
+            Storage::put($s3Path, $image, 'public');
 
             $data['image'] = $s3Path;
         }
@@ -45,7 +53,7 @@ class RequestController extends Controller
         DB::beginTransaction();
         try {
             $specialRequest = $request->user()->specialRequests()->create($data);
-            $user->update(['coin' => $coin - Price::SpecialFilter->getPrice()]);
+            $user->update(['coin' => $coin - $price]);
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();

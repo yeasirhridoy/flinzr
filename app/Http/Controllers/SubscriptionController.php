@@ -109,4 +109,37 @@ class SubscriptionController extends Controller
             $subscription->save();
         }
     }
+
+
+
+
+    public static function checkSubscription(): float|int|null
+    {
+        $subscription = auth('sanctum')->user()->subscription;
+        $customer_id = $subscription->data['customer_id'] ?? null;
+
+        if ($customer_id) {
+        $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
+        if ($response['success']) {
+            $subscriptionData = $response['data'];
+            $firstSubscription = $subscriptionData['items'][0] ?? null;
+
+            if ($firstSubscription && $firstSubscription['status'] == 'active') {
+                $currentPeriodStartsAt = $firstSubscription['current_period_starts_at'] ?? null;
+                $currentPeriodEndsAt = $firstSubscription['current_period_ends_at'] ?? null;
+
+                if ($currentPeriodStartsAt && $currentPeriodEndsAt) {
+                    $startTimeSeconds = $currentPeriodStartsAt / 1000;
+                    $endTimeSeconds = $currentPeriodEndsAt / 1000;
+
+                    return ($endTimeSeconds - $startTimeSeconds) / 86400;
+                }
+            }
+        }
+    }
+
+    return null;
+    }
+
+
 }
