@@ -177,8 +177,19 @@ class AuthController extends Controller
         return response()->json(new UserResource($user->load('country')->loadCount('followers', 'followings')));
     }
 
-    public function otp(): JsonResponse
+    public function otp(Request $request): JsonResponse
     {
+        $request->validate([
+            'email' => 'email|unique:users,email,' . auth()->id()
+        ]);
+        $email = $request->email;
+
+        if($email){
+            $user = auth()->user();
+            $user->email = $email;
+            $user->save();
+        }
+
         auth()->user()->sendOtp();
         return response()->json([
             'message' => 'OTP sent',
