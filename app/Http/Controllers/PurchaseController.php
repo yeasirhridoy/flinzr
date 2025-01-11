@@ -271,7 +271,7 @@ class PurchaseController extends Controller
     {
         $user = User::query()->where('username', $request->username)->first();
         if ($user->filters->pluck('id')->contains($request->filter_id)) {
-            return response()->json(['message' => 'Filter already purchased'], 400);
+            return response()->json(['message' => 'Filter already gifted'], 400);
         }
 
             $filter = Filter::findOrFail($request->filter_id);

@@ -89,20 +89,19 @@ class RequestController extends Controller
 
     public function storePayoutRequest(Request $request): JsonResponse
     {
-        $request->validate([
-            'full_name' => ['required', 'string'],
-            'id_no' => ['required', 'string'],
-            'phone' => ['required', 'string'],
-            'country_code' => ['required', 'string', 'exists:countries,code'],
-        ]);
-        $data = $request->all();
-        $data['country_id'] = Country::where('code', $data['country_code'])->first()->id;
-        unset($data['country_code']);
+//        $request->validate([
+//            'full_name' => ['required', 'string'],
+//            'id_no' => ['required', 'string'],
+//            'phone' => ['required', 'string'],
+//            'country_code' => ['required', 'string', 'exists:countries,code'],
+//        ]);
+//        $data = $request->all();
+//        $data['country_id'] = Country::where('code', $data['country_code'])->first()->id;
+//        unset($data['country_code']);
 
 //        if ($request->user()->balance < 50) {
 //            return response()->json(['message' => 'You need minimum $50 for payout request.'], 400);
 //        }
-
 
         if ($request->user()->payoutRequests()->where('status', RequestStatus::Pending)->exists()) {
             return response()->json(['message' => 'You have already requested for payout.'], 400);

@@ -205,6 +205,7 @@ class CollectionController extends Controller
             ->with(['user', 'filters', 'colors'])
             ->has('filters');
 
+
         if (request()->filled('user_id')) {
             $collections->orderByDesc('id');
         }else{
@@ -237,8 +238,6 @@ class CollectionController extends Controller
 
         if (request()->filled('banner') && request('banner') === 'true') {
             $collections->where('is_banner', true);
-        } elseif (request()->filled('with_banner') && request('with_banner') === 'true') {
-            //do nothing
         } else {
             $collections->where('is_banner', false);
         }
@@ -283,7 +282,6 @@ class CollectionController extends Controller
         if (request('banner') === 'true') {
             $collections = $collections->get()->map(function ($collection) use ($giftedFilters, $purchasedFilters, $favoriteCollections) {
                 $collection->is_favorite = $favoriteCollections->contains($collection->id);
-
                 $collection->filters->map(function ($filter) use ($collection, $giftedFilters, $purchasedFilters) {
                     $filter->is_purchased = $purchasedFilters->has($filter->id);
                     $filter->is_gifted = $giftedFilters->has($filter->id);

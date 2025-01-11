@@ -23,6 +23,10 @@ class MinimumUserResource extends JsonResource
             'followers_count' => $this->followers_count ?? $this->followers()->count(),
             'followings_count' => $this->followings_count ?? $this->followings()->count(),
             'is_following' => $this->when(auth('sanctum')->check(), $this->is_following ?? $this->followers->contains('id', auth('sanctum')->id())),
+            'level' => $this->level ?? null,
+            'download' => $this->download ?? null,
+            'next_level_target' => $this->next_level_target ?? null,
+            'percent_completed' => $this->percent_completed ?? null,
         ];
     }
 }

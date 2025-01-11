@@ -18,6 +18,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -39,8 +40,17 @@ class UserController extends Controller
 
         $users->map(function ($user) {
             $user->is_following = $user->followers->contains('id', auth('sanctum')->id());
+            $user->download = Purchase::query()->where('artist_id', $user->id)->count();
+            $user->next_level_target  = $user->level->getTarget();
+            $user->percent_completed = (float) number_format($user->download/$user->level->getTarget() * 100,2);
+
+
             return $user;
         });
+
+
+
+
 
         return MinimumUserResource::collection($users);
     }
@@ -110,7 +120,7 @@ class UserController extends Controller
         $data['percent_completed'] = (float) number_format($data['downloads']/auth('sanctum')->user()->level->getTarget() * 100,2);
         $data['payout_requests'] = PayoutRequestResource::collection(auth('sanctum')->user()->payoutRequests()->latest()->get());
         $data['upload_requests'] = CountryResource::collection(auth('sanctum')->user()->collections()->latest()->get());
-        $data['uploaded_collections'] =  CollectionResource::collection(auth('sanctum')->user()->collections()->with(['filters'])->get());
+        $data['uploaded_collections'] =  CollectionResource::collection(auth('sanctum')->user()->collections()->with(['filters'])->orderBy('id', 'DESC')->get());
         $data['payout_method'] = $user->payoutMethod;
 
         return response()->json($data);
@@ -139,4 +149,15 @@ class UserController extends Controller
     {
         //
     }
+
+    public function artistFollow(Request $request): JsonResponse
+    {
+        $user= User::query()->findOrFail($request->user_id);
+        $data['followers'] = MinimumUserResource::collection($user->followers);
+        $data['followings'] = MinimumUserResource::collection($user->followings);
+        return response()->json($data);
+    }
+
+
+
 }

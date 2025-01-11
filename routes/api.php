@@ -95,6 +95,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
             Route::get('followers', [FollowController::class, 'followers']);
             Route::get('followings', [FollowController::class, 'followings']);
             Route::get('follow', [FollowController::class, 'follow']);
+            Route::get('artist-follow', [UserController::class, 'artistFollow']);
 
             Route::post('subscription', [SubscriptionController::class, 'store']);
 

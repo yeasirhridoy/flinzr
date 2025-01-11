@@ -17,7 +17,7 @@ enum Price: string implements HasLabel
     {
         return match ($this) {
             self::Filter => 25,
-            self::SpecialFilter => 625,
+            self::SpecialFilter => 600,
             self::GiftFilter => 10,
         };
     }
