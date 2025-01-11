@@ -146,8 +146,6 @@ class PurchaseController extends Controller
                 if ($firstSubscription || $firstSubscription['status'] == 'active') {
                     $durationInDays = $this->getDurationInDays($firstSubscription);
 
-                    $durationInDays = 365;
-
                     if ($durationInDays >= 28 ) {
                         $subscriptionFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $subscription->updated_at);
 
