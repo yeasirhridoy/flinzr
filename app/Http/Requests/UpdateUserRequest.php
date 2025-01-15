@@ -24,6 +24,7 @@ class UpdateUserRequest extends FormRequest
     {
         return [
             'username' => 'string|unique:users,username,' . auth()->id(),
+            'name' => 'string',
             'country_id' => 'exists:countries,id',
             'password' => 'string|min:6',
             'image' => 'string|nullable'

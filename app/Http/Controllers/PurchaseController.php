@@ -8,6 +8,7 @@ use App\Enums\SalesType;
 use App\Http\Requests\CoinPurchaseRequest;
 use App\Http\Requests\GiftFilterRequest;
 use App\Http\Requests\PurchaseFilterRequest;
+use App\Models\CoinPurchase;
 use App\Models\Favorite;
 use App\Models\Filter;
 use App\Models\Gift;
@@ -26,6 +27,7 @@ class PurchaseController extends Controller
         $data = $request->validated();
 
         $coin = auth()->user()->coin;
+        $balance = auth()->user()->balance;
 
         switch ($data['product_id']) {
             case 'flinzr_175_coins':
@@ -45,9 +47,18 @@ class PurchaseController extends Controller
         try {
             DB::beginTransaction();
 
-            auth()->user()->update(['coin' => $coin]);
-            $data['coins'] = $coin;
-            auth()->user()->coinPurchases()->create($data);
+            auth()->user()->update([
+                'coin' => $coin,
+                'balance' => $balance - $data['amount']
+            ]);
+
+            CoinPurchase::create([
+                'user_id' => auth()->id(),
+                'product_id' => $data['product_id'],
+                'transaction_id' => $data['transaction_id'],
+                'store' => $data['store'],
+                'coins' => $coin
+            ]);
 
             DB::commit();
 

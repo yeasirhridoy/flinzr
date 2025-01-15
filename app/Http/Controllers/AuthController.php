@@ -110,6 +110,12 @@ class AuthController extends Controller
                     'message' => 'Invalid credentials',
                 ], 401);
             }
+            if(!$user->is_active){
+                return response()->json([
+                    'message' => 'Your account is not active',
+                ], 401);
+            }
+
             $data['email'] = $user->email;
         }
         unset($data['username']);
@@ -122,6 +128,12 @@ class AuthController extends Controller
         }
 
         $user = auth()->user();
+
+        if(!$user->is_active){
+            return response()->json([
+                'message' => 'Your account is not active',
+            ], 401);
+        }
 
         $userDevice = Device::query()->where('user_id', $user->id);
 
@@ -331,10 +343,6 @@ class AuthController extends Controller
         $data = $request->validated();
         if (isset($data['password'])) {
             $data['password'] = bcrypt($data['password']);
-        }
-        if (isset($data['username'])) {
-            $data['name'] = $data['username'];
-//            unset($data['username']);
         }
 
         $user = auth()->user();

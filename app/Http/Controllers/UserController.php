@@ -48,10 +48,6 @@ class UserController extends Controller
             return $user;
         });
 
-
-
-
-
         return MinimumUserResource::collection($users);
     }
 
