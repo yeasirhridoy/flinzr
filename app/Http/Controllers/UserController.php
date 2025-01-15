@@ -116,7 +116,28 @@ class UserController extends Controller
         $data['percent_completed'] = (float) number_format($data['downloads']/auth('sanctum')->user()->level->getTarget() * 100,2);
         $data['payout_requests'] = PayoutRequestResource::collection(auth('sanctum')->user()->payoutRequests()->latest()->get());
         $data['upload_requests'] = CountryResource::collection(auth('sanctum')->user()->collections()->latest()->get());
-        $data['uploaded_collections'] =  CollectionResource::collection(auth('sanctum')->user()->collections()->with(['filters'])->orderBy('id', 'DESC')->get());
+
+        $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
+        $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->get(['filter_id', 'created_at'])
+            ->mapWithKeys(fn($purchase) => [$purchase->filter_id => $purchase->created_at]) : collect();
+        $giftedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->gifts()->get(['filter_id', 'created_at'])
+            ->mapWithKeys(fn($gift) => [$gift->filter_id => $gift->created_at]) : collect();
+
+        $collections = auth('sanctum')->user()->collections()->with(['filters'])->orderBy('id', 'DESC');
+        $collections = $collections->get()->map(function ($collection)  use ($giftedFilters, $purchasedFilters, $favoriteCollections) {
+            $collection->is_favorite = $favoriteCollections->contains($collection->id);
+            $collection->filters->map(function ($filter) use ($collection, $giftedFilters, $purchasedFilters) {
+                $filter->is_purchased = $purchasedFilters->has($filter->id);
+                $filter->is_gifted = $giftedFilters->has($filter->id);
+
+                $filter->purchased_at = $purchasedFilters->get($filter->id, null);
+                $filter->gifted_at = $giftedFilters->get($filter->id, null);
+                return $filter;
+            });
+            return $collection;
+        });
+
+        $data['uploaded_collections'] =  CollectionResource::collection($collections);
         $data['payout_method'] = $user->payoutMethod;
 
         return response()->json($data);
