@@ -13,6 +13,7 @@ use App\Http\Controllers\RequestController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\CheckActiveUser;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Resources\ConversationResource;
 use App\Http\Resources\CountryResource;
@@ -61,7 +62,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
     Route::get('artists', [UserController::class, 'artists']);
     Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
 
-    Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware(['auth:sanctum', CheckActiveUser::class])->group(function () {
         Route::get('/user', [AuthController::class, 'user']);
         Route::put('/user', [AuthController::class, 'updateUser']);
         Route::get('/artist-setting', [UserController::class, 'artistSetting']);
