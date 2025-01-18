@@ -68,7 +68,7 @@ Route::middleware(ResponseMiddleware::class)->group(function () {
         Route::get('/artist-setting', [UserController::class, 'artistSetting']);
         Route::post('/update-password', [AuthController::class, 'updatePassword']);
         Route::post('/logout', [AuthController::class, 'logout']);
-        Route::post('/otp', [AuthController::class, 'otp']);
+        Route::get('/otp', [AuthController::class, 'otp']);
         Route::post('/save-fcm-token', [AuthController::class, 'saveFcmToken']);
 
         Route::middleware(['verified'])->group(function () {
