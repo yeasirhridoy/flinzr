@@ -26,7 +26,6 @@ class CoinPurchaseRequest extends FormRequest
             'product_id' => 'required',
             'transaction_id' => 'required',
             'store' => 'required',
-            'amount' => 'required',
         ];
     }
 }
