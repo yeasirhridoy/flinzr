@@ -29,6 +29,13 @@ class PurchaseController extends Controller
         $coin = auth()->user()->coin;
 
         switch ($data['product_id']) {
+
+            case 'flinzr_050_coins';
+                $coin += 50;
+                break;
+            case 'flinzr_275_coins';
+                $coin += 275;
+                break;
             case 'flinzr_175_coins':
                 $coin += 175;
                 break;
@@ -85,7 +92,7 @@ class PurchaseController extends Controller
                 return $this->handleSubscriptionFilter($user, $filter, $filterPrice, $artist);
             } elseif ($filterType === SalesType::Paid) {
                 return $this->handlePaidFilter($user, $filter, $filterPrice, $artist);
-            } elseif($filterType === SalesType::Free){
+            } elseif ($filterType === SalesType::Free) {
                 $this->createPurchase($user, $filter->id, $artist, 0);
                 $user->filters()->syncWithoutDetaching($filter->id);
                 $this->handleReferralBonus($user);
@@ -156,16 +163,16 @@ class PurchaseController extends Controller
                     $durationInDays = $this->getDurationInDays($firstSubscription);
 
 //                    if ($durationInDays >= 28 ) {
-                        $subscriptionFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $subscription->updated_at);
+                    $subscriptionFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $subscription->updated_at);
 
-                        if ($subscriptionFiltersPurchaseCount < 9) {
-                            $this->createPurchase($user, $filter->id, $artist, 0);
-                            $user->filters()->syncWithoutDetaching($filter->id);
-                            $this->handleReferralBonus($user);
-                            DB::commit();
+                    if ($subscriptionFiltersPurchaseCount < 9) {
+                        $this->createPurchase($user, $filter->id, $artist, 0);
+                        $user->filters()->syncWithoutDetaching($filter->id);
+                        $this->handleReferralBonus($user);
+                        DB::commit();
 
-                            return response()->json(['message' => 'Paid Filter purchased successfully']);
-                        }
+                        return response()->json(['message' => 'Paid Filter purchased successfully']);
+                    }
 //                    }
                 }
             }
@@ -283,16 +290,16 @@ class PurchaseController extends Controller
             return response()->json(['message' => 'Filter already gifted'], 400);
         }
 
-            $filter = Filter::findOrFail($request->filter_id);
-            $filterType = Filter::findOrFail($request->filter_id)->collection->sales_type;
-            $filterPrice = Price::Filter->getPrice();
-            $artist = Filter::findOrFail($request->filter_id)->collection->user;
+        $filter = Filter::findOrFail($request->filter_id);
+        $filterType = Filter::findOrFail($request->filter_id)->collection->sales_type;
+        $filterPrice = Price::Filter->getPrice();
+        $artist = Filter::findOrFail($request->filter_id)->collection->user;
 
-            if ($filterType === SalesType::Subscription) {
-                return $this->giftSubscriptionFilter($user, $filter, $filterPrice, $artist);
-            } elseif ($filterType === SalesType::Paid) {
-                return $this->giftPaidFilter($user, $filter, $filterPrice, $artist);
-            }
+        if ($filterType === SalesType::Subscription) {
+            return $this->giftSubscriptionFilter($user, $filter, $filterPrice, $artist);
+        } elseif ($filterType === SalesType::Paid) {
+            return $this->giftPaidFilter($user, $filter, $filterPrice, $artist);
+        }
     }
 
 
@@ -368,32 +375,32 @@ class PurchaseController extends Controller
                     $durationInDays = $this->getDurationInDays($firstSubscription);
 
 //                    if ($durationInDays >= 28) {
-                        $giftFilterCount = Gift::where('sender_id', $sender->id)
-                            ->where('created_at', '>', $subscription->updated_at)
-                            ->count();
+                    $giftFilterCount = Gift::where('sender_id', $sender->id)
+                        ->where('created_at', '>', $subscription->updated_at)
+                        ->count();
 
-                        if ($giftFilterCount < 9) {
-                            DB::beginTransaction();
+                    if ($giftFilterCount < 9) {
+                        DB::beginTransaction();
 
-                            try {
-                                Gift::create([
-                                    'user_id' => $user->id,
-                                    'sender_id' => $sender->id,
-                                    'filter_id' => $filter->id,
-                                    'artist_id' => $artist->id,
-                                    'earning' => $earning,
-                                    'amount' => $amount,
-                                ]);
+                        try {
+                            Gift::create([
+                                'user_id' => $user->id,
+                                'sender_id' => $sender->id,
+                                'filter_id' => $filter->id,
+                                'artist_id' => $artist->id,
+                                'earning' => $earning,
+                                'amount' => $amount,
+                            ]);
 
-                                $user->filters()->syncWithoutDetaching($filter->id);
-                                DB::commit();
+                            $user->filters()->syncWithoutDetaching($filter->id);
+                            DB::commit();
 
-                                return response()->json(['message' => 'Gift successful']);
-                            } catch (\Exception $e) {
-                                DB::rollBack();
-                                return response()->json(['message' => 'Gift failed', 'error' => $e->getMessage()], 500);
-                            }
+                            return response()->json(['message' => 'Gift successful']);
+                        } catch (\Exception $e) {
+                            DB::rollBack();
+                            return response()->json(['message' => 'Gift failed', 'error' => $e->getMessage()], 500);
                         }
+                    }
 //                    }
                 }
             }
@@ -438,25 +445,25 @@ class PurchaseController extends Controller
                 if ($firstSubscription && $firstSubscription['status'] == 'active') {
                     $durationInDays = $this->getDurationInDays($firstSubscription);
 //                    if ($durationInDays >= 28) {
-                        $plusFilter = Purchase::where('user_id', $user->id)
-                            ->where('created_at', '>', $subscription->updated_at)
-                            ->whereHas('filter.collection', function ($query) {
-                                $query->where('sales_type', 'paid');
-                            })->count();
+                    $plusFilter = Purchase::where('user_id', $user->id)
+                        ->where('created_at', '>', $subscription->updated_at)
+                        ->whereHas('filter.collection', function ($query) {
+                            $query->where('sales_type', 'paid');
+                        })->count();
 
-                        $subscriptionFilter = Purchase::where('user_id', $user->id)->where('created_at', '>', $subscription->updated_at)
-                            ->whereHas('filter.collection', function ($query) {
-                                $query->where('sales_type', 'subscription');
-                            })->count();
+                    $subscriptionFilter = Purchase::where('user_id', $user->id)->where('created_at', '>', $subscription->updated_at)
+                        ->whereHas('filter.collection', function ($query) {
+                            $query->where('sales_type', 'subscription');
+                        })->count();
 
-                        $giftFilter = Gift::where('sender_id', $user->id)->where('created_at', '>', $subscription->updated_at)->count();
-                        $coinDailyReward = null;
-                        return response()->json([
-                            'plus_filter' => $plusFilter,
-                            'subscription_filter' => $subscriptionFilter,
-                            'gift_filter' => $giftFilter,
-                            'coin_daily_reward' => $coinDailyReward
-                        ]);
+                    $giftFilter = Gift::where('sender_id', $user->id)->where('created_at', '>', $subscription->updated_at)->count();
+                    $coinDailyReward = null;
+                    return response()->json([
+                        'plus_filter' => $plusFilter,
+                        'subscription_filter' => $subscriptionFilter,
+                        'gift_filter' => $giftFilter,
+                        'coin_daily_reward' => $coinDailyReward
+                    ]);
 //                    }
                 } else {
                     return response()->json(['message' => 'Subscription not active'], 400);
