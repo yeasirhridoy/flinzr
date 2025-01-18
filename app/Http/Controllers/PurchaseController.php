@@ -27,29 +27,28 @@ class PurchaseController extends Controller
         $data = $request->validated();
 
         $coin = auth()->user()->coin;
-        $balance = auth()->user()->balance;
+        $amount = $data['amount'];
 
-        switch ($data['product_id']) {
-            case 'flinzr_175_coins':
-                $coin += 175;
-                break;
-            case 'flinzr_375_coins':
-                $coin += 375;
-                break;
-            case 'flinzr_475_coins':
-                $coin += 475;
-                break;
-            case 'flinzr_675_coins':
-                $coin += 675;
-                break;
-        }
+//        switch ($data['product_id']) {
+//            case 'flinzr_175_coins':
+//                $coin += 175;
+//                break;
+//            case 'flinzr_375_coins':
+//                $coin += 375;
+//                break;
+//            case 'flinzr_475_coins':
+//                $coin += 475;
+//                break;
+//            case 'flinzr_675_coins':
+//                $coin += 675;
+//                break;
+//        }
 
         try {
             DB::beginTransaction();
 
             auth()->user()->update([
-                'coin' => $coin,
-                'balance' => $balance - $data['amount']
+                'coin' => $coin + $amount,
             ]);
 
             CoinPurchase::create([
@@ -57,7 +56,7 @@ class PurchaseController extends Controller
                 'product_id' => $data['product_id'],
                 'transaction_id' => $data['transaction_id'],
                 'store' => $data['store'],
-                'coins' => $coin
+                'coins' => $coin + $amount,
             ]);
 
             DB::commit();
