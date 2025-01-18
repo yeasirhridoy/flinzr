@@ -11,6 +11,7 @@ use App\Http\Resources\FilterResource;
 use App\Models\Collection;
 use App\Models\Country;
 use App\Models\Filter;
+use App\Models\Purchase;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -314,6 +315,11 @@ class CollectionController extends Controller
             $user->followers_count =  $user->followers()->count();
             $user->followings_count = $user->followings()->count();
             $user->is_following = auth('sanctum')->check() ? $user->followers()->where('follower_id', auth('sanctum')->id())->exists() : false;
+            $user->download = Purchase::query()->where('artist_id', $user->id)->count();
+            $user->next_level_target  = $user->level->getTarget();
+            $user->percent_completed = (float) number_format($user->download/$user->level->getTarget() * 100,2);
+
+
 
             return response()->json([
                 'data' => [
