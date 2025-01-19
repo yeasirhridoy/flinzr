@@ -91,25 +91,14 @@ class ArtistRequestResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('Visit')->icon('heroicon-o-arrow-top-right-on-square')->url(fn($record) => $record->url,true),
                 Tables\Actions\ViewAction::make()
             ])
+            ->recordAction(null)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
-    }
-
-    public static function infolist(Infolist $infolist): Infolist
-    {
-        return $infolist
-            ->schema([
-                Section::make()->schema([
-                    TextEntry::make('full_name')->label('Beneficiary'),
-                    TextEntry::make('id_no')->label('Id No.'),
-                    TextEntry::make('phone')->label('Mobile No.'),
-                    TextEntry::make('url')->state('Visit')->icon('heroicon-o-arrow-top-right-on-square')->url(fn($record) => $record->url,true),
-                ])->columns(4)
             ]);
     }
 
