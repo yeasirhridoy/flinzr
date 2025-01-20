@@ -18,9 +18,6 @@ class ArtistRequestResource extends JsonResource
             'id' => $this->id,
             'request_number' => $this->request_number,
             'country_id' => $this->country_id,
-            'full_name' => $this->full_name,
-            'phone' => $this->phone,
-            'id_no' => $this->id_no,
             'url' => $this->url,
             'status' => $this->status,
         ];
