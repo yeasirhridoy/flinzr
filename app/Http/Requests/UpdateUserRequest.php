@@ -30,11 +30,4 @@ class UpdateUserRequest extends FormRequest
             'image' => 'string|nullable'
         ];
     }
-
-    public function messages(): array
-    {
-        return [
-            'username.unique' => 'The nickname has already been taken.',
-        ];
-    }
 }
