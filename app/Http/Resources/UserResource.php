@@ -22,6 +22,7 @@ class UserResource extends JsonResource
     {
         $purchaseCount = Purchase::where('user_id', $this->id)->count();
         $giftCount = Gift::where('sender_id', $this->id)->count();
+        $receivedGift = Gift::where('user_id', $this->id)->count();
         $favourites = Favorite::where('user_id', $this->id)->count();
         $specialRequestCount = SpecialRequest::where('user_id', $this->id)->whereNotNull('url')->count();
 
@@ -45,6 +46,7 @@ class UserResource extends JsonResource
             'counter' => [
                 'purchase_count' => $purchaseCount,
                 'gift_count' => $giftCount,
+                'received_gift' => $receivedGift,
                 'favourites' => $favourites,
                 'special_filters' => $specialRequestCount
             ]
