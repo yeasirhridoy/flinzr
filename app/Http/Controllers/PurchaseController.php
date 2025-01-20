@@ -96,6 +96,7 @@ class PurchaseController extends Controller
                 $this->createPurchase($user, $filter->id, $artist, 0);
                 $user->filters()->syncWithoutDetaching($filter->id);
                 $this->handleReferralBonus($user);
+                $this->updateArtistDetails($artist);
                 DB::commit();
                 return response()->json(['message' => 'Filter purchased successfully']);
             }
@@ -143,6 +144,7 @@ class PurchaseController extends Controller
         $this->createPurchase($user, $filter->id, $artist, $filterPrice);
         $user->filters()->syncWithoutDetaching($filter->id);
         $this->handleReferralBonus($user);
+        $this->updateArtistDetails($artist);
         DB::commit();
 
         return response()->json(['message' => 'Filter purchased successfully']);
@@ -186,6 +188,7 @@ class PurchaseController extends Controller
         $this->createPurchase($user, $filter->id, $artist, $filterPrice);
         $user->filters()->syncWithoutDetaching($filter->id);
         $this->handleReferralBonus($user);
+        $this->updateArtistDetails($artist);
         DB::commit();
 
         return response()->json(['message' => 'Paid Filter purchased successfully']);
@@ -299,6 +302,8 @@ class PurchaseController extends Controller
             return $this->giftSubscriptionFilter($user, $filter, $filterPrice, $artist);
         } elseif ($filterType === SalesType::Paid) {
             return $this->giftPaidFilter($user, $filter, $filterPrice, $artist);
+        } else{
+            return response()->json(['message' => 'this filter type is not for gift'], 400);
         }
     }
 
