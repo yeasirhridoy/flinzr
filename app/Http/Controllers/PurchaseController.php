@@ -135,7 +135,9 @@ class PurchaseController extends Controller
                         $this->createPurchase($user, $filter->id, $artist, 0);
                         $user->filters()->syncWithoutDetaching($filter->id);
                         $this->handleReferralBonus($user);
-                        $artist->increment('balance', $earning);
+//                        $artist->increment('balance', $earning);
+                        $artist->balance = $artist->balance + $earning;
+                        $artist->save();
                         $this->updateArtistDetails($artist);
                         DB::commit();
 
@@ -156,7 +158,9 @@ class PurchaseController extends Controller
         $this->createPurchase($user, $filter->id, $artist, $filterPrice);
         $user->filters()->syncWithoutDetaching($filter->id);
         $this->handleReferralBonus($user);
-        $artist->increment('balance', $earning);
+//        $artist->increment('balance', $earning);
+        $artist->balance = $artist->balance + $earning;
+        $artist->save();
         $this->updateArtistDetails($artist);
         DB::commit();
 
