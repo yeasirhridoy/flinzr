@@ -135,19 +135,16 @@ class PurchaseController extends Controller
                         $this->createPurchase($user, $filter->id, $artist, 0);
                         $user->filters()->syncWithoutDetaching($filter->id);
                         $this->handleReferralBonus($user);
-//                        $artist->increment('balance', $earning);
                         $artist->balance = $artist->balance + $earning;
                         $artist->save();
                         $this->updateArtistDetails($artist);
                         DB::commit();
-
                         return response()->json(['message' => 'Plus Filter purchased successfully']);
                     }
 //                    }
                 }
             }
         }
-
 
         if ($user->coin < $filterPrice) {
             return response()->json(['message' => 'Insufficient coin balance'], 400);
@@ -158,7 +155,6 @@ class PurchaseController extends Controller
         $this->createPurchase($user, $filter->id, $artist, $filterPrice);
         $user->filters()->syncWithoutDetaching($filter->id);
         $this->handleReferralBonus($user);
-//        $artist->increment('balance', $earning);
         $artist->balance = $artist->balance + $earning;
         $artist->save();
         $this->updateArtistDetails($artist);
