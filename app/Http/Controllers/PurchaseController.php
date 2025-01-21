@@ -302,7 +302,9 @@ class PurchaseController extends Controller
 
         $filter = Filter::findOrFail($request->filter_id);
         $filterType = Filter::findOrFail($request->filter_id)->collection->sales_type;
-        $filterPrice = Price::Filter->getPrice();
+        $filterPrice = Price::GiftFilter->getPrice();
+
+        Log::info($filterPrice);
         $artist = Filter::findOrFail($request->filter_id)->collection->user;
 
         if ($filterType === SalesType::Subscription) {
@@ -350,14 +352,14 @@ class PurchaseController extends Controller
         $sender = auth()->user();
         $commissionLevel = $artist->level;
         $percentage = $commissionLevel->getCommission();
-        $earning = (Price::GiftFilter->getPrice() / 25) * ($percentage / 100);
+        $earning = ($filterPrice / 25) * ($percentage / 100);
         Gift::create([
             'user_id' => $user->id,
             'sender_id' => $sender->id,
             'filter_id' => $filter->id,
             'artist_id' => $artist->id,
             'earning' => $earning,
-            'amount' => Price::GiftFilter->getPrice() / 25,
+            'amount' => $filterPrice / 25,
         ]);
         $user->filters()->syncWithoutDetaching($filter->id);
         DB::commit();
@@ -372,7 +374,7 @@ class PurchaseController extends Controller
         $sender = auth()->user();
         $commissionLevel = $artist->level;
         $percentage = $commissionLevel->getCommission();
-        $amount = Price::GiftFilter->getPrice() / 25;
+        $amount = $filterPrice / 25;
         $earning = $amount * ($percentage / 100);
 
 
@@ -421,6 +423,7 @@ class PurchaseController extends Controller
         if ($sender->coin < $filterPrice) {
             return response()->json(['message' => 'Insufficient coin'], 400);
         }
+        Log::info($filterPrice);
         $sender->decrement('coin', $filterPrice);
         DB::beginTransaction();
 
