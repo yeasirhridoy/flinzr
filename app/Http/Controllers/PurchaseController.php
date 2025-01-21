@@ -115,39 +115,46 @@ class PurchaseController extends Controller
         $subscription = auth('sanctum')->user()->subscription;
         $customer_id = $subscription->data['customer_id'] ?? null;
 
-        if (!$customer_id) {
-            return response()->json(['message' => 'Invalid customer ID'], 400);
+        if ($customer_id) {
+            $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
+            if ($response['success']) {
+                $subscriptionData = $response['data'];
+                $firstSubscription = $subscriptionData['items'][0] ?? null;
+
+                if ($firstSubscription || $firstSubscription['status'] == 'active') {
+                    $durationInDays = $this->getDurationInDays($firstSubscription);
+
+//                    if ($durationInDays >= 28 ) {
+                    $subscriptionFiltersPurchaseCount = $this->getSubscriptionFiltersPurchaseCount($user, $subscription->updated_at);
+
+                    if ($subscriptionFiltersPurchaseCount < 9) {
+                        $this->createPurchase($user, $filter->id, $artist, 0);
+                        $user->filters()->syncWithoutDetaching($filter->id);
+                        $this->handleReferralBonus($user);
+                        $this->updateArtistDetails($artist);
+                        DB::commit();
+
+                        return response()->json(['message' => 'Plus Filter purchased successfully']);
+                    }
+//                    }
+                }
+            }
         }
 
-        $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
-        if (!$response['success']) {
-            return response()->json(['message' => 'Subscription validation failed'], 400);
-        }
 
-        $subscriptionData = $response['data'];
-        $firstSubscription = $subscriptionData['items'][0] ?? null;
-
-        if (!$firstSubscription || $firstSubscription['status'] !== 'active') {
-            return response()->json(['message' => 'Subscription is not active'], 400);
-        }
-        $durationInDays = $this->getDurationInDays($firstSubscription);
-//        if ($durationInDays < 28) {
-//            return response()->json(['message' => 'Invalid subscription duration'], 400);
-//        }
-
-        $subscriptionFiltersPurchaseCount = $this->getSubscriptionFiltersPurchaseCount($user, $subscription->updated_at);
-        if ($subscriptionFiltersPurchaseCount > 9) {
-            return response()->json(['message' => 'Subscription filter limit reached'], 400);
+        if ($user->coin < $filterPrice) {
+            return response()->json(['message' => 'Insufficient coin balance'], 400);
         }
 
         // Create the purchase
+        $user->decrement('coin', $filterPrice);
         $this->createPurchase($user, $filter->id, $artist, $filterPrice);
         $user->filters()->syncWithoutDetaching($filter->id);
         $this->handleReferralBonus($user);
         $this->updateArtistDetails($artist);
         DB::commit();
 
-        return response()->json(['message' => 'Filter purchased successfully']);
+        return response()->json(['message' => 'Plus Filter purchased successfully']);
     }
 
     private function handlePaidFilter($user, $filter, $filterPrice, $artist): JsonResponse
@@ -165,14 +172,14 @@ class PurchaseController extends Controller
                     $durationInDays = $this->getDurationInDays($firstSubscription);
 
 //                    if ($durationInDays >= 28 ) {
-                    $subscriptionFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $subscription->updated_at);
+                    $paidFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $subscription->updated_at);
 
-                    if ($subscriptionFiltersPurchaseCount < 9) {
+                    if ($paidFiltersPurchaseCount < 9) {
                         $this->createPurchase($user, $filter->id, $artist, 0);
                         $user->filters()->syncWithoutDetaching($filter->id);
                         $this->handleReferralBonus($user);
+                        $this->updateArtistDetails($artist);
                         DB::commit();
-
                         return response()->json(['message' => 'Paid Filter purchased successfully']);
                     }
 //                    }
