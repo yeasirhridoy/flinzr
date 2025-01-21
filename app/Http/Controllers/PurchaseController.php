@@ -115,6 +115,10 @@ class PurchaseController extends Controller
         $subscription = auth('sanctum')->user()->subscription;
         $customer_id = $subscription->data['customer_id'] ?? null;
 
+        $commissionLevel = $artist->level;
+        $percentage = $commissionLevel->getCommission();
+        $earning = ($filterPrice / 25) * ($percentage / 100);
+
         if ($customer_id) {
             $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
             if ($response['success']) {
@@ -131,6 +135,7 @@ class PurchaseController extends Controller
                         $this->createPurchase($user, $filter->id, $artist, 0);
                         $user->filters()->syncWithoutDetaching($filter->id);
                         $this->handleReferralBonus($user);
+                        $artist->increment('balance', $earning);
                         $this->updateArtistDetails($artist);
                         DB::commit();
 
@@ -151,6 +156,7 @@ class PurchaseController extends Controller
         $this->createPurchase($user, $filter->id, $artist, $filterPrice);
         $user->filters()->syncWithoutDetaching($filter->id);
         $this->handleReferralBonus($user);
+        $artist->increment('balance', $earning);
         $this->updateArtistDetails($artist);
         DB::commit();
 
@@ -178,7 +184,6 @@ class PurchaseController extends Controller
                         $this->createPurchase($user, $filter->id, $artist, 0);
                         $user->filters()->syncWithoutDetaching($filter->id);
                         $this->handleReferralBonus($user);
-                        $this->updateArtistDetails($artist);
                         DB::commit();
                         return response()->json(['message' => 'Paid Filter purchased successfully']);
                     }
@@ -195,7 +200,6 @@ class PurchaseController extends Controller
         $this->createPurchase($user, $filter->id, $artist, $filterPrice);
         $user->filters()->syncWithoutDetaching($filter->id);
         $this->handleReferralBonus($user);
-        $this->updateArtistDetails($artist);
         DB::commit();
 
         return response()->json(['message' => 'Paid Filter purchased successfully']);
@@ -253,8 +257,6 @@ class PurchaseController extends Controller
         $collection = Filter::findOrFail($filterId)->collection;
         $collection->updated_at = now();
         $collection->save();
-
-        $artist->increment('balance', $earning);
     }
 
     private function updateArtistDetails($artist): void
@@ -304,7 +306,6 @@ class PurchaseController extends Controller
         $filterType = Filter::findOrFail($request->filter_id)->collection->sales_type;
         $filterPrice = Price::GiftFilter->getPrice();
 
-        Log::info($filterPrice);
         $artist = Filter::findOrFail($request->filter_id)->collection->user;
 
         if ($filterType === SalesType::Subscription) {
@@ -423,7 +424,6 @@ class PurchaseController extends Controller
         if ($sender->coin < $filterPrice) {
             return response()->json(['message' => 'Insufficient coin'], 400);
         }
-        Log::info($filterPrice);
         $sender->decrement('coin', $filterPrice);
         DB::beginTransaction();
 
