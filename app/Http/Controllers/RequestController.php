@@ -8,6 +8,7 @@ use App\Http\Requests\InfluencerRequestRequest;
 use App\Http\Requests\SpecialRequestRequest;
 use App\Http\Resources\SpecialRequestResource;
 use App\Models\Country;
+use App\Models\PayoutMethod;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -102,6 +103,35 @@ class RequestController extends Controller
 //        if ($request->user()->balance < 50) {
 //            return response()->json(['message' => 'You need minimum $50 for payout request.'], 400);
 //        }
+        $rules = [
+            'update' => 'required|boolean',
+        ];
+
+        $request->validate($rules);
+
+        if($request->update == true) {
+            $rules = [
+                'country_code' => 'required|exists:countries,code',
+                'full_name' => 'required|string',
+                'id_no' => 'required|string',
+                'phone' => 'required|string',
+            ];
+
+            $request->validate($rules);
+
+            $payoutMethod = PayoutMethod::query()->updateOrCreate([
+                'user_id' => auth()->id(),
+            ], [
+                'country_id' => Country::where('code', $request->country_code)->first()->id,
+                'full_name' => $request->full_name,
+                'id_no' => $request->id_no,
+                'phone' => $request->phone,
+            ]);
+
+            if (!$payoutMethod->exists) {
+                return response()->json(['message' => 'Failed to execute query'], 500);
+            }
+        }
 
         if ($request->user()->payoutRequests()->where('status', RequestStatus::Pending)->exists()) {
             return response()->json(['message' => 'You have already requested for payout.'], 400);

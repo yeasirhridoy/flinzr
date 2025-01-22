@@ -168,6 +168,10 @@ class PurchaseController extends Controller
         $subscription = auth('sanctum')->user()->subscription;
         $customer_id = $subscription->data['customer_id'] ?? null;
 
+        $commissionLevel = $artist->level;
+        $percentage = $commissionLevel->getCommission();
+        $earning = ($filterPrice / 25) * ($percentage / 100);
+
         if ($customer_id) {
             $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
             if ($response['success']) {
@@ -184,6 +188,9 @@ class PurchaseController extends Controller
                         $this->createPurchase($user, $filter->id, $artist, 0);
                         $user->filters()->syncWithoutDetaching($filter->id);
                         $this->handleReferralBonus($user);
+                        $artist->balance = $artist->balance + $earning;
+                        $artist->save();
+                        $this->updateArtistDetails($artist);
                         DB::commit();
                         return response()->json(['message' => 'Paid Filter purchased successfully']);
                     }
@@ -200,6 +207,9 @@ class PurchaseController extends Controller
         $this->createPurchase($user, $filter->id, $artist, $filterPrice);
         $user->filters()->syncWithoutDetaching($filter->id);
         $this->handleReferralBonus($user);
+        $artist->balance = $artist->balance + $earning;
+        $artist->save();
+        $this->updateArtistDetails($artist);
         DB::commit();
 
         return response()->json(['message' => 'Paid Filter purchased successfully']);
