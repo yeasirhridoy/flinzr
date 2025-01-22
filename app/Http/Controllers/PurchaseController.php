@@ -200,6 +200,7 @@ class PurchaseController extends Controller
         $this->createPurchase($user, $filter->id, $artist, $filterPrice);
         $user->filters()->syncWithoutDetaching($filter->id);
         $this->handleReferralBonus($user);
+        $this->updateArtistDetails($artist);
         DB::commit();
 
         return response()->json(['message' => 'Paid Filter purchased successfully']);
