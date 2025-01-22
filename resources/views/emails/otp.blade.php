@@ -3,7 +3,7 @@
 
 Your OTP Code: **{{$otp}}**
 
-The OTP will expire in 5 minutes. If you did not request this code, no further action is required.
+The OTP will expire in 2 minutes. If you did not request this code, no further action is required.
 
 Regards, <br/>
 {{config('app.name')}}

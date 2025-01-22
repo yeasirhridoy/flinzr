@@ -196,7 +196,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     {
         if (!cache()->has('otp_' . $this->email)) {
             $otp = mt_rand(100000, 999999);
-            cache()->remember('otp_' . $this->email, now()->addMinutes(5), fn() => $otp);
+            cache()->remember('otp_' . $this->email, now()->addMinutes(2), fn() => $otp);
             Mail::to($this->email)->send(new OtpMail($otp));
         }
     }

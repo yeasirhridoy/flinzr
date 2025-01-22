@@ -115,7 +115,7 @@ class UserController extends Controller
         $data['next_level_target'] = auth('sanctum')->user()->level->getTarget();
         $data['percent_completed'] = (float) number_format($data['downloads']/auth('sanctum')->user()->level->getTarget() * 100,2);
         $data['payout_requests'] = PayoutRequestResource::collection(auth('sanctum')->user()->payoutRequests()->latest()->get());
-        $data['upload_requests'] = CountryResource::collection(auth('sanctum')->user()->collections()->latest()->get());
+        $data['upload_requests'] = CountryResource::collection(auth('sanctum')->user()->collections()->orderBy('id', 'DESC')->get());
 
         $favoriteCollections = auth('sanctum')->check() ? auth('sanctum')->user()->favoriteCollections()->pluck('collection_id') : collect();
         $purchasedFilters = auth('sanctum')->check() ? auth('sanctum')->user()->purchases()->get(['filter_id', 'created_at'])
