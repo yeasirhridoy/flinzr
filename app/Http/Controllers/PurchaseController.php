@@ -313,7 +313,7 @@ class PurchaseController extends Controller
             return response()->json(['message' => 'Filter already gifted'], 400);
         }
 
-        $filter = Filter::with('collection.user.level')->findOrFail($request->filter_id);
+        $filter = Filter::findOrFail($request->filter_id);
         $filterPrice = Price::GiftFilter->getPrice();
         $artist = $filter->collection->user;
         $commissionLevel = $artist->level;
@@ -330,7 +330,7 @@ class PurchaseController extends Controller
                 $subscriptionData = $response['data'];
                 $firstSubscription = $subscriptionData['items'][0] ?? null;
 
-                if ($firstSubscription || $firstSubscription['status'] === 'active') {
+                if ($firstSubscription || $firstSubscription['status'] == 'active') {
                     $durationInDays = $this->getDurationInDays($firstSubscription);
 
 //                    if ($durationInDays >= 28 ) {
