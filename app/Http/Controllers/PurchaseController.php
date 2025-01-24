@@ -87,22 +87,49 @@ class PurchaseController extends Controller
             $filterType = $filter->collection->sales_type;
             $filterPrice = Price::Filter->getPrice();
             $artist = Filter::findOrFail($request->filter_id)->collection->user;
+            $subscriptionValid = false;
 
-            if ($filterType === SalesType::Subscription) {
-                return $this->handleSubscriptionFilter($user, $filter, $filterPrice, $artist);
-            } elseif ($filterType === SalesType::Paid) {
-                return $this->handlePaidFilter($user, $filter, $filterPrice, $artist);
-            } elseif ($filterType === SalesType::Free) {
-                $this->createPurchase($user, $filter->id, $artist, 0);
-                $user->filters()->syncWithoutDetaching($filter->id);
-                $this->handleReferralBonus($user);
-                $this->updateArtistDetails($artist);
-                DB::commit();
-                return response()->json(['message' => 'Filter purchased successfully']);
+            if ($filterType === SalesType::Free) {
+                return $this->handleFreeFilter($user, $filter, $artist);
             }
 
-            DB::rollBack();
-            return response()->json(['message' => 'Invalid filter type'], 400);
+            $subscription = auth('sanctum')->user()->subscription;
+            $customer_id = $subscription->data['customer_id'] ?? null;
+
+            $commissionLevel = $artist->level;
+            $percentage = $commissionLevel->getCommission();
+            $earning = ($filterPrice / 25) * ($percentage / 100);
+
+
+            if ($customer_id) {
+                $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
+                if (isset($response['success']) && $response['success']) {
+                    $product_identifier = $response['data']['subscriber']['entitlements']['flinzr_plus']['product_identifier'];
+                    $data = $response['data']['subscriber']['subscriptions'][$product_identifier];
+                    if ($data) {
+                        $product_plan_identifier = $data['product_plan_identifier'];
+                        $expires_date = $data['expires_date'];
+                        $purchase_date = $data['purchase_date'];
+                        $unsubscribe_detected_at = $data['unsubscribe_detected_at'];
+
+
+                        if ($expires_date > now()) {
+
+                            if ($product_plan_identifier == "monthly" || $product_plan_identifier == "yearly") {
+                                $subscriptionValid = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ($filterType === SalesType::Subscription) {
+                return $this->handleSubscriptionFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date);
+            }
+            if ($filterType === SalesType::Paid) {
+                return $this->handlePaidFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date);
+            }
+            return response()->json(['message' => 'Filter purchase successful'], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -110,47 +137,36 @@ class PurchaseController extends Controller
         }
     }
 
-    private function handleSubscriptionFilter($user, $filter, $filterPrice, $artist): JsonResponse
+    private function handleFreeFilter($user, $filter, $artist)
     {
-        $subscription = auth('sanctum')->user()->subscription;
-        $customer_id = $subscription->data['customer_id'] ?? null;
+        $this->createPurchase($user, $filter->id, $artist, 0);
+        $user->filters()->syncWithoutDetaching($filter->id);
+        $this->handleReferralBonus($user);
+        DB::commit();
+        return response()->json(['message' => 'Filter purchased successfully']);
+    }
 
-        $commissionLevel = $artist->level;
-        $percentage = $commissionLevel->getCommission();
-        $earning = ($filterPrice / 25) * ($percentage / 100);
+    private function handleSubscriptionFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date): JsonResponse
+    {
 
-        if ($customer_id) {
-            $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
-
-            if ($response['success']) {
-                $subscriptionData = $response['data'];
-                $firstSubscription = $subscriptionData['items'][0] ?? null;
-
-                if ($firstSubscription || $firstSubscription['status'] == 'active') {
-                    $durationInDays = $this->getDurationInDays($firstSubscription);
-
-//                    if ($durationInDays >= 28 ) {
-                    $subscriptionFiltersPurchaseCount = $this->getSubscriptionFiltersPurchaseCount($user, $subscription->updated_at);
-
-                    if ($subscriptionFiltersPurchaseCount < 9) {
-                        $this->createPurchase($user, $filter->id, $artist, 0);
-                        $user->filters()->syncWithoutDetaching($filter->id);
-                        $this->handleReferralBonus($user);
-                        $artist->balance = $artist->balance + $earning;
-                        $artist->save();
-                        $this->updateArtistDetails($artist);
-                        return response()->json(['message' => 'Plus Filter purchased successfully']);
-                    }
-//                    }
-                }
+        $subscriptionFiltersPurchaseCount = $this->getSubscriptionFiltersPurchaseCount($user, $purchase_date);
+        if ($subscriptionValid) {
+            if ($subscriptionFiltersPurchaseCount < 9) {
+                $this->createPurchase($user, $filter->id, $artist, 0);
+                $user->filters()->syncWithoutDetaching($filter->id);
+                $this->handleReferralBonus($user);
+                $artist->balance = $artist->balance + $earning;
+                $artist->save();
+                $this->updateArtistDetails($artist);
+                return response()->json(['message' => 'Plus Filter purchased successfully']);
             }
         }
+
 
         if ($user->coin < $filterPrice) {
             return response()->json(['message' => 'Insufficient coin balance'], 400);
         }
 
-        // Create the purchase
         $user->decrement('coin', $filterPrice);
         $this->createPurchase($user, $filter->id, $artist, $filterPrice);
         $user->filters()->syncWithoutDetaching($filter->id);
@@ -163,39 +179,19 @@ class PurchaseController extends Controller
         return response()->json(['message' => 'Plus Filter purchased successfully']);
     }
 
-    private function handlePaidFilter($user, $filter, $filterPrice, $artist): JsonResponse
+    private function handlePaidFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date): JsonResponse
     {
-        $subscription = auth('sanctum')->user()->subscription;
-        $customer_id = $subscription->data['customer_id'] ?? null;
 
-        $commissionLevel = $artist->level;
-        $percentage = $commissionLevel->getCommission();
-        $earning = ($filterPrice / 25) * ($percentage / 100);
-
-        if ($customer_id) {
-            $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
-            if ($response['success']) {
-                $subscriptionData = $response['data'];
-                $firstSubscription = $subscriptionData['items'][0] ?? null;
-
-                if ($firstSubscription || $firstSubscription['status'] == 'active') {
-                    $durationInDays = $this->getDurationInDays($firstSubscription);
-
-//                    if ($durationInDays >= 28 ) {
-                    $paidFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $subscription->updated_at);
-
-                    if ($paidFiltersPurchaseCount < 9) {
-                        $this->createPurchase($user, $filter->id, $artist, 0);
-                        $user->filters()->syncWithoutDetaching($filter->id);
-                        $this->handleReferralBonus($user);
-                        $artist->balance = $artist->balance + $earning;
-                        $artist->save();
-                        $this->updateArtistDetails($artist);
-                        DB::commit();
-                        return response()->json(['message' => 'Paid Filter purchased successfully']);
-                    }
-//                    }
-                }
+        $paidFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $purchase_date);
+        if ($subscriptionValid) {
+            if ($paidFiltersPurchaseCount < 9) {
+                $this->createPurchase($user, $filter->id, $artist, 0);
+                $user->filters()->syncWithoutDetaching($filter->id);
+                $this->handleReferralBonus($user);
+                $artist->balance = $artist->balance + $earning;
+                $artist->save();
+                DB::commit();
+                return response()->json(['message' => 'Paid Filter purchased successfully']);
             }
         }
 
@@ -209,7 +205,6 @@ class PurchaseController extends Controller
         $this->handleReferralBonus($user);
         $artist->balance = $artist->balance + $earning;
         $artist->save();
-        $this->updateArtistDetails($artist);
         DB::commit();
 
         return response()->json(['message' => 'Paid Filter purchased successfully']);
@@ -324,24 +319,31 @@ class PurchaseController extends Controller
 
         if ($subscription && isset($subscription->data['customer_id'])) {
             $customer_id = $subscription->data['customer_id'];
-            $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
 
-            if ($response['success']) {
-                $subscriptionData = $response['data'];
-                $firstSubscription = $subscriptionData['items'][0] ?? null;
+            if ($customer_id) {
+                $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
+                if (isset($response['success']) && $response['success']) {
+                    $product_identifier = $response['data']['subscriber']['entitlements']['flinzr_plus']['product_identifier'];
+                    $data = $response['data']['subscriber']['subscriptions'][$product_identifier];
+                    if ($data) {
+                        $product_plan_identifier = $data['product_plan_identifier'];
+                        $expires_date = $data['expires_date'];
+                        $purchase_date = $data['purchase_date'];
+                        $unsubscribe_detected_at = $data['unsubscribe_detected_at'];
 
-                if ($firstSubscription || $firstSubscription['status'] == 'active') {
-                    $durationInDays = $this->getDurationInDays($firstSubscription);
-
-//                    if ($durationInDays >= 28 ) {
-                    $giftFilterCount = Gift::where('sender_id', auth()->id())->where('created_at', '>', $subscription->updated_at)->count();
-                    if ($giftFilterCount < 9) {
-                        return $this->createGift($user, $sender, $filter, $artist, $earning, $filterPrice);
+                        if ($expires_date > now()) {
+                            if ($product_plan_identifier == "monthly" || $product_plan_identifier == "yearly") {
+                                $giftFilterCount = Gift::where('sender_id', auth()->id())->where('created_at', '>', $purchase_date)->count();
+                                if ($giftFilterCount < 9) {
+                                    return $this->createGift($user, $sender, $filter, $artist, $earning, $filterPrice);
+                                }
+                            }
+                        }
                     }
-//                    }
                 }
             }
         }
+
         if ($sender->coin < $filterPrice) {
             return response()->json(['message' => 'Insufficient coin balance'], 400);
         }
@@ -381,44 +383,51 @@ class PurchaseController extends Controller
         $user = auth()->user();
         $subscription = auth('sanctum')->user()->subscription;
         $customer_id = $subscription->data['customer_id'] ?? null;
-
         if ($customer_id) {
             $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
-            if ($response['success']) {
-                $subscriptionData = $response['data'];
-                $firstSubscription = $subscriptionData['items'][0] ?? null;
-                if ($firstSubscription && $firstSubscription['status'] == 'active') {
-                    $durationInDays = $this->getDurationInDays($firstSubscription);
-//                    if ($durationInDays >= 28) {
-                    $plusFilter = Purchase::where('user_id', $user->id)
-                        ->where('created_at', '>', $subscription->updated_at)
-                        ->whereHas('filter.collection', function ($query) {
-                            $query->where('sales_type', 'paid');
-                        })->count();
+            if (isset($response['success']) && $response['success']) {
+                $product_identifier = $response['data']['subscriber']['entitlements']['flinzr_plus']['product_identifier'];
+                $data = $response['data']['subscriber']['subscriptions'][$product_identifier];
+                if ($data) {
+                    $product_plan_identifier = $data['product_plan_identifier'];
+                    $expires_date = $data['expires_date'];
+                    $purchase_date = $data['purchase_date'];
+                    $unsubscribe_detected_at = $data['unsubscribe_detected_at'];
 
-                    $subscriptionFilter = Purchase::where('user_id', $user->id)->where('created_at', '>', $subscription->updated_at)
-                        ->whereHas('filter.collection', function ($query) {
-                            $query->where('sales_type', 'subscription');
-                        })->count();
 
-                    $giftFilter = Gift::where('sender_id', $user->id)->where('created_at', '>', $subscription->updated_at)->count();
-                    $coinDailyReward = null;
-                    return response()->json([
-                        'plus_filter' => $plusFilter,
-                        'subscription_filter' => $subscriptionFilter,
-                        'gift_filter' => $giftFilter,
-                        'coin_daily_reward' => $coinDailyReward
-                    ]);
-//                    }
-                } else {
-                    return response()->json(['message' => 'Subscription not active'], 400);
+                    if ($expires_date > now()) {
+
+                        if ($product_plan_identifier == "monthly" || $product_plan_identifier == "yearly") {
+                            $plusFilter = Purchase::where('user_id', $user->id)
+                                ->where('created_at', '>', $purchase_date)
+                                ->whereHas('filter.collection', function ($query) {
+                                    $query->where('sales_type', 'paid');
+                                })->count();
+
+                            $subscriptionFilter = Purchase::where('user_id', $user->id)->where('created_at', '>', $purchase_date)
+                                ->whereHas('filter.collection', function ($query) {
+                                    $query->where('sales_type', 'subscription');
+                                })->count();
+
+                            $giftFilter = Gift::where('sender_id', $user->id)->where('created_at', '>', $purchase_date)->count();
+                            $coinDailyReward = null;
+                            return response()->json([
+                                'plus_filter' => $plusFilter,
+                                'subscription_filter' => $subscriptionFilter,
+                                'gift_filter' => $giftFilter,
+                                'coin_daily_reward' => $coinDailyReward
+                            ]);
+                        }
+                    }
                 }
-            } else {
-                return response()->json(['message' => 'Subscription not active'], 400);
             }
-        } else {
-            return response()->json(['message' => 'No active subscription'], 400);
         }
+        return response()->json([
+            'plus_filter' => null,
+            'subscription_filter' => null,
+            'gift_filter' => null,
+            'coin_daily_reward' => null
+        ]);
     }
 
     public function profileCounter(): JsonResponse

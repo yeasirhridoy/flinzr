@@ -40,44 +40,46 @@ class SubscriptionController extends Controller
         if (cache()->has($cacheKey)) {
             return response()->json(['message' => 'You have already claimed your daily coins'], 400);
         }
-        $response = $this->fetchSubscriptionStatus($customer_id);
-        if ($response['success']) {
-            $subscriptionData = $response['data'];
-            $firstSubscription = $subscriptionData['items'][0] ?? null;
-            $this->updateSubscription($subscription, $firstSubscription);
 
-            if ($firstSubscription && $firstSubscription['status'] === 'active') {
 
-                $currentPeriodStartsAt = $firstSubscription['current_period_starts_at'] ?? null;
-                $currentPeriodEndsAt = $firstSubscription['current_period_ends_at'] ?? null;
+        if ($customer_id) {
+            $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
+            if (isset($response['success']) && $response['success']) {
 
-                if ($currentPeriodStartsAt && $currentPeriodEndsAt) {
-                    $startTimeSeconds = $currentPeriodStartsAt / 1000;
-                    $endTimeSeconds = $currentPeriodEndsAt / 1000;
+                $product_identifier = $response['data']['subscriber']['entitlements']['flinzr_plus']['product_identifier'];
+                $data = $response['data']['subscriber']['subscriptions'][$product_identifier];
+                if ($data) {
+                    $product_plan_identifier = $data['product_plan_identifier'];
+                    $expires_date = $data['expires_date'];
+                    $purchase_date = $data['purchase_date'];
+                    $unsubscribe_detected_at = $data['unsubscribe_detected_at'];
+                    $this->updateSubscription($subscription, $expires_date, $data);
 
-                    $durationInDays = ($endTimeSeconds - $startTimeSeconds) / 86400;
+                    if ($expires_date > now()) {
 
-                    if ($durationInDays >= 355 && $durationInDays <= 375) {
-                        auth('sanctum')->user()->increment('coin', 10);
-                        // cache()->put($cacheKey, true, now()->addDay());
-                        cache()->put($cacheKey, true, now()->addMinutes(5));
-                        return response()->json(['message' => 'Coins added successfully']);
+                        if ($product_plan_identifier == "monthly" || $product_plan_identifier == "yearly") {
+
+                            auth('sanctum')->user()->increment('coin', 10);
+                            // cache()->put($cacheKey, true, now()->addDay());
+                            cache()->put($cacheKey, true, now()->addMinutes(5));
+                            return response()->json(['message' => 'Coins added successfully']);
+
+                        }
+                    } else {
+                        return response()->json(['message' => 'You are not subscribed to claim daily coins'], 403);
                     }
                 }
-            } else {
-                return response()->json(['message' => 'You are not subscribed to claim daily coins'], 403);
             }
-        } else {
-            return response()->json(['message' => 'You are not subscribed to claim daily coins'], 403);
         }
+
+        return response()->json(['message' => 'You are not subscribed to claim daily coins'], 403);
     }
 
 
     public static function fetchSubscriptionStatus(string $customerId): array
     {
-        $projectId = config('app.revenuecat_project_id');
         $baseUrl = config('app.revenuecat_url');
-        $url = $baseUrl . "/projects/{$projectId}/customers/{$customerId}/subscriptions";
+        $url = $baseUrl . "/subscribers/" . $customerId;
         $apiKey = config('app.revenuecat_api_key');
 
         try {
@@ -95,22 +97,20 @@ class SubscriptionController extends Controller
         }
     }
 
-    private function updateSubscription($subscription, array $firstSubscription): void
+    private function updateSubscription($subscription, $expires_date, $data): void
     {
-        $currentPeriodEndsAt = $firstSubscription['current_period_ends_at'] ?? null;
-        $currentPeriodEndsAtDate = $currentPeriodEndsAt
-            ? date('Y-m-d H:i:s', $currentPeriodEndsAt / 1000)
-            : null;
-
-        if($subscription->data != $firstSubscription){
-            $subscription->data = $firstSubscription;
-            $subscription->is_active = $firstSubscription['status'] === 'active' ? 1 : 0;
-//            $subscription->ends_at = $currentPeriodEndsAtDate;
+        if ($expires_date > now()) {
+            $status = true;
+        } else {
+            $status = false;
+        }
+        if ($subscription->data != $data) {
+            $subscription->data = $data;
+            $subscription->is_active = $status;
+            $subscription->ends_at = $expires_date;
             $subscription->save();
         }
     }
-
-
 
 
     public static function checkSubscription(): float|int|null
@@ -119,26 +119,26 @@ class SubscriptionController extends Controller
         $customer_id = $subscription->data['customer_id'] ?? null;
 
         if ($customer_id) {
-        $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
-        if ($response['success']) {
-            $subscriptionData = $response['data'];
-            $firstSubscription = $subscriptionData['items'][0] ?? null;
+            $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
+            if ($response['success']) {
+                $subscriptionData = $response['data'];
+                $firstSubscription = $subscriptionData['items'][0] ?? null;
 
-            if ($firstSubscription && $firstSubscription['status'] == 'active') {
-                $currentPeriodStartsAt = $firstSubscription['current_period_starts_at'] ?? null;
-                $currentPeriodEndsAt = $firstSubscription['current_period_ends_at'] ?? null;
+                if ($firstSubscription && $firstSubscription['status'] == 'active') {
+                    $currentPeriodStartsAt = $firstSubscription['current_period_starts_at'] ?? null;
+                    $currentPeriodEndsAt = $firstSubscription['current_period_ends_at'] ?? null;
 
-                if ($currentPeriodStartsAt && $currentPeriodEndsAt) {
-                    $startTimeSeconds = $currentPeriodStartsAt / 1000;
-                    $endTimeSeconds = $currentPeriodEndsAt / 1000;
+                    if ($currentPeriodStartsAt && $currentPeriodEndsAt) {
+                        $startTimeSeconds = $currentPeriodStartsAt / 1000;
+                        $endTimeSeconds = $currentPeriodEndsAt / 1000;
 
-                    return ($endTimeSeconds - $startTimeSeconds) / 86400;
+                        return ($endTimeSeconds - $startTimeSeconds) / 86400;
+                    }
                 }
             }
         }
-    }
 
-    return null;
+        return null;
     }
 
 
