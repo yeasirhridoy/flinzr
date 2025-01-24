@@ -23,9 +23,9 @@ class RequestController extends Controller
         $data = $request->validated();
 
         $user = $request->user();
-        $duration = SubscriptionController::checkSubscription();
+        $product_plan_identifier = SubscriptionController::checkSubscription();
 
-        if ($duration && $duration >= 355 && $duration <= 375) {
+        if (isset($product_plan_identifier) && $product_plan_identifier == 'yearly') {
             $price = Price::SpecialFilter->getPrice() / 2;
         } else {
             $price = Price::SpecialFilter->getPrice();
@@ -109,7 +109,7 @@ class RequestController extends Controller
 
         $request->validate($rules);
 
-        if($request->update == true) {
+        if ($request->update == true) {
             $rules = [
                 'country_code' => 'required|exists:countries,code',
                 'full_name' => 'required|string',

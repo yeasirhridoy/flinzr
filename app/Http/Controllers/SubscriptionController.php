@@ -32,18 +32,16 @@ class SubscriptionController extends Controller
     {
         $subscription = auth('sanctum')->user()->subscription;
         $customer_id = $subscription->data['customer_id'] ?? null;
+
         $cacheKey = 'daily-coin-claim-' . auth('sanctum')->id() . '-' . now()->format('Y-m-d');
-        if (!$subscription || ($subscription->ends_at < now() && $subscription->ends_at !== null)) {
-            return response()->json(['message' => 'You are not subscribed to claim daily coins'], 403);
-        }
 
         if (cache()->has($cacheKey)) {
             return response()->json(['message' => 'You have already claimed your daily coins'], 400);
         }
 
-
         if ($customer_id) {
-            $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
+            $response = $this->fetchSubscriptionStatus($customer_id);
+
             if (isset($response['success']) && $response['success']) {
 
                 $product_identifier = $response['data']['subscriber']['entitlements']['flinzr_plus']['product_identifier'];
@@ -56,14 +54,11 @@ class SubscriptionController extends Controller
                     $this->updateSubscription($subscription, $expires_date, $data);
 
                     if ($expires_date > now()) {
-
                         if ($product_plan_identifier == "monthly" || $product_plan_identifier == "yearly") {
-
                             auth('sanctum')->user()->increment('coin', 10);
                             // cache()->put($cacheKey, true, now()->addDay());
                             cache()->put($cacheKey, true, now()->addMinutes(5));
                             return response()->json(['message' => 'Coins added successfully']);
-
                         }
                     } else {
                         return response()->json(['message' => 'You are not subscribed to claim daily coins'], 403);
@@ -71,8 +66,9 @@ class SubscriptionController extends Controller
                 }
             }
         }
-
         return response()->json(['message' => 'You are not subscribed to claim daily coins'], 403);
+
+
     }
 
 
@@ -104,12 +100,9 @@ class SubscriptionController extends Controller
         } else {
             $status = false;
         }
-        if ($subscription->data != $data) {
-            $subscription->data = $data;
             $subscription->is_active = $status;
             $subscription->ends_at = $expires_date;
             $subscription->save();
-        }
     }
 
 
@@ -120,23 +113,22 @@ class SubscriptionController extends Controller
 
         if ($customer_id) {
             $response = SubscriptionController::fetchSubscriptionStatus($customer_id);
-            if ($response['success']) {
-                $subscriptionData = $response['data'];
-                $firstSubscription = $subscriptionData['items'][0] ?? null;
+            if (isset($response['success']) && $response['success']) {
+                $product_identifier = $response['data']['subscriber']['entitlements']['flinzr_plus']['product_identifier'];
+                $data = $response['data']['subscriber']['subscriptions'][$product_identifier];
+                if ($data) {
+                    $product_plan_identifier = $data['product_plan_identifier'];
+                    $expires_date = $data['expires_date'];
+                    $purchase_date = $data['purchase_date'];
+                    $unsubscribe_detected_at = $data['unsubscribe_detected_at'];
 
-                if ($firstSubscription && $firstSubscription['status'] == 'active') {
-                    $currentPeriodStartsAt = $firstSubscription['current_period_starts_at'] ?? null;
-                    $currentPeriodEndsAt = $firstSubscription['current_period_ends_at'] ?? null;
-
-                    if ($currentPeriodStartsAt && $currentPeriodEndsAt) {
-                        $startTimeSeconds = $currentPeriodStartsAt / 1000;
-                        $endTimeSeconds = $currentPeriodEndsAt / 1000;
-
-                        return ($endTimeSeconds - $startTimeSeconds) / 86400;
+                    if ($expires_date > now()) {
+                       return $product_plan_identifier;
                     }
                 }
             }
         }
+
 
         return null;
     }

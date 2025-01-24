@@ -210,22 +210,6 @@ class PurchaseController extends Controller
         return response()->json(['message' => 'Paid Filter purchased successfully']);
     }
 
-
-    private function getDurationInDays(array $subscription): float|int|null
-    {
-        $currentPeriodStartsAt = $subscription['current_period_starts_at'] ?? null;
-        $currentPeriodEndsAt = $subscription['current_period_ends_at'] ?? null;
-
-        if ($currentPeriodStartsAt && $currentPeriodEndsAt) {
-            $startTimeSeconds = $currentPeriodStartsAt / 1000;
-            $endTimeSeconds = $currentPeriodEndsAt / 1000;
-
-            return ($endTimeSeconds - $startTimeSeconds) / 86400;
-        }
-
-        return null;
-    }
-
     private function getPaidFiltersPurchaseCount($user, $createdAt): int
     {
         return Purchase::where('user_id', $user->id)
