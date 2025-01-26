@@ -88,6 +88,7 @@ class PurchaseController extends Controller
             $filterPrice = Price::Filter->getPrice();
             $artist = Filter::findOrFail($request->filter_id)->collection->user;
             $subscriptionValid = false;
+            $purchase_date = null;
 
             if ($filterType === SalesType::Free) {
                 return $this->handleFreeFilter($user, $filter, $artist);
@@ -123,11 +124,12 @@ class PurchaseController extends Controller
                 }
             }
 
+
             if ($filterType === SalesType::Subscription) {
                 return $this->handleSubscriptionFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date);
             }
             if ($filterType === SalesType::Paid) {
-                return $this->handlePaidFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date);
+                return $this->handlePaidFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date );
             }
             return response()->json(['message' => 'Filter purchase successful'], 200);
 
