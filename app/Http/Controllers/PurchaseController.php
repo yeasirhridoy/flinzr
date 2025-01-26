@@ -87,12 +87,15 @@ class PurchaseController extends Controller
             $filterType = $filter->collection->sales_type;
             $filterPrice = Price::Filter->getPrice();
             $artist = Filter::findOrFail($request->filter_id)->collection->user;
-            $subscriptionValid = false;
-            $purchase_date = null;
 
             if ($filterType === SalesType::Free) {
                 return $this->handleFreeFilter($user, $filter, $artist);
             }
+
+            $subscriptionValid = false;
+            $purchase_date = null;
+            $currentMonthStartDate = null;
+            $currentMonthEndDate = null;
 
             $subscription = auth('sanctum')->user()->subscription;
             $customer_id = $subscription->data['customer_id'] ?? null;
@@ -113,10 +116,18 @@ class PurchaseController extends Controller
                         $purchase_date = $data['purchase_date'];
                         $unsubscribe_detected_at = $data['unsubscribe_detected_at'];
 
-
                         if ($expires_date > now()) {
 
-                            if ($product_plan_identifier == "monthly" || $product_plan_identifier == "yearly") {
+                            if ($product_plan_identifier == "monthly") {
+                                $subscriptionValid = true;
+                            }
+
+                            if ($product_plan_identifier == "yearly") {
+                                $currentDate = now();
+                                $monthNumber = floor($purchase_date->diffInMonths($currentDate)) + 1;
+
+                                $currentMonthStartDate = $purchase_date->clone()->addMonths($monthNumber - 1);
+                                $currentMonthEndDate = $purchase_date->clone()->addMonths($monthNumber);
                                 $subscriptionValid = true;
                             }
                         }
@@ -126,10 +137,10 @@ class PurchaseController extends Controller
 
 
             if ($filterType === SalesType::Subscription) {
-                return $this->handleSubscriptionFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date);
+                return $this->handleSubscriptionFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date, $currentMonthStartDate, $currentMonthEndDate);
             }
             if ($filterType === SalesType::Paid) {
-                return $this->handlePaidFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date);
+                return $this->handlePaidFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date, $currentMonthStartDate, $currentMonthEndDate);
             }
             return response()->json(['message' => 'Filter purchase successful'], 200);
 
@@ -148,11 +159,11 @@ class PurchaseController extends Controller
         return response()->json(['message' => 'Filter purchased successfully']);
     }
 
-    private function handleSubscriptionFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date): JsonResponse
+    private function handleSubscriptionFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date, $currentMonthStartDate, $currentMonthEndDate): JsonResponse
     {
 
         if ($subscriptionValid) {
-            $subscriptionFiltersPurchaseCount = $this->getSubscriptionFiltersPurchaseCount($user, $purchase_date);
+            $subscriptionFiltersPurchaseCount = $this->getSubscriptionFiltersPurchaseCount($user, $purchase_date, $currentMonthStartDate, $currentMonthEndDate);
             Log::info($subscriptionFiltersPurchaseCount);
             if ($subscriptionFiltersPurchaseCount < 9) {
                 $this->createPurchase($user, $filter->id, $artist, 0);
@@ -183,7 +194,7 @@ class PurchaseController extends Controller
         return response()->json(['message' => 'Plus Filter purchased successfully']);
     }
 
-    private function handlePaidFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date): JsonResponse
+    private function handlePaidFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date, $currentMonthStartDate, $currentMonthEndDate): JsonResponse
     {
 
         if ($subscriptionValid) {
@@ -214,22 +225,39 @@ class PurchaseController extends Controller
         return response()->json(['message' => 'Paid Filter purchased successfully']);
     }
 
-    private function getPaidFiltersPurchaseCount($user, $createdAt): int
+    private function getPaidFiltersPurchaseCount($user, $createdAt, $currentMonthStartDate, $currentMonthEndDate): int
     {
-        return Purchase::where('user_id', $user->id)
-            ->where('created_at', '>', $createdAt)
-            ->whereHas('filter.collection', function ($query) {
-                $query->where('sales_type', 'paid');
-            })->count();
+        if (!is_null($currentMonthStartDate) && !is_null($currentMonthEndDate)) {
+
+            return Purchase::where('user_id', $user->id)
+                ->whereBetween('created_at', [$currentMonthStartDate, $currentMonthEndDate])
+                ->whereHas('filter.collection', function ($query) {
+                    $query->where('sales_type', 'paid');
+                })->count();
+        } else {
+            return Purchase::where('user_id', $user->id)
+                ->where('created_at', '>', $createdAt)
+                ->whereHas('filter.collection', function ($query) {
+                    $query->where('sales_type', 'paid');
+                })->count();
+        }
     }
 
-    private function getSubscriptionFiltersPurchaseCount($user, $createdAt): int
+    private function getSubscriptionFiltersPurchaseCount($user, $createdAt, $currentMonthStartDate, $currentMonthEndDate): int
     {
-        return Purchase::where('user_id', $user->id)
-            ->where('created_at', '>', $createdAt)
-            ->whereHas('filter.collection', function ($query) {
-                $query->where('sales_type', 'subscription');
-            })->count();
+        if (!is_null($currentMonthStartDate) && !is_null($currentMonthEndDate)) {
+            return Purchase::where('user_id', $user->id)
+                ->whereBetween('created_at', [$currentMonthStartDate, $currentMonthEndDate])
+                ->whereHas('filter.collection', function ($query) {
+                    $query->where('sales_type', 'subscription');
+                })->count();
+        } else {
+            return Purchase::where('user_id', $user->id)
+                ->where('created_at', '>', $createdAt)
+                ->whereHas('filter.collection', function ($query) {
+                    $query->where('sales_type', 'subscription');
+                })->count();
+        }
     }
 
     private function createPurchase($user, int $filterId, $artist, int $price): void
@@ -320,8 +348,23 @@ class PurchaseController extends Controller
                         $unsubscribe_detected_at = $data['unsubscribe_detected_at'];
 
                         if ($expires_date > now()) {
-                            if ($product_plan_identifier == "monthly" || $product_plan_identifier == "yearly") {
+                            if ($product_plan_identifier == "monthly") {
                                 $giftFilterCount = Gift::where('sender_id', auth()->id())->where('created_at', '>', $purchase_date)->count();
+                                if ($giftFilterCount < 9) {
+                                    return $this->createGift($user, $sender, $filter, $artist, $earning, $filterPrice);
+                                }
+                            }
+
+                            if ($product_plan_identifier == "yearly") {
+                                $currentDate = now();
+                                $monthNumber = floor($purchase_date->diffInMonths($currentDate)) + 1;
+
+                                $currentMonthStartDate = $purchase_date->clone()->addMonths($monthNumber - 1);
+                                $currentMonthEndDate = $purchase_date->clone()->addMonths($monthNumber);
+
+                                $giftFilterCount = Gift::where('sender_id', auth()->id())
+                                    ->whereBetween('created_at', [$currentMonthStartDate, $currentMonthEndDate])
+                                    ->count();
                                 if ($giftFilterCount < 9) {
                                     return $this->createGift($user, $sender, $filter, $artist, $earning, $filterPrice);
                                 }
