@@ -129,7 +129,7 @@ class PurchaseController extends Controller
                 return $this->handleSubscriptionFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date);
             }
             if ($filterType === SalesType::Paid) {
-                return $this->handlePaidFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date );
+                return $this->handlePaidFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date);
             }
             return response()->json(['message' => 'Filter purchase successful'], 200);
 
@@ -153,6 +153,7 @@ class PurchaseController extends Controller
 
         if ($subscriptionValid) {
             $subscriptionFiltersPurchaseCount = $this->getSubscriptionFiltersPurchaseCount($user, $purchase_date);
+            Log::info($subscriptionFiltersPurchaseCount);
             if ($subscriptionFiltersPurchaseCount < 9) {
                 $this->createPurchase($user, $filter->id, $artist, 0);
                 $user->filters()->syncWithoutDetaching($filter->id);
@@ -160,6 +161,7 @@ class PurchaseController extends Controller
                 $artist->balance = $artist->balance + $earning;
                 $artist->save();
                 $this->updateArtistDetails($artist);
+                DB::commit();
                 return response()->json(['message' => 'Plus Filter purchased successfully']);
             }
         }
