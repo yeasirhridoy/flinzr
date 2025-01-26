@@ -149,8 +149,8 @@ class PurchaseController extends Controller
     private function handleSubscriptionFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date): JsonResponse
     {
 
-        $subscriptionFiltersPurchaseCount = $this->getSubscriptionFiltersPurchaseCount($user, $purchase_date);
         if ($subscriptionValid) {
+            $subscriptionFiltersPurchaseCount = $this->getSubscriptionFiltersPurchaseCount($user, $purchase_date);
             if ($subscriptionFiltersPurchaseCount < 9) {
                 $this->createPurchase($user, $filter->id, $artist, 0);
                 $user->filters()->syncWithoutDetaching($filter->id);
@@ -182,8 +182,8 @@ class PurchaseController extends Controller
     private function handlePaidFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date): JsonResponse
     {
 
-        $paidFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $purchase_date);
         if ($subscriptionValid) {
+            $paidFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $purchase_date);
             if ($paidFiltersPurchaseCount < 9) {
                 $this->createPurchase($user, $filter->id, $artist, 0);
                 $user->filters()->syncWithoutDetaching($filter->id);
