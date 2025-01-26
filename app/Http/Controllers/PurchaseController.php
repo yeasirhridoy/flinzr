@@ -164,7 +164,6 @@ class PurchaseController extends Controller
 
         if ($subscriptionValid) {
             $subscriptionFiltersPurchaseCount = $this->getSubscriptionFiltersPurchaseCount($user, $purchase_date, $currentMonthStartDate, $currentMonthEndDate);
-            Log::info($subscriptionFiltersPurchaseCount);
             if ($subscriptionFiltersPurchaseCount < 9) {
                 $this->createPurchase($user, $filter->id, $artist, 0);
                 $user->filters()->syncWithoutDetaching($filter->id);
