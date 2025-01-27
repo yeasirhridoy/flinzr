@@ -106,7 +106,7 @@ class SubscriptionController extends Controller
     }
 
 
-    public static function checkSubscription(): float|int|null
+    public static function checkSubscription(): string|null
     {
         $subscription = auth('sanctum')->user()->subscription;
         $customer_id = $subscription->data['customer_id'] ?? null;
@@ -128,7 +128,6 @@ class SubscriptionController extends Controller
                 }
             }
         }
-
 
         return null;
     }
