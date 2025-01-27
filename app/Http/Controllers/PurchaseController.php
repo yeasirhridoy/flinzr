@@ -15,6 +15,7 @@ use App\Models\Gift;
 use App\Models\Purchase;
 use App\Models\SpecialRequest;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -114,6 +115,7 @@ class PurchaseController extends Controller
                         $product_plan_identifier = $data['product_plan_identifier'];
                         $expires_date = $data['expires_date'];
                         $purchase_date = $data['purchase_date'];
+                        $purchase_date = Carbon::parse($purchase_date);
                         $unsubscribe_detected_at = $data['unsubscribe_detected_at'];
 
                         if ($expires_date > now()) {
@@ -197,7 +199,7 @@ class PurchaseController extends Controller
     {
 
         if ($subscriptionValid) {
-            $paidFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $purchase_date);
+            $paidFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $purchase_date,  $currentMonthStartDate, $currentMonthEndDate);
             if ($paidFiltersPurchaseCount < 9) {
                 $this->createPurchase($user, $filter->id, $artist, 0);
                 $user->filters()->syncWithoutDetaching($filter->id);
