@@ -346,6 +346,7 @@ class PurchaseController extends Controller
                         $product_plan_identifier = $data['product_plan_identifier'];
                         $expires_date = $data['expires_date'];
                         $purchase_date = $data['purchase_date'];
+                        $purchase_date = Carbon::parse($purchase_date);
                         $unsubscribe_detected_at = $data['unsubscribe_detected_at'];
 
                         if ($expires_date > now()) {
