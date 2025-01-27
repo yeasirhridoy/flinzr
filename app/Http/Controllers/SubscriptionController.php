@@ -54,7 +54,7 @@ class SubscriptionController extends Controller
                     $this->updateSubscription($subscription, $expires_date, $data);
 
                     if ($expires_date > now()) {
-                        if ($product_plan_identifier == "monthly" || $product_plan_identifier == "yearly") {
+                        if ($product_plan_identifier == "yearly") {
                             auth('sanctum')->user()->increment('coin', 10);
                             // cache()->put($cacheKey, true, now()->addDay());
                             cache()->put($cacheKey, true, now()->addMinutes(5));
