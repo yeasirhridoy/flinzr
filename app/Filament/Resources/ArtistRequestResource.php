@@ -102,6 +102,19 @@ class ArtistRequestResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('user.name')
+                    ->label('User'),
+                TextEntry::make('url')->url(fn($record) => $record->url,true),
+                IconEntry::make('platform')
+                    ->label('Platform'),
+                TextEntry::make('status')
+            ])->columns(4);
+    }
+
     public static function getRelations(): array
     {
         return [
