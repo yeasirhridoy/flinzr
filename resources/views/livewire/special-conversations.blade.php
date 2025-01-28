@@ -18,7 +18,7 @@
                     </div>
                 @endif
                 @if($conversation->attachments)
-                    <div style="max-width: 300px">
+                    <div style="max-width: 150px">
                         @foreach($conversation->attachments as $attachment)
                             <a href="{{ Storage::url($attachment) }}" target="_blank"
                                style="font-size: 14px; margin: 0 8px 8px; background-color: {{ $conversation->sender === 'user' ? '#e2c4ff' : '#a855f7' }}; color: {{ $conversation->sender === 'user' ? '#000000' : '#FFFFFF' }}; border-radius: 0.5rem; display: inline-block;">
