@@ -206,6 +206,7 @@ class PurchaseController extends Controller
                 $this->handleReferralBonus($user);
                 $artist->balance = $artist->balance + $earning;
                 $artist->save();
+                $this->updateArtistDetails($artist);
                 DB::commit();
                 return response()->json(['message' => 'Paid Filter purchased successfully']);
             }
@@ -221,6 +222,7 @@ class PurchaseController extends Controller
         $this->handleReferralBonus($user);
         $artist->balance = $artist->balance + $earning;
         $artist->save();
+        $this->updateArtistDetails($artist);
         DB::commit();
 
         return response()->json(['message' => 'Paid Filter purchased successfully']);
