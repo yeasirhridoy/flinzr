@@ -109,9 +109,10 @@ class ArtistRequestResource extends Resource
                 TextEntry::make('user.name')
                     ->label('User'),
                 TextEntry::make('url')->url(fn($record) => $record->url,true),
-                IconEntry::make('platform')
+                TextEntry::make('platform')
+                    ->badge()
                     ->label('Platform'),
-                TextEntry::make('status')
+                TextEntry::make('status')->badge()
             ])->columns(4);
     }
 
