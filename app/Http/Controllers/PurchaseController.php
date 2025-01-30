@@ -446,10 +446,20 @@ class PurchaseController extends Controller
 
                             $giftFilter = Gift::where('sender_id', $user->id)->where('created_at', '>', $purchase_date)->count();
                             $coinDailyReward = null;
+
                             return response()->json([
-                                'plus_filter' => $paidFilter,
-                                'paid_filter' => $subscriptionFilter,
-                                'gift_filter' => $giftFilter,
+                                'plus_filter' => [
+                                    'used' => $paidFilter,
+                                    'limit' => 9,
+                                ],
+                                'paid_filter' => [
+                                    'used' => $subscriptionFilter,
+                                    'limit' => 9,
+                                ],
+                                'gift_filter' => [
+                                    'used' => $giftFilter,
+                                    'limit' => 9,
+                                ],
                                 'coin_daily_reward' => $coinDailyReward
                             ]);
                         }
@@ -458,10 +468,19 @@ class PurchaseController extends Controller
             }
         }
         return response()->json([
-            'plus_filter' => null,
-            'paid_filter' => null,
-            'gift_filter' => null,
-            'coin_daily_reward' => null
+            'plus_filter' => [
+                'used' => 0,
+                'limit' => 0,
+            ],
+            'paid_filter' => [
+                'used' => 0,
+                'limit' => 0,
+            ],
+            'gift_filter' => [
+                'used' => 0,
+                'limit' => 0,
+            ],
+            'coin_daily_reward' => 0
         ]);
     }
 
