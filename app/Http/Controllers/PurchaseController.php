@@ -433,7 +433,7 @@ class PurchaseController extends Controller
                     if ($expires_date > now()) {
 
                         if ($product_plan_identifier == "monthly" || $product_plan_identifier == "yearly") {
-                            $plusFilter = Purchase::where('user_id', $user->id)
+                            $paidFilter = Purchase::where('user_id', $user->id)
                                 ->where('created_at', '>', $purchase_date)
                                 ->whereHas('filter.collection', function ($query) {
                                     $query->where('sales_type', 'paid');
@@ -447,8 +447,8 @@ class PurchaseController extends Controller
                             $giftFilter = Gift::where('sender_id', $user->id)->where('created_at', '>', $purchase_date)->count();
                             $coinDailyReward = null;
                             return response()->json([
-                                'plus_filter' => $plusFilter,
-                                'subscription_filter' => $subscriptionFilter,
+                                'plus_filter' => $paidFilter,
+                                'paid_filter' => $subscriptionFilter,
                                 'gift_filter' => $giftFilter,
                                 'coin_daily_reward' => $coinDailyReward
                             ]);
@@ -459,7 +459,7 @@ class PurchaseController extends Controller
         }
         return response()->json([
             'plus_filter' => null,
-            'subscription_filter' => null,
+            'paid_filter' => null,
             'gift_filter' => null,
             'coin_daily_reward' => null
         ]);
