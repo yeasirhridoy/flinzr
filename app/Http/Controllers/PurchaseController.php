@@ -449,15 +449,15 @@ class PurchaseController extends Controller
 
                             return response()->json([
                                 'plus_filter' => [
-                                    'used' => $paidFilter,
+                                    'used' => min($paidFilter, 9),
                                     'limit' => 9,
                                 ],
                                 'paid_filter' => [
-                                    'used' => $subscriptionFilter,
+                                    'used' => min($subscriptionFilter, 9),
                                     'limit' => 9,
                                 ],
                                 'gift_filter' => [
-                                    'used' => $giftFilter,
+                                    'used' => min($giftFilter, 9),
                                     'limit' => 9,
                                 ],
                                 'coin_daily_reward' => $coinDailyReward
