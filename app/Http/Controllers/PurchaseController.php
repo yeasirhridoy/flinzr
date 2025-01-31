@@ -491,6 +491,10 @@ class PurchaseController extends Controller
         $favourites = Favorite::where('user_id', auth()->id())->count();
         $specialRequestCount = SpecialRequest::where('user_id', auth()->id())->whereNotNull('url')->count();
 
+        if ($purchaseCount > 9) {
+            $purchaseCount = 9;
+        }
+
 
         return response()->json([
             'purchase_count' => $purchaseCount,
