@@ -116,7 +116,6 @@ class PurchaseController extends Controller
                         $expires_date = $data['expires_date'];
                         $purchase_date = $data['purchase_date'];
                         $purchase_date = Carbon::parse($purchase_date);
-                        $unsubscribe_detected_at = $data['unsubscribe_detected_at'];
 
                         if ($expires_date > now()) {
 
@@ -144,7 +143,7 @@ class PurchaseController extends Controller
             if ($filterType === SalesType::Paid) {
                 return $this->handlePaidFilter($user, $filter, $filterPrice, $artist, $earning, $subscriptionValid, $purchase_date, $currentMonthStartDate, $currentMonthEndDate);
             }
-            return response()->json(['message' => 'Filter purchase successful'], 200);
+            return response()->json(['message' => 'Filter purchase successful']);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -152,7 +151,7 @@ class PurchaseController extends Controller
         }
     }
 
-    private function handleFreeFilter($user, $filter, $artist)
+    private function handleFreeFilter($user, $filter, $artist): JsonResponse
     {
         $this->createPurchase($user, $filter->id, $artist, 0);
         $user->filters()->syncWithoutDetaching($filter->id);
@@ -427,7 +426,6 @@ class PurchaseController extends Controller
                     $product_plan_identifier = $data['product_plan_identifier'];
                     $expires_date = $data['expires_date'];
                     $purchase_date = $data['purchase_date'];
-                    $unsubscribe_detected_at = $data['unsubscribe_detected_at'];
 
 
                     if ($expires_date > now()) {
@@ -448,11 +446,11 @@ class PurchaseController extends Controller
                             $coinDailyReward = null;
 
                             return response()->json([
-                                'plus_filter' => [
+                                'paid_filter' => [
                                     'used' => min($paidFilter, 9),
                                     'limit' => 9,
                                 ],
-                                'paid_filter' => [
+                                'plus_filter' => [
                                     'used' => min($subscriptionFilter, 9),
                                     'limit' => 9,
                                 ],
