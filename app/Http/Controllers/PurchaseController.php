@@ -153,7 +153,7 @@ class PurchaseController extends Controller
 
     private function handleFreeFilter($user, $filter, $artist): JsonResponse
     {
-        $this->createPurchase($user, $filter->id, $artist, 0);
+        $this->createPurchase($user, $filter->id, $artist, 0, 'coin');
         $user->filters()->syncWithoutDetaching($filter->id);
         $this->handleReferralBonus($user);
         DB::commit();
@@ -166,7 +166,7 @@ class PurchaseController extends Controller
         if ($subscriptionValid) {
             $subscriptionFiltersPurchaseCount = $this->getSubscriptionFiltersPurchaseCount($user, $purchase_date, $currentMonthStartDate, $currentMonthEndDate);
             if ($subscriptionFiltersPurchaseCount < 9) {
-                $this->createPurchase($user, $filter->id, $artist, 0);
+                $this->createPurchase($user, $filter->id, $artist, 0, 'subscription');
                 $user->filters()->syncWithoutDetaching($filter->id);
                 $this->handleReferralBonus($user);
                 $artist->balance = $artist->balance + $earning;
@@ -183,7 +183,7 @@ class PurchaseController extends Controller
         }
 
         $user->decrement('coin', $filterPrice);
-        $this->createPurchase($user, $filter->id, $artist, $filterPrice);
+        $this->createPurchase($user, $filter->id, $artist, $filterPrice, 'coin');
         $user->filters()->syncWithoutDetaching($filter->id);
         $this->handleReferralBonus($user);
         $artist->balance = $artist->balance + $earning;
@@ -200,7 +200,7 @@ class PurchaseController extends Controller
         if ($subscriptionValid) {
             $paidFiltersPurchaseCount = $this->getPaidFiltersPurchaseCount($user, $purchase_date,  $currentMonthStartDate, $currentMonthEndDate);
             if ($paidFiltersPurchaseCount < 9) {
-                $this->createPurchase($user, $filter->id, $artist, 0);
+                $this->createPurchase($user, $filter->id, $artist, 0, 'subscription');
                 $user->filters()->syncWithoutDetaching($filter->id);
                 $this->handleReferralBonus($user);
                 $artist->balance = $artist->balance + $earning;
@@ -216,7 +216,7 @@ class PurchaseController extends Controller
         }
 
         $user->decrement('coin', $filterPrice);
-        $this->createPurchase($user, $filter->id, $artist, $filterPrice);
+        $this->createPurchase($user, $filter->id, $artist, $filterPrice, 'coin');
         $user->filters()->syncWithoutDetaching($filter->id);
         $this->handleReferralBonus($user);
         $artist->balance = $artist->balance + $earning;
@@ -232,6 +232,7 @@ class PurchaseController extends Controller
         if (!is_null($currentMonthStartDate) && !is_null($currentMonthEndDate)) {
 
             return Purchase::where('user_id', $user->id)
+                ->where('type','subscription')
                 ->whereBetween('created_at', [$currentMonthStartDate, $currentMonthEndDate])
                 ->whereHas('filter.collection', function ($query) {
                     $query->where('sales_type', 'paid');
@@ -239,6 +240,7 @@ class PurchaseController extends Controller
         } else {
             return Purchase::where('user_id', $user->id)
                 ->where('created_at', '>', $createdAt)
+                ->where('type','subscription')
                 ->whereHas('filter.collection', function ($query) {
                     $query->where('sales_type', 'paid');
                 })->count();
@@ -249,12 +251,14 @@ class PurchaseController extends Controller
     {
         if (!is_null($currentMonthStartDate) && !is_null($currentMonthEndDate)) {
             return Purchase::where('user_id', $user->id)
+                ->where('type','subscription')
                 ->whereBetween('created_at', [$currentMonthStartDate, $currentMonthEndDate])
                 ->whereHas('filter.collection', function ($query) {
                     $query->where('sales_type', 'subscription');
                 })->count();
         } else {
             return Purchase::where('user_id', $user->id)
+                ->where('type','subscription')
                 ->where('created_at', '>', $createdAt)
                 ->whereHas('filter.collection', function ($query) {
                     $query->where('sales_type', 'subscription');
@@ -262,7 +266,7 @@ class PurchaseController extends Controller
         }
     }
 
-    private function createPurchase($user, int $filterId, $artist, int $price): void
+    private function createPurchase($user, int $filterId, $artist, int $price, string $type = 'coin'): void
     {
         $commissionLevel = $artist->level;
         $percentage = $commissionLevel->getCommission();
@@ -274,6 +278,7 @@ class PurchaseController extends Controller
             'artist_id' => $artist->id,
             'earning' => $earning,
             'amount' => $price / 25,
+            'type' => $type,
         ]);
 
         // Update collection timestamp
@@ -352,9 +357,11 @@ class PurchaseController extends Controller
 
                         if ($expires_date > now()) {
                             if ($product_plan_identifier == "monthly") {
-                                $giftFilterCount = Gift::where('sender_id', auth()->id())->where('created_at', '>', $purchase_date)->count();
+                                $giftFilterCount = Gift::where('sender_id', auth()->id())
+                                    ->where('type', 'subscription')
+                                    ->where('created_at', '>', $purchase_date)->count();
                                 if ($giftFilterCount < 9) {
-                                    return $this->createGift($user, $sender, $filter, $artist, $earning, $filterPrice);
+                                    return $this->createGift($user, $sender, $filter, $artist, $earning, $filterPrice, 'subscription');
                                 }
                             }
 
@@ -366,10 +373,11 @@ class PurchaseController extends Controller
                                 $currentMonthEndDate = $purchase_date->clone()->addMonths($monthNumber);
 
                                 $giftFilterCount = Gift::where('sender_id', auth()->id())
+                                    ->where('type', 'subscription')
                                     ->whereBetween('created_at', [$currentMonthStartDate, $currentMonthEndDate])
                                     ->count();
                                 if ($giftFilterCount < 9) {
-                                    return $this->createGift($user, $sender, $filter, $artist, $earning, $filterPrice);
+                                    return $this->createGift($user, $sender, $filter, $artist, $earning, $filterPrice, 'subscription');
                                 }
                             }
                         }
@@ -382,12 +390,12 @@ class PurchaseController extends Controller
             return response()->json(['message' => 'Insufficient coin balance'], 400);
         }
         $sender->decrement('coin', $filterPrice);
-        return $this->createGift($user, $sender, $filter, $artist, $earning, $filterPrice);
+        return $this->createGift($user, $sender, $filter, $artist, $earning, $filterPrice, 'coin');
 
     }
 
 
-    private function createGift($user, $sender, $filter, $artist, $earning, $filterPrice): JsonResponse
+    private function createGift($user, $sender, $filter, $artist, $earning, $filterPrice, $type = 'coin'): JsonResponse
     {
         DB::beginTransaction();
 
@@ -399,6 +407,7 @@ class PurchaseController extends Controller
                 'artist_id' => $artist->id,
                 'earning' => $earning,
                 'amount' => $filterPrice / 25,
+                'type' => $type,
             ]);
 
             $user->filters()->syncWithoutDetaching($filter->id);
@@ -412,7 +421,7 @@ class PurchaseController extends Controller
     }
 
 
-    public function monthlyUsedCounter()
+    public function monthlyUsedCounter(): JsonResponse
     {
         $user = auth()->user();
         $subscription = auth('sanctum')->user()->subscription;
@@ -432,17 +441,23 @@ class PurchaseController extends Controller
 
                         if ($product_plan_identifier == "monthly" || $product_plan_identifier == "yearly") {
                             $paidFilter = Purchase::where('user_id', $user->id)
+                                ->where('type', 'subscription')
                                 ->where('created_at', '>', $purchase_date)
                                 ->whereHas('filter.collection', function ($query) {
                                     $query->where('sales_type', 'paid');
                                 })->count();
 
-                            $subscriptionFilter = Purchase::where('user_id', $user->id)->where('created_at', '>', $purchase_date)
+                            $subscriptionFilter = Purchase::where('user_id', $user->id)
+                                ->where('type', 'subscription')
+                                ->where('created_at', '>', $purchase_date)
                                 ->whereHas('filter.collection', function ($query) {
                                     $query->where('sales_type', 'subscription');
                                 })->count();
 
-                            $giftFilter = Gift::where('sender_id', $user->id)->where('created_at', '>', $purchase_date)->count();
+                            $giftFilter = Gift::where('sender_id', $user->id)
+                                ->where('type', 'subscription')
+                                ->where('created_at', '>', $purchase_date)
+                                ->count();
                             $coinDailyReward = null;
 
                             return response()->json([
