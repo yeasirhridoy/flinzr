@@ -178,10 +178,10 @@ class AuthController extends Controller
     public function user(Request $request): JsonResponse
     {
         $user = $request->user();
-        $subscription = $user->subscription;
         $cacheKey = 'daily-coin-claim-' . auth('sanctum')->id() . '-' . now()->format('Y-m-d');
         $user->received_coin = false;
-        if ($subscription && ($subscription->ends_at >= now() || $subscription->ends_at == null) && !cache()->has($cacheKey)) {
+        $subscription = SubscriptionController::checkSubscription();
+        if ($subscription == 'yearly' && !cache()->has($cacheKey)) {
             auth('sanctum')->user()->increment('coin', 1);
             cache()->put($cacheKey, true, now()->addDay());
             $user->received_coin = true;
