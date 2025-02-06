@@ -89,7 +89,7 @@ class UserResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\IconColumn::make('subscription_exists')->exists([
-                    'subscription' => fn(Builder $query) => $query->where('is_active', true),
+                    'subscription' => fn(Builder $query) => $query->where('ends_at', '>', now()),
                 ])->label('Subscribed')->alignCenter(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
