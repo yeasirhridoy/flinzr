@@ -21,9 +21,30 @@ use App\Models\Conversation;
 use App\Models\Country;
 use App\Models\SpecialRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+
+Route::get('/get-subscription/{id}',function ($id){
+    $baseUrl = config('app.revenuecat_url');
+    $url = $baseUrl . "/subscribers/" . $id;
+    $apiKey = config('app.revenuecat_api_key');
+
+    try {
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $apiKey,
+        ])->get($url);
+
+        if ($response->successful()) {
+            return ['success' => true, 'data' => $response->json()];
+        }
+
+        return ['success' => false, 'error' => $response->body()];
+    } catch (\Exception $e) {
+        return ['success' => false, 'error' => $e->getMessage()];
+    }
+});
 
 Route::middleware(ResponseMiddleware::class)->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->name('api.register');
