@@ -89,9 +89,9 @@ class UserResource extends Resource
                     ->wrap()
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\IconColumn::make('subscription_exists')->getStateUsing(function (User $record){
+                Tables\Columns\IconColumn::make('subscribed')->getStateUsing(function (User $record){
                     return SubscriptionController::checkSubscriptionValidity($record->username);
-                })->label('Subscribed')->alignCenter(),
+                })->alignCenter(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

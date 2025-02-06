@@ -140,7 +140,7 @@ class SubscriptionController extends Controller
             $response = SubscriptionController::fetchSubscriptionStatus($username);
             if (isset($response['success']) && $response['success']) {
                 $product_identifier = $response['data']['subscriber']['entitlements']['flinzr_plus']['product_identifier'];
-                $data = $response['data']['subscriber']['subscriptions'][$product_identifier];
+                $data = $response['data']['subscriber']['subscriptions'][$product_identifier] ?? null;
                 if ($data) {
                     return $data['expires_date'];
                 }
