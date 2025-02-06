@@ -21,7 +21,7 @@ class SubscriptionController extends Controller
 
         $data = $request->all();
         $endDate = SubscriptionController::checkSubscriptionValidity(auth()->user()->username);
-        if ($endDate){
+        if ($endDate) {
             $data['ends_at'] = Carbon::parse($endDate);
         }
 
@@ -105,9 +105,9 @@ class SubscriptionController extends Controller
         } else {
             $status = false;
         }
-            $subscription->is_active = $status;
-            $subscription->ends_at = $expires_date;
-            $subscription->save();
+        $subscription->is_active = $status;
+        $subscription->ends_at = $expires_date;
+        $subscription->save();
     }
 
 
@@ -126,7 +126,7 @@ class SubscriptionController extends Controller
                     $expires_date = $data['expires_date'];
 
                     if (Carbon::parse($expires_date)->greaterThan(now())) {
-                       return $product_plan_identifier;
+                        return $product_plan_identifier;
                     }
                 }
             }
@@ -137,18 +137,24 @@ class SubscriptionController extends Controller
 
     public static function checkSubscriptionValidity($username)
     {
-            $cacheKey = 'subscription-validity-' . $username;
-            return cache()->remember($cacheKey, now()->addMinutes(5), function () use ($username) {
-                $response = SubscriptionController::fetchSubscriptionStatus($username);
-                if (isset($response['success']) && $response['success']) {
-                    $product_identifier = $response['data']['subscriber']['entitlements']['flinzr_plus']['product_identifier'];
+        $cacheKey = 'subscription-validity-' . $username;
+        return cache()->remember($cacheKey, now()->addMinutes(5), function () use ($username) {
+            $response = SubscriptionController::fetchSubscriptionStatus($username);
+            if (isset($response['success']) && $response['success']) {
+                $product_identifier = $response['data']['subscriber']['entitlements']['flinzr_plus']['product_identifier'] ?? null;
+                if ($product_identifier) {
                     $data = $response['data']['subscriber']['subscriptions'][$product_identifier] ?? null;
                     if ($data) {
                         return $data['expires_date'];
+                    } else {
+                        return null;
                     }
+                } else {
+                    return null;
                 }
-                return null;
-            });
+            }
+            return null;
+        });
     }
 
 
