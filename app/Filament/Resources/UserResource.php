@@ -8,6 +8,7 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Http\Controllers\SubscriptionController;
 use App\Models\User;
+use Carbon\Carbon;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -89,9 +90,12 @@ class UserResource extends Resource
                     ->wrap()
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\IconColumn::make('subscribed')->getStateUsing(function (User $record){
-                    return SubscriptionController::checkSubscriptionValidity($record->username);
-                })->alignCenter(),
+                Tables\Columns\IconColumn::make('subscribed')
+                    ->boolean()
+                    ->getStateUsing(function (User $record) {
+                        $date = SubscriptionController::checkSubscriptionValidity($record->username);
+                        return $date && Carbon::parse($date)->isFuture();
+                    })->alignCenter(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
