@@ -19,11 +19,17 @@ class SubscriptionController extends Controller
         ];
         $request->validate($rules);
 
+        $data = $request->all();
+        $endDate = SubscriptionController::checkSubscriptionValidity(auth()->user()->username);
+        if ($endDate){
+            $data['ends_at'] = Carbon::parse($endDate);
+        }
+
         $subscription = auth('sanctum')->user()->subscription;
         if ($subscription) {
-            $subscription->update($request->all());
+            $subscription->update($data);
         } else {
-            auth('sanctum')->user()->subscription()->create($request->all());
+            auth('sanctum')->user()->subscription()->create($data);
         }
 
         return response()->json(['message' => 'Subscription updated successfully']);
@@ -127,6 +133,19 @@ class SubscriptionController extends Controller
         }
 
         return null;
+    }
+
+    public static function checkSubscriptionValidity($username)
+    {
+            $response = SubscriptionController::fetchSubscriptionStatus($username);
+            if (isset($response['success']) && $response['success']) {
+                $product_identifier = $response['data']['subscriber']['entitlements']['flinzr_plus']['product_identifier'];
+                $data = $response['data']['subscriber']['subscriptions'][$product_identifier];
+                if ($data) {
+                    return $data['expires_date'];
+                }
+            }
+            return null;
     }
 
 
