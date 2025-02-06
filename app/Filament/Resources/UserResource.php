@@ -6,6 +6,7 @@ use App\Enums\UserStatus;
 use App\Enums\UserType;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
+use App\Http\Controllers\SubscriptionController;
 use App\Models\User;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Forms;
@@ -88,9 +89,9 @@ class UserResource extends Resource
                     ->wrap()
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\IconColumn::make('subscription_exists')->exists([
-                    'subscription' => fn(Builder $query) => $query->where('ends_at', '>', now()),
-                ])->label('Subscribed')->alignCenter(),
+                Tables\Columns\IconColumn::make('subscription_exists')->getStateUsing(function (User $record){
+                    return SubscriptionController::checkSubscriptionValidity($record->username);
+                })->label('Subscribed')->alignCenter(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
