@@ -137,15 +137,18 @@ class SubscriptionController extends Controller
 
     public static function checkSubscriptionValidity($username)
     {
-            $response = SubscriptionController::fetchSubscriptionStatus($username);
-            if (isset($response['success']) && $response['success']) {
-                $product_identifier = $response['data']['subscriber']['entitlements']['flinzr_plus']['product_identifier'];
-                $data = $response['data']['subscriber']['subscriptions'][$product_identifier] ?? null;
-                if ($data) {
-                    return $data['expires_date'];
+            $cacheKey = 'subscription-validity-' . $username;
+            return cache()->remember($cacheKey, now()->addMinutes(5), function () use ($username) {
+                $response = SubscriptionController::fetchSubscriptionStatus($username);
+                if (isset($response['success']) && $response['success']) {
+                    $product_identifier = $response['data']['subscriber']['entitlements']['flinzr_plus']['product_identifier'];
+                    $data = $response['data']['subscriber']['subscriptions'][$product_identifier] ?? null;
+                    if ($data) {
+                        return $data['expires_date'];
+                    }
                 }
-            }
-            return null;
+                return null;
+            });
     }
 
 
